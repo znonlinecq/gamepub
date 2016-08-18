@@ -69,4 +69,18 @@ class AuthController extends Controller
             'password' => bcrypt($data['password']),
         ]);
     }
+
+    /**
+     * 处理认证
+     *
+     * @return Response
+     */
+    public function authenticate()
+    {
+        // 尝试登录
+        if (Auth::attempt(['email' => $email, 'password' => $password],true)) {
+            // 认证通过...
+            return redirect()->intended('dashboard');
+        }
+    }
 }
