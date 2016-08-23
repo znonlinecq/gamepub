@@ -6,22 +6,35 @@
   <title>AdminLTE 2 | Starter</title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+<meta name="csrf-token" content="{{ csrf_token() }}">
   <!-- Bootstrap 3.3.6 -->
-  <link rel="stylesheet" href="resources/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{{ asset('resources/bootstrap/css/bootstrap.min.css') }}">
   <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css"> 
+<!--  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css"> -->
   <!-- Ionicons -->
-  <link rel="stylesheet" href="resources/css/ionicons.min.css">
+  <link rel="stylesheet" href="{{ asset('resources/css/ionicons.min.css') }}">
   <!-- Theme style -->
-  <link rel="stylesheet" href="resources/dist/css/AdminLTE.min.css">
-  <link rel="stylesheet" href="resources/dist/css/skins/skin-blue.min.css">
-    {{ isset($css) ? $css['css'] : '' }}
-  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <link rel="stylesheet" href="{{ asset('resources/dist/css/AdminLTE.min.css') }}">
+  <link rel="stylesheet" href="{{ asset('resources/dist/css/skins/skin-blue.min.css') }}">
+  <link rel="stylesheet" href="{{ asset('resources/plugins/datatables/dataTables.bootstrap.css') }}">
+  <link rel="stylesheet" href="{{ asset('resources/plugins/jQueryUI/jquery-ui.css') }}">
+  <link rel="stylesheet" href="{{ asset('resources/plugins/jQueryUI/jquery-ui.theme.css') }}">
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
   <!--[if lt IE 9]>
   <script src="resources/js/html5shiv.min.js"></script>
   <script src="resources/js/respond.min.js"></script>
   <![endif]-->
+<!-- jQuery 2.2.3 -->
+<script src="{{ asset('resources/plugins/jQuery/jquery-2.2.3.min.js') }}"></script>
+<script src="{{ asset('resources/plugins/jQueryUI/jquery-ui.js') }}"></script>
+<script src="{{ asset('resources/plugins/jQueryCookie/jquery.cookie.js') }}"></script>
+<!-- Bootstrap 3.3.6 -->
+<script src="{{ asset('resources/bootstrap/js/bootstrap.min.js') }}"></script>
+<!-- AdminLTE App -->
+<script src="{{ asset('resources/dist/js/app.min.js') }}"></script>
+
+
 </head>
 <!--
 BODY TAG OPTIONS:
@@ -58,7 +71,7 @@ desired effect
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>
-        {{ $page_title or "Page Title" }}
+        {{ $title or "Page Title" }}
         <small>{{ $page_description or null }}</small>
       </h1>
         <!-- You can dynamically generate breadcrumbs here -->
@@ -160,18 +173,5 @@ desired effect
 </div>
 <!-- ./wrapper -->
 
-<!-- REQUIRED JS SCRIPTS -->
-
-<!-- jQuery 2.2.3 -->
-<script src="resources/plugins/jQuery/jquery-2.2.3.min.js"></script>
-<!-- Bootstrap 3.3.6 -->
-<script src="resources/bootstrap/js/bootstrap.min.js"></script>
-<!-- AdminLTE App -->
-<script src="resources/dist/js/app.min.js"></script>
-
-<!-- Optionally, you can add Slimscroll and FastClick plugins.
-     Both of these plugins are recommended to enhance the
-     user experience. Slimscroll is required when using the
-     fixed layout. -->
 </body>
 </html>
