@@ -41,6 +41,9 @@ class IndexController extends Controller
                 ]
             ];
             return view('dashboard')->with($data);
+         //   $breadcrumbs = $this->breadcrumbs;
+         //   View::share('dashboard',$breadcumbs);
+         //   return view('dashboard', ["breadcrumbs"=>$breadcrumbs]);
         }
         else
         {

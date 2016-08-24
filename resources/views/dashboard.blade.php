@@ -76,8 +76,11 @@ desired effect
       </h1>
         <!-- You can dynamically generate breadcrumbs here -->
         <ol class="breadcrumb">
-            <li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>
-            <li class="active">Here</li>
+            @if(!empty($breadcrumbs))
+                @foreach($breadcrumbs as $key => $value)
+                    <li><a href="{{url($key)}}">{{$value}}</a></li>
+                @endforeach
+            @endif
         </ol>
     </section>
 

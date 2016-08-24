@@ -12,7 +12,25 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, AuthorizesResources, DispatchesJobs, ValidatesRequests;
 
+    public $breadcrumbs;
+
     function __construct()
     {
+        $this->breadcrumbs = array(
+            '/' => 'Dashboard',
+        );
+    }
+
+    function set_breadcrumbs($data)
+    {
+        foreach($data AS $key => $value)
+        {
+            $this->breadcrumbs[$key] = $value;
+        }
+    }
+    
+    function get_breadcrumbs()
+    {
+        return $this->breadcrumbs;
     }
 }
