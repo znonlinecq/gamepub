@@ -34,28 +34,47 @@
     <form action="{{ url('/auth/register') }}" method="post">
 {!! csrf_field() !!}
       <div class="form-group has-feedback">
-        <input type="text" name="name" class="form-control" placeholder="Full name">
+        <input type="text" name="name" class="form-control" value="{{old('name')}}" placeholder="Full name">
         <span class="glyphicon glyphicon-user form-control-feedback"></span>
+        @if ($errors->has('name'))
+            <strong>{{ $errors->first('name') }}</strong>
+        @endif
+ 
       </div>
       <div class="form-group has-feedback">
-        <input type="email" name="email" class="form-control" placeholder="Email">
+        <input type="email" name="email" class="form-control" value="{{old('email')}}" placeholder="Email">
         <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+         @if ($errors->has('email'))
+            <strong>{{ $errors->first('email') }}</strong>
+        @endif
+
       </div>
       <div class="form-group has-feedback">
         <input type="password" name="password" class="form-control" placeholder="Password">
         <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+        @if ($errors->has('password'))
+            <strong>{{ $errors->first('password') }}</strong>
+        @endif
       </div>
       <div class="form-group has-feedback">
         <input type="password" name="password_confirmation" class="form-control" placeholder="Retype password">
         <span class="glyphicon glyphicon-log-in form-control-feedback"></span>
-      </div>
+        @if ($errors->has('password_confirmation'))
+            <strong>{{ $errors->first('password_confirmation') }}</strong>
+        @endif
+      
+        </div>
       <div class="row">
         <div class="col-xs-8">
           <div class="checkbox icheck">
             <label>
-              <input type="checkbox"> I agree to the <a href="#">terms</a>
+              <input name="agreement" type="checkbox"> I agree to the <a href="#">terms</a>
             </label>
           </div>
+        @if ($errors->has('agreement'))
+            <strong>{{ $errors->first('agreement') }}</strong>
+        @endif
+ 
         </div>
         <!-- /.col -->
         <div class="col-xs-4">

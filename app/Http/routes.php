@@ -41,9 +41,7 @@ Route::post('password/reset', 'Auth\PasswordController@postReset');
 #Route::auth();
 
 //用户
-Route::get('users', 'UserController@index');
-Route::get('user/{id}/edit', 'UserController@edit');
-Route::post('user/{id}/edit', 'UserController@update');
+Route::resource('users', 'UserController');
 
 //公会
 Route::get('group_founders', 'GroupController@groupFounderList');
@@ -54,12 +52,11 @@ Route::get('groups', 'GroupController@groupList');
 Route::get('applications', 'AppController@appList');
 Route::get('application_blacklist', 'AppController@appBlacklist');
 
-
 //角色
-//Route::get('roles', 'RoleController@roleList');
 Route::resource('roles', 'RoleController');
 
 //权限
-Route::get('permissions', 'PermissionController@permissionList');
-
-
+Route::resource('modules', 'ModuleController');
+Route::get('functions/{cid}', 'FunctionController@index');
+Route::get('functions/create/{cid}', 'FunctionController@create');
+Route::resource('functions', 'FunctionController');

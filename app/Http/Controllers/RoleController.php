@@ -15,7 +15,7 @@ class RoleController extends Controller
     } 
     
     public function create(){
-        return view('role/create', ['title'=>'角色列表']);
+        return view('role/create', ['title'=>'添加角色']);
     } 
 
     public function store(Request $request){

@@ -26,12 +26,24 @@
             <li><a href="{{ url('application_blacklist') }}">应用黑名单</a></li>
           </ul>
         </li>
+        <li class="treeview">
+          <a href="#"><i class="fa fa-link"></i> <span>模块管理</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+            <li><a href="{{ url('modules') }}">模块列表</a></li>
+            <li><a href="{{ url('modules/create') }}">模块添加</a></li>
+          </ul>
+        </li>
+
+
         <li class="treeview" >
-            <a href="#"><i class="fa fa-link"></i> <span>系统管理</span></a>
+            <a href="#"><i class="fa fa-link"></i> <span>系统设置</span></a>
             <ul class="treeview-menu">
                 <li><a href="{{ url('users') }}">用户管理</a></li>
                 <li><a href="{{ url('roles') }}">角色管理</a></li>
-                <li><a href="{{ url('permissions') }}">角色授权</a></li>
             </ul>
         </li>  
     </ul>
