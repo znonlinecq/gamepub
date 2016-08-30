@@ -112,8 +112,14 @@ class ModuleController extends Controller
      * 删除
      */
     public function destroy($id){
-        ModelClass::destroy($id);
-        return redirect($this->moduleRoute)->with('message', '删除成功!');
+        $functions = Functions::where('cid', $id)->get();
+        if(count($functions))
+        {
+            return redirect($this->moduleRoute)->with('message', '删除失败, 模块包含下属功能，无法删除!');
+        }else{
+            ModelClass::destroy($id);
+            return redirect($this->moduleRoute)->with('message', '删除成功!');
+        }
     }
 
 

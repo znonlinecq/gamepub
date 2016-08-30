@@ -55,8 +55,11 @@ Route::get('application_blacklist', 'AppController@appBlacklist');
 //角色
 Route::resource('roles', 'RoleController');
 
-//权限
+//模块
 Route::resource('modules', 'ModuleController');
 Route::get('functions/{cid}', 'FunctionController@index');
 Route::get('functions/create/{cid}', 'FunctionController@create');
 Route::resource('functions', 'FunctionController');
+
+//权限
+Route::resource('permissions', 'PermissionController');

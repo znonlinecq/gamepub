@@ -5,8 +5,12 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 
+use App\Models\Menu;
+
 class ComposerServiceProvider extends ServiceProvider
 {
+
+
     /**
      * Bootstrap the application services.
      *
@@ -18,8 +22,12 @@ class ComposerServiceProvider extends ServiceProvider
             $breadcrumbs = array(
                 '/' => 'Dashboard'
             );
+            $menus = Menu::menuLoad();
+            $view->with('menus', $menus);
             $view->with('breadcrumbs', $breadcrumbs);
         }); 
+        
+ 
     }
 
     /**
