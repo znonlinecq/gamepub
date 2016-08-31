@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Module;
 use App\Models\Functions;
 use Request;
+use Auth;
+use App\Models\Permission;
 
 class Menu extends Model
 {
@@ -15,13 +17,15 @@ class Menu extends Model
         $requestPathArray = explode('/', $requestPath);
         $requestPathFirst = $requestPathArray[0];
         $menus = array(); 
-
+        $user = Auth::user();
+        $rid = $user->rid;
         $modules = Module::where('menu', '1')->orderBy('weight', 'ASC')->get();
         
         if(count($modules))
         {
             foreach($modules as $module)
             {
+                $mid = $module->id;
                 $functions = Functions::where('cid', $module->id)
                     ->where('menu', '1')
                     ->orderBy('weight', 'ASC')
@@ -42,6 +46,8 @@ class Menu extends Model
                 $functionsHandle = array();
                 foreach($functions as $function)
                 {
+                    $fid = $function->id;
+
                     if($function->method == 'index')
                     {
                         $function->path = $modulePath;
@@ -57,10 +63,16 @@ class Menu extends Model
                     else{
                         $function->active = false;
                     }
-                    $functionsHandle[] = $function;
+                    if(Permission::check_exist($rid, $mid, $fid))
+                    {
+                        $functionsHandle[] = $function;
+                    }
                 }
                 $module->functions = $functionsHandle;
-                $menus[] = $module; 
+                if(Permission::check_module($rid, $mid))
+                {
+                    $menus[] = $module; 
+                }
             }
         }else{
             $modules = new \stdClass();

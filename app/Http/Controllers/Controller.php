@@ -33,4 +33,9 @@ class Controller extends BaseController
     {
         return $this->breadcrumbs;
     }
+
+    public function page_empty()
+    {
+        abort(503);
+    }
 }

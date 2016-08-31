@@ -83,14 +83,24 @@ class UserController extends Controller
             'email' => 'required|unique:users,email, '.$id.'|max:255',
             'password' => 'confirmed',
         ]);
-
-        User::where('id', $id)->update([
-            'name'=>$request->name,
-            'rid'=>$request->role,
-            'status'=>$request->status,
-            'email'=>$request->email,
-            'password'=>bcrypt($request->password),
-        ]);
+        if(!empty($request->password))
+        {
+            $update = array(
+                'name'=>$request->name,
+                'rid'=>$request->role,
+                'status'=>$request->status,
+                'email'=>$request->email,
+                'password'=>bcrypt($request->password),
+            ); 
+        }else{
+             $update = array(
+                'name'=>$request->name,
+                'rid'=>$request->role,
+                'status'=>$request->status,
+                'email'=>$request->email,
+            ); 
+        }
+        User::where('id', $id)->update($update);
         return redirect('users/'.$id.'/edit')->with('message', '编辑成功');
     }
 
