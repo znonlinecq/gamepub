@@ -13,11 +13,12 @@ class FunctionController extends Controller
 {
     private $moduleRoute = 'functions';             //路由URL
     private $moduleView = 'permission/function';    //视图路径
-    private $moduleTable = 'functions';
+    private $moduleTable = 'ad_functions';
     private $moduleName = '功能';
     
     public function __construct()
     {
+        parent::__construct();
         View::composer($this->moduleView.'/*', function ($view) {
             $view->with('moduleRoute', $this->moduleRoute);
             $view->with('moduleName', $this->moduleName);

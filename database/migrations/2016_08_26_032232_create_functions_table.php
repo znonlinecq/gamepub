@@ -20,9 +20,9 @@ class CreateFunctionsTable extends Migration
             $table->integer('weight');
             $table->boolean('menu');
             $table->text('description');
+            $table->index('weight');
             $table->integer('created');
             $table->integer('updated');
-            $table->index('weight');
         });
     }
 

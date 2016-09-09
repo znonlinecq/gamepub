@@ -5,6 +5,8 @@ use Illuminate\Database\Migrations\Migration;
 
 class CreateUsersTable extends Migration
 {
+    protected $timestamps = false;
+
     /**
      * Run the migrations.
      *
@@ -20,7 +22,8 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->rememberToken();
-            $table->timestamps();
+            $table->integer('created');
+            $table->integer('updated');
             $table->index('rid');
         });
     }

@@ -5,6 +5,8 @@ use Illuminate\Database\Migrations\Migration;
 
 class CreateModulesTable extends Migration
 {
+    protected $timestamp =false;
+
     /**
      * Run the migrations.
      *
@@ -20,7 +22,8 @@ class CreateModulesTable extends Migration
             $table->integer('menu')->unsigned();
             $table->index('weight');
             $table->text('description');
-            $table->timestamps();
+            $table->integer('created');
+            $table->integer('updated');
         });
     }
 

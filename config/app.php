@@ -108,7 +108,7 @@ return [
     |
     */
 
-    'log' => env('APP_LOG', 'single'),
+    'log' => env('APP_LOG', 'daily'),
 
     'log_level' => env('APP_LOG_LEVEL', 'debug'),
 
@@ -166,6 +166,8 @@ return [
         App\Providers\ComposerServiceProvider::class,
         
         Collective\Html\HtmlServiceProvider::class,
+Arcanedev\LogViewer\LogViewerServiceProvider::class,
+Rap2hpoutre\LaravelLogViewer\LaravelLogViewerServiceProvider::class,   
     ],
 
     /*

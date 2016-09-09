@@ -18,6 +18,7 @@ class ModuleController extends Controller
     
     public function __construct()
     {
+        parent::__construct();
         View::composer($this->moduleView.'/*', function ($view) {
             $view->with('moduleRoute', $this->moduleRoute);
             $view->with('moduleName', $this->moduleName);

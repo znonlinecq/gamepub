@@ -26,7 +26,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'mysql'),
+    'default' => env('DB_CONNECTION', 'xfgame'),
 
     /*
     |--------------------------------------------------------------------------
@@ -61,10 +61,51 @@ return [
             'password' => env('DB_PASSWORD', ''),
             'charset' => 'utf8',
             'collation' => 'utf8_unicode_ci',
-            'prefix' => '',
+            'prefix' => 'ad_',
             'strict' => false,
             'engine' => null,
         ],
+        
+        'xfgame' => [
+            'driver' => 'mysql',
+            'host' => env('DB_HOST', '172.16.16.119'),
+            'port' => env('DB_PORT', '3306'),
+            'database' => env('DB_DATABASE', 'db_xfplatformcenter'),
+            'username' => env('DB_USERNAME', 'u_gamecenter'),
+            'password' => env('DB_PASSWORD', 'PVAxQjetsU8X2eN0Sw4T'),
+            'charset' => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix' => 'ad_',
+            'strict' => false,
+            'engine' => null,
+        ],
+        'xfgame1' => [
+            'driver' => 'mysql',
+            'host' => env('DB_HOST', '172.16.16.119'),
+            'port' => env('DB_PORT', '3306'),
+            'database' => env('DB_DATABASE', 'db_xfplatformcenter'),
+            'username' => env('DB_USERNAME', 'u_gamecenter'),
+            'password' => env('DB_PASSWORD', 'PVAxQjetsU8X2eN0Sw4T'),
+            'charset' => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix' => 'dt_',
+            'strict' => false,
+            'engine' => null,
+        ],
+        'xfgame2' => [
+            'driver' => 'mysql',
+            'host' => env('DB_HOST', '172.16.16.119'),
+            'port' => env('DB_PORT', '3306'),
+            'database' => env('DB_DATABASE', 'db_xfplatformcenter'),
+            'username' => env('DB_USERNAME', 'u_gamecenter'),
+            'password' => env('DB_PASSWORD', 'PVAxQjetsU8X2eN0Sw4T'),
+            'charset' => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix' => 'game_',
+            'strict' => false,
+            'engine' => null,
+        ],
+
 
         'pgsql' => [
             'driver' => 'pgsql',

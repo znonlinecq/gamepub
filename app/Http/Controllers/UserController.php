@@ -10,7 +10,11 @@ use App\Role;
 
 class UserController extends Controller
 {
-    
+    private $moduleRoute = 'users';             //路由URL
+    private $moduleView = 'user';    //视图路径
+    private $moduleTable = 'users';
+    private $moduleName = '用户';
+       
     public function index()
     {
         $users = User::all();
@@ -49,8 +53,8 @@ class UserController extends Controller
 
     public function store(Request $request){
         $this->validate($request, [
-            'name' => 'required|unique:users|max:255',
-            'email' => 'required|unique:users|max:255',
+            'name' => 'required|unique:'.$this->moduleTable.'|max:255',
+            'email' => 'required|unique:'.$this->moduleTable.'|max:255',
             'password' => 'confirmed',
         ]);
 
@@ -79,8 +83,8 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'name' => 'required|unique:users,name,'.$id.'|max:255',
-            'email' => 'required|unique:users,email, '.$id.'|max:255',
+            'name' => 'required|unique:'.$this->moduleTable.',name,'.$id.'|max:255',
+            'email' => 'required|unique:'.$this->moduleTable.',email, '.$id.'|max:255',
             'password' => 'confirmed',
         ]);
         if(!empty($request->password))

@@ -63,3 +63,29 @@ Route::resource('functions', 'FunctionController');
 
 //权限
 Route::resource('permissions', 'PermissionController');
+
+//会长审核&授权
+Route::get('chairmans/list_not_audit', 'ChairmanController@list_not_audit');
+Route::get('chairmans/audit_form/{id}', 'ChairmanController@audit_form');
+Route::post('chairmans/audit_form_submit', 'ChairmanController@audit_form_submit');
+Route::get('chairmans/list_audit', 'ChairmanController@list_audit');
+Route::get('chairmans/game_authorization_form', 'ChairmanController@game_authorization_form');
+Route::post('chairmans/game_authorization_form_submit', 'ChairmanController@game_authorization_form_submit');
+Route::post('chairmans/list_not_audit_ajax', 'ChairmanController@list_not_audit_ajax');
+
+//开发者
+Route::get('developers', 'DeveloperController@index');
+Route::post('developers/index_ajax', 'DeveloperController@index_ajax');
+Route::get('developers/audit_form/{id}', 'DeveloperController@audit_form');
+Route::post('developers/audit_form_submit', 'DeveloperController@audit_form_submit');
+
+//游戏
+Route::get('games', 'GameController@index');
+Route::post('games/index_ajax', 'GameController@index_ajax');
+Route::get('games/audit_form/{id}', 'GameController@audit_form');
+Route::post('games/audit_form_submit', 'GameController@audit_form_submit');
+
+//日志
+Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
+Route::get('logs/{controller}/{method}', 'LogController@chairman_audit');
+

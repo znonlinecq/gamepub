@@ -20,7 +20,6 @@ class Menu extends Model
         $user = Auth::user();
         $rid = $user->rid;
         $modules = Module::where('menu', '1')->orderBy('weight', 'ASC')->get();
-        
         if(count($modules))
         {
             foreach($modules as $module)
@@ -75,25 +74,26 @@ class Menu extends Model
                 }
             }
         }else{
-            $modules = new \stdClass();
-            $module->name = '模块管理';
-            $mdoule->path = 'modules';
-            $module->active = false;
+            $mods = new \stdClass();
+            $mods->name = '模块管理';
+            $mods->path = 'modules';
+            $mods->active = false;
 
             $functions = array();
             $function = new \stdClass();
             $function->name = '模块列表';
             $function->path = 'modules';
             $function->active = false;
-            $functions[] = $function;
+            $functions[1] = $function;
+            $function = new \stdClass();
             $function->name = '模块添加';
             $function->path = 'modules/create';
             $function->active = false;
-            $functions[] = $function;
+            $functions[2] = $function;
 
-            $module->function = $functions;
+            $mods->functions = $functions;
 
-            $menus[] = $modules;
+            $menus[] = $mods;
         }
         return $menus;
     }

@@ -5,6 +5,8 @@ use Illuminate\Database\Migrations\Migration;
 
 class CreateRolesTable extends Migration
 {
+    protected $timestamps = false;
+
     /**
      * Run the migrations.
      *
@@ -16,7 +18,8 @@ class CreateRolesTable extends Migration
             $table->increments('id');
             $table->string('name', '64');
             $table->string('description');
-            $table->timestamps();
+            $table->integer('created');
+            $table->integer('updated');
         });
     }
 

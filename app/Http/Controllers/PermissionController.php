@@ -14,7 +14,7 @@ class PermissionController extends Controller
 {    
     private $moduleRoute = 'permissions';             //路由URL
     private $moduleView = 'permission/permission';    //视图路径
-    private $moduleTable = 'permissions';
+    private $moduleTable = 'ad_permissions';
     private $moduleName = '权限';
  
     public function create()

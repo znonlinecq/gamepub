@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 
 use App\Models\Menu;
+use Auth;
 
 class ComposerServiceProvider extends ServiceProvider
 {
@@ -18,16 +19,18 @@ class ComposerServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        View::composer('*', function ($view) {
-            $breadcrumbs = array(
-                '/' => 'Dashboard'
-            );
-            $menus = Menu::menuLoad();
-            $view->with('menus', $menus);
-            $view->with('breadcrumbs', $breadcrumbs);
-        }); 
-        
- 
+//        if(Auth::check())
+//        {
+//            View::composer('*', function ($view) {
+//                $breadcrumbs = array(
+//                    '/' => 'Dashboard'
+//                );
+//                $menus = Menu::menuLoad();
+//                $view->with('menus', $menus);
+//                $view->with('breadcrumbs', $breadcrumbs);
+//            });
+//        } 
+// 
     }
 
     /**

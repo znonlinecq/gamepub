@@ -14,9 +14,13 @@ class ComposerStaticInitf4deb8f0e171c2eeb9e18ad41f98ff8b
         '2c102faa651ef8ea5874edb585946bce' => __DIR__ . '/..' . '/swiftmailer/swiftmailer/lib/swift_required.php',
         'e7223560d890eab89cda23685e711e2c' => __DIR__ . '/..' . '/psy/psysh/src/Psy/functions.php',
         '5255c38a0faeba867671b61dfda6d864' => __DIR__ . '/..' . '/paragonie/random_compat/lib/random.php',
+        'e803af0597ea9e5b518c7d090fb85601' => __DIR__ . '/..' . '/arcanedev/support/constants.php',
+        '5323a5cb5bb1bab9b2f24566beed262a' => __DIR__ . '/..' . '/arcanedev/support/helpers.php',
         'f0906e6318348a765ffb6eb24e0d0938' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Foundation/helpers.php',
         '58571171fd5812e6e447dce228f52f4d' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Support/helpers.php',
         'f18cc91337d49233e5754e93f3ed9ec3' => __DIR__ . '/..' . '/laravelcollective/html/src/helpers.php',
+        'd04e9322f14ab3e66b5b68c6d1e15433' => __DIR__ . '/..' . '/arcanedev/log-viewer/constants.php',
+        '24be6d98d7c305f36699ba4e34b6df3c' => __DIR__ . '/..' . '/arcanedev/log-viewer/helpers.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -86,6 +90,8 @@ class ComposerStaticInitf4deb8f0e171c2eeb9e18ad41f98ff8b
         ),
         'A' => 
         array (
+            'Arcanedev\\Support\\' => 18,
+            'Arcanedev\\LogViewer\\' => 20,
             'App\\' => 4,
         ),
     );
@@ -217,6 +223,14 @@ class ComposerStaticInitf4deb8f0e171c2eeb9e18ad41f98ff8b
         array (
             0 => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon',
         ),
+        'Arcanedev\\Support\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/arcanedev/support/src',
+        ),
+        'Arcanedev\\LogViewer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/arcanedev/log-viewer/src',
+        ),
         'App\\' => 
         array (
             0 => __DIR__ . '/../..' . '/app',
@@ -224,6 +238,13 @@ class ComposerStaticInitf4deb8f0e171c2eeb9e18ad41f98ff8b
     );
 
     public static $prefixesPsr0 = array (
+        'R' => 
+        array (
+            'Rap2hpoutre\\LaravelLogViewer\\' => 
+            array (
+                0 => __DIR__ . '/..' . '/rap2hpoutre/laravel-log-viewer/src',
+            ),
+        ),
         'P' => 
         array (
             'Psr\\Log\\' => 
@@ -270,16 +291,21 @@ class ComposerStaticInitf4deb8f0e171c2eeb9e18ad41f98ff8b
     );
 
     public static $classMap = array (
+        'ApkTableSeeder' => __DIR__ . '/../..' . '/database/seeds/ApkTableSeeder.php',
         'CreateFunctionsTable' => __DIR__ . '/../..' . '/database/migrations/2016_08_26_032232_create_functions_table.php',
+        'CreateLogsTable' => __DIR__ . '/../..' . '/database/migrations/2016_09_05_075329_create_logs_table.php',
         'CreateModulesTable' => __DIR__ . '/../..' . '/database/migrations/2016_08_25_074846_create_modules_table.php',
         'CreatePasswordResetsTable' => __DIR__ . '/../..' . '/database/migrations/2014_10_12_100000_create_password_resets_table.php',
         'CreatePermissionTable' => __DIR__ . '/../..' . '/database/migrations/2016_08_30_073725_create_permission_table.php',
         'CreateRolesTable' => __DIR__ . '/../..' . '/database/migrations/2016_08_22_053803_create_roles_table.php',
         'CreateUsersTable' => __DIR__ . '/../..' . '/database/migrations/2014_10_12_000000_create_users_table.php',
         'DatabaseSeeder' => __DIR__ . '/../..' . '/database/seeds/DatabaseSeeder.php',
+        'DeveloperTableSeeder' => __DIR__ . '/../..' . '/database/seeds/DeveloperTableSeeder.php',
         'File_Iterator' => __DIR__ . '/..' . '/phpunit/php-file-iterator/src/Iterator.php',
         'File_Iterator_Facade' => __DIR__ . '/..' . '/phpunit/php-file-iterator/src/Facade.php',
         'File_Iterator_Factory' => __DIR__ . '/..' . '/phpunit/php-file-iterator/src/Factory.php',
+        'GameTableSeeder' => __DIR__ . '/../..' . '/database/seeds/GameTableSeeder.php',
+        'GuildsTableSeeder' => __DIR__ . '/../..' . '/database/seeds/GuildsTableSeeder.php',
         'Hamcrest\\Arrays\\IsArray' => __DIR__ . '/..' . '/hamcrest/hamcrest-php/hamcrest/Hamcrest/Arrays/IsArray.php',
         'Hamcrest\\Arrays\\IsArrayContaining' => __DIR__ . '/..' . '/hamcrest/hamcrest-php/hamcrest/Hamcrest/Arrays/IsArrayContaining.php',
         'Hamcrest\\Arrays\\IsArrayContainingInAnyOrder' => __DIR__ . '/..' . '/hamcrest/hamcrest-php/hamcrest/Hamcrest/Arrays/IsArrayContainingInAnyOrder.php',
@@ -744,6 +770,8 @@ class ComposerStaticInitf4deb8f0e171c2eeb9e18ad41f98ff8b
         'PHP_Token_XOR_EQUAL' => __DIR__ . '/..' . '/phpunit/php-token-stream/src/Token.php',
         'PHP_Token_YIELD' => __DIR__ . '/..' . '/phpunit/php-token-stream/src/Token.php',
         'PHP_Token_YIELD_FROM' => __DIR__ . '/..' . '/phpunit/php-token-stream/src/Token.php',
+        'Rap2hpoutre\\LaravelLogViewer\\BaseController' => __DIR__ . '/..' . '/rap2hpoutre/laravel-log-viewer/src/controllers/LogViewerController.php',
+        'Rap2hpoutre\\LaravelLogViewer\\LogViewerController' => __DIR__ . '/..' . '/rap2hpoutre/laravel-log-viewer/src/controllers/LogViewerController.php',
         'SebastianBergmann\\Comparator\\ArrayComparator' => __DIR__ . '/..' . '/sebastian/comparator/src/ArrayComparator.php',
         'SebastianBergmann\\Comparator\\Comparator' => __DIR__ . '/..' . '/sebastian/comparator/src/Comparator.php',
         'SebastianBergmann\\Comparator\\ComparisonFailure' => __DIR__ . '/..' . '/sebastian/comparator/src/ComparisonFailure.php',

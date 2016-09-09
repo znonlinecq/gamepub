@@ -1,7 +1,5 @@
 @extends('dashboard')
 @section('content')
-<section class="content">
-    <section class="content">
       <div class="row">
         <div class="col-xs-12">
           <div class="box">
@@ -76,11 +74,9 @@
         <!-- /.col -->
       </div>
       <!-- /.row -->
-    </section>
     <!-- /.content -->
   </div>
  
-</section>
 <!-- DataTables -->
 <script src="{{ asset('resources/plugins/datatables/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('resources/plugins/datatables/dataTables.bootstrap.min.js') }}"></script>

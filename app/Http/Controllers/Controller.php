@@ -7,6 +7,9 @@ use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesResources;
+use App\Models\Menu;
+use View;
+use Auth;
 
 class Controller extends BaseController
 {
@@ -14,14 +17,25 @@ class Controller extends BaseController
 
     public $breadcrumbs;
 
-    function __construct()
+    public function __construct()
     {
-        $this->breadcrumbs = array(
-            '/' => 'Dashboard',
-        );
+        if(Auth::check())
+        {
+            View::composer('*', function ($view) {
+                $breadcrumbs = array(
+                    '/' => 'Dashboard'
+                );
+                $view->with('breadcrumbs', $breadcrumbs);
+            });
+            View::composer('layouts/sidebar', function($view){
+                $menus = Menu::menuLoad();
+                $view->with('menus', $menus);
+            });
+        
+        }
     }
 
-    function set_breadcrumbs($data)
+    public function set_breadcrumbs($data)
     {
         foreach($data AS $key => $value)
         {
@@ -29,7 +43,7 @@ class Controller extends BaseController
         }
     }
     
-    function get_breadcrumbs()
+    public function get_breadcrumbs()
     {
         return $this->breadcrumbs;
     }

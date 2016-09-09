@@ -9,13 +9,13 @@
 </div>
 <div class="box-body">
             <!-- form start -->
-            <form method="POST" action="{{ url('audit_form_submit') }}">
+            <form method="POST" action="{{ url($moduleRoute.'/audit_form_submit') }}">
  {!! csrf_field() !!} 
 <table class="table table-bordered">
 <tbody>
     <tr>
         <td width="20%" align="right">ID </td>
-        <td>{{$object->id}}</td>
+        <td>{{$object->Id}}</td>
     </tr>
     <tr>
         <td width="20%" align="right">登录账号</td>
@@ -23,7 +23,7 @@
     </tr>
      <tr>
         <td width="20%" align="right">工会ID</td>
-        <td>{{$object->guildid}}</td>
+        <td>{{$object->UserId}}</td>
     </tr>
     <tr>
         <td width="20%" align="right">推广游戏</td>
@@ -31,7 +31,7 @@
     </tr>
     <tr>
         <td width="20%" align="right">姓名</td>
-        <td>{{$object->name}}</td>
+        <td>{{$object->Name}}</td>
     </tr>
     <tr>
         <td width="20%" align="right">身份证</td>
@@ -45,6 +45,22 @@
         <td width="20%" align="right">注册时间</td>
         <td>{{$object->created}}</td>
     </tr>
+    <tr>
+        <td width="20%" align="right">状态</td>
+        <td>{{$object->status}}</td>
+    </tr>
+     <tr>
+        <td width="20%" align="right">类型</td>
+        <td>
+                  <select class="form-control" name="type" >
+                    <option> - 选择 - </option>
+                    <option value="1" @if($object->GuildType == 1) selected="true" @endif>A</option>
+                    <option value="2" @if($object->GuildType == 2) selected="true" @endif>B</option>
+                  </select>
+
+        </td>
+    </tr>
+    
     <tr>
         <td width="20%" align="right">备注</td>
         <td>
@@ -64,6 +80,7 @@
 </tbody>
 
 </table>
+<input type="hidden" value="{{$object->Id}}" name="gid">
             </form>
 </div>
 </div>
