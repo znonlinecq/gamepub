@@ -14,4 +14,5 @@ class Guild extends Model
 #    {
 #        return $this->hasOne('App\Models\Guild\GuildToGuild');
 #    }
+
 }

@@ -9,6 +9,8 @@ use App\Http\Requests;
 use View;
 use App\Models\Guild\Guild;
 use App\Models\Guild\GuildToGuild;
+use App\Models\Guild\GuildToGame;
+use App\Models\Game;
 use App\User;
 use DB;
 
@@ -29,30 +31,9 @@ class ChairmanController extends Controller
     }
 
 
-    public function list_not_audit()
+    public function index()
     {
-      //  $guilds = Guild::all();
-      //  foreach($guilds as $guild)
-      //  {
-      //      $guild->account = '13511112222';
-      //      $guild->games = '诛仙';
-      //      $guild->namecard = '11010211111111';
-      //      $guild->qq = '72781827';
-      //      $guild->created = date('Y-m-d H:i:s', $guild->CreateDate);
-      //      
-      //      if($guild->AuditStatus == 0)
-      //      {
-      //          $guild->status = '待审核';
-      //      }elseif($guild->AuditStatus == 1)
-      //      {
-      //          $guild->status = '通过';
-      //      }elseif($guild->AuditStatus == 2)
-      //      {
-      //          $guild->status = '驳回';
-      //      }
-      //      $objects[] = $guild;
-      //  }
-        return view($this->moduleView.'/list_not_audit', [ 'title'=>'会长审核']);
+        return view($this->moduleView.'/list_not_audit', [ 'title'=>'会长审核', 'type'=>'index']);
     }
 
     public function audit_form($id)
@@ -97,46 +78,38 @@ class ChairmanController extends Controller
         $updated = time();
 
         DB::update("update dt_guild_list set GuildType={$type}, AuditStatus={$auditStatus}, Summary='{$summary}', UpdateDate={$updated}  where id = {$gid}");
-        DB::update("update dt_guild_toguild set GuildType={$type} where GuildId = {$gid}");
+        if($type == 1)
+        {
+            DB::update("update dt_guild_toguild set GuildType={$type} , Guild_A={$gid}, Guild_B=0  where GuildId = {$gid}");
+        }
+        else
+        {
+            DB::update("update dt_guild_toguild set GuildType={$type} , Guild_A=0, Guild_B={$gid} where GuildId = {$gid}");
+        }
 
         //日志
         $params['module'] = __CLASS__;
         $params['function'] = __FUNCTION__;
         $params['operation'] = $submit;
-        $params['object'] = '刘明';
+        $params['object'] = $gid;
         $params['content'] = $description;
         Log::record($params);
-        return redirect($this->moduleRoute.'/list_not_audit')->with('message', '审核完成!');
+        return redirect($this->moduleRoute)->with('message', '审核完成!');
     }
 
-    public function list_audit()
+    public function index_ajax(Request $request)
     {
-    
-    }
-
-    public function game_authorization_form()
-    {
-    
-    }
-
-    public function game_authorization_form_submit()
-    {
-    
-    }
-
-    public function list_not_audit_ajax(Request $request)
-    {
-        $requests = $request->all();
-        $draw       = $requests['draw'];
-        $columns    = $requests['columns'];
-        $start      = $requests['start'];
-        $length     = $requests['length'];
-        $search     = $requests['search'];
-        $searchValue     = $search['value'];
-        
-        $order      = $requests['order'];
-        $orderNumber = $order[0]['column'];
-        $orderDir    = $order[0]['dir'];
+        $requests       = $request->all();
+        $draw           = $requests['draw'];
+        $columns        = $requests['columns'];
+        $start          = $requests['start'];
+        $length         = $requests['length'];
+        $search         = $requests['search'];
+        $searchValue    = $search['value'];
+        $type           = $requests['type']; 
+        $order          = $requests['order'];
+        $orderNumber    = $order[0]['column'];
+        $orderDir       = $order[0]['dir'];
 
         $orderColumns = array(
             0=>'Id', 
@@ -145,9 +118,14 @@ class ChairmanController extends Controller
         $orderColumnsStr = $orderColumns[$orderNumber];
 
         $sql = " select * from dt_guild_list ";
+        $sql .= " WHERE GuilderId = 0 ";
+        if($type == 'game')
+        {
+            $sql .= " AND AuditStatus = 1 ";
+        }
         if($searchValue)
         {
-            $sql .= " WHERE Name like '%{$searchValue}%' ";
+            $sql .= " AND Name like '%{$searchValue}%' ";
         }
         $sql .= " ORDER BY {$orderColumnsStr} {$orderDir}";
         $sql .= " LIMIT {$start}, {$length} ";
@@ -156,9 +134,14 @@ class ChairmanController extends Controller
 
         //Count
         $sqlCount = "SELECT COUNT(*) as total FROM dt_guild_list ";
+        $sqlCount .= "WHERE GuilderId = 0 ";
+        if($type == 'game')
+        {
+            $sqlCount .= ' AND AuditStatus = 1 ';
+        }
         if($searchValue)
         {
-            $sqlCount .= " WHERE Name like '%{$searchValue}%' ";
+            $sqlCount .= " AND Name like '%{$searchValue}%' ";
         }
         $count = DB::select($sqlCount);
         $total = $count[0]->total;
@@ -189,11 +172,99 @@ class ChairmanController extends Controller
             {
                 $object[] = '驳回';
             }
-            $object[] = '<a href="'.url('chairmans/audit_form/'.$result->Id).'">审核</a>';
-
+            if($type == 'game')
+            {
+                $object[] = '<a href="'.url('chairmans/game_authorization_form/'.$result->Id).'">授权</a>';
+            }else{
+                $object[] = '<a href="'.url('chairmans/audit_form/'.$result->Id).'">审核</a>';
+            }
             $objects['data'][] = $object;
         }
 
         return json_encode($objects);
+    }
+
+    public function game_authorization_form($id)
+    {
+        $permissionsHandle = array();
+        $games    = Game::All();
+        $chairman  = Guild::find($id);
+
+        return view($this->moduleView.'/game_authorization_form', ['title'=>'游戏授权', 'objects'=>$games, 'chairman'=>$chairman]);    
+ 
+    }
+
+    public function game_authorization_form_submit(Request $requests)
+    {
+        $request = $requests->all();
+        $id = $request['id'];
+        $gids = $request['gids'];
+        $gidsOld = DB::select("SELECT AppId FROM dt_guild_togames WHERE GuilderId = {$id} AND AuditStatus = 1");
+        if(count($gidsOld))
+        {
+            foreach($gidsOld as $gidOld)
+            {
+                $gidsOldNew[] = $gidOld->AppId;
+            }
+        }
+        $gidsUpdate = array_diff($gidsOldNew, $gids);
+        $gidsInsert = array_diff($gids, $gidsOldNew);
+
+        foreach($gidsUpdate as $gidUpdate)
+        {
+            GuildToGame::where('GuilderId', $id)->where('AppId', $gidUpdate)->update(['AuditStatus'=>0]); 
+
+            $game = Game::find($gidUpdate);
+            //日志
+            $params['module'] = __CLASS__;
+            $params['function'] = __FUNCTION__;
+            $params['operation'] = '取消授权';
+            $params['object'] = $id;
+            $params['content'] = "取消工会对<<{$game->Gamename}>>的授权.";
+            Log::record($params);
+        }
+
+        foreach($gidsInsert as $gidInsert)
+        {
+            $model = GuildToGame::where('GuilderId', $id)->where('AppId', $gidInsert)->get();
+            if(count($model))
+            {
+                GuildToGame::where('GuilderId', $id)->where('AppId', $gidInsert)->update(['AuditStatus'=>1]);    
+                $game = Game::find($gidInsert);
+                //日志
+                $params['module'] = __CLASS__;
+                $params['function'] = __FUNCTION__;
+                $params['operation'] = '恢复授权';
+                $params['object'] = $id;
+                $params['content'] = "恢复工会对<<{$game->Gamename}>>的授权.";
+                Log::record($params);
+            }
+            else
+            {
+                $object = new GuildToGame();
+                $object->GuilderId = $id;
+                $object->Appid = $gidInsert;
+                $object->AuditStatus = 1;
+                $object->CreateDate = time();
+                $object->UpdateDate = time();
+                $object->save();
+                
+                $game = Game::find($gidInsert);
+                //日志
+                $params['module'] = __CLASS__;
+                $params['function'] = __FUNCTION__;
+                $params['operation'] = '新添授权';
+                $params['object'] = $id;
+                $params['content'] = "新添工会对<<{$game->Gamename}>>的授权.";
+                Log::record($params);
+
+            }
+        }
+        return redirect($this->moduleRoute.'/game_authorization_form/'.$id)->with('message', '审核完成!');
+    }
+
+    public function game_authorization()
+    {
+         return view($this->moduleView.'/list_not_audit', [ 'title'=>'游戏授权', 'type'=>'game']);   
     }
 }

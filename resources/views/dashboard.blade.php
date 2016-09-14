@@ -71,7 +71,7 @@ desired effect
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>
-        {{ $title or "Page Title" }}
+        {{ $title or "页面标题" }}
         <small>{{ $page_description or null }}</small>
       </h1>
         <!-- You can dynamically generate breadcrumbs here -->

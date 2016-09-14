@@ -38,7 +38,7 @@
                                 @foreach($roles as $role)
                                    <td> <input type="checkbox" name="permissions[]" value="{{$role->id}}-{{$object->id}}-{{$function->id}}" @if(App\Models\Permission::check_exist($role->id, $object->id, $function->id)) checked="true" @endif /></td>
                                 @endforeach
-                            </td>
+                            </tr>
                         @endforeach
                     @endforeach
                   @endif  

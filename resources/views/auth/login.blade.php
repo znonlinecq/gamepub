@@ -29,19 +29,19 @@
   </div>
   <!-- /.login-logo -->
   <div class="login-box-body">
-    <p class="login-box-msg">Sign in to start your session</p>
+    <p class="login-box-msg">管理后台登录</p>
 
     <form action="{{ url('/auth/login') }}" method="post">
     {!! csrf_field() !!} 
     <div class="form-group has-feedback">
-        <input type="email" name="email" class="form-control" value="{{ old('email') }}" placeholder="Email">
+        <input type="email" name="email" class="form-control" value="{{ old('email') }}" placeholder="邮箱">
         <span class="glyphicon glyphicon-envelope form-control-feedback"> </span>
         @if ($errors->has('email'))
             <strong>{{ $errors->first('email') }}</strong>
         @endif
       </div>
       <div class="form-group has-feedback">
-        <input type="password" class="form-control" placeholder="Password" name="password" id="password">
+        <input type="password" class="form-control" placeholder="密码" name="password" id="password">
         <span class="glyphicon glyphicon-lock form-control-feedback"></span>
         @if ($errors->has('password')) 
             <strong>{{ $errors->first('password') }}</strong>
@@ -57,15 +57,15 @@
         </div>
         <!-- /.col -->
         <div class="col-xs-4">
-          <button type="submit" class="btn btn-primary btn-block btn-flat">Sign In</button>
+          <button type="submit" class="btn btn-primary btn-block btn-flat">登录</button>
         </div>
         <!-- /.col -->
       </div>
     </form>
 
 
-    <a href="{{ url('/password/email') }}">I forgot my password</a><br>
-    <a href="{{ url('/auth/register') }}" class="text-center">Register a new membership</a>
+    <a href="{{ url('/password/email') }}">忘记密码</a><br>
+    <a href="{{ url('/auth/register') }}" class="text-center">注册账号</a>
 
   </div>
   <!-- /.login-box-body -->

@@ -9,7 +9,7 @@
             @endif    
             <!-- /.box-header -->
             <div class="box-body">
-              <table id="example1" class="table table-striped">
+              <table data-page-length='25' id="tableList" class="table table-striped">
                 <thead>
                 <tr>
                   <th>时间</th>
@@ -20,25 +20,6 @@
                 </tr>
                 </thead>
                 <tbody>
-                  @if(count($objects) === 0)
-                      <tr>
-                        <td> 没有数据 </td>
-                        <td> </td>
-                        <td>  </td>
-                        <td>  </td>
-                        <td>  </td>
-                    </tr>
-                  @else
-                    @foreach($objects as $object)
-                        <tr>
-                            <td width="15%">{{$object->created}}</td>
-                            <td>{{$object->operator}}</td>
-                            <td>{{$object->operation}}</td>
-                            <td>{{$object->person}}</td>
-                            <td width="60%">{{$object->content}}</td>
-                        </tr>
-                    @endforeach
-                  @endif  
                  </tbody>
               </table>
             </div>
@@ -66,31 +47,43 @@
 <!-- page script -->
 <script>
 $(function () {
-    $("#example1").DataTable();
+    var host = window.location.host;
+    var languageUrl = '/chinese.json';
+    var localUrl = 'http://localhost/gamepub/public';
+    
+    var controllerType ='{{$controllerType}}';
+    var methodType ='{{$methodType}}';
+    var ajaxUrl = '/logs/index_ajax';
 
-    $(".delBtn").click(function(){
-        var id = $(this).attr("data-role-id");
-        $( "#dialog-confirm" ).dialog({
-            resizable: false,
-            height: "auto",
-            width: 400,
-            modal: true,
-            buttons: {
-            "删除": function() {
-                $("#del-form-"+id).submit();            
-                $( this ).dialog( "close" );
+    if(host == 'localhost')
+    {
+       languageUrl = localUrl + languageUrl; 
+       ajaxUrl = localUrl + ajaxUrl;
+    }
+    var table =  $("#tableList").DataTable({
+        order: [[0,'desc']],
+        columns:[
+            {"orderable":true},
+            {"orderable":false},
+            {"orderable":false},
+            {"orderable":false},
+            {"orderable":false},
+        ],
+        language: {
+            url: languageUrl,
+        },
+        serverSide: true,    
+        ajax: {
+            url: ajaxUrl,
+            type: 'POST',
+            data: {"controllerType": controllerType, "methodType":methodType},
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
-                "取消": function() {
-                    $( this ).dialog( "close" );
-                }
-        }
-        });
+        },
     });
 
 });
 </script>
 
-<div id="dialog-confirm" style="display: none;" title="提示">
-          <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span><br>您确定要执行此操作吗?</p>
-</div>
 @endsection

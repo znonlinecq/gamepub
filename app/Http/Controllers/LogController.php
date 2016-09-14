@@ -1,48 +1,252 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use App\Http\Requests;
 use App\Models\Log;
 use App\User;
+use DB;
 
 class LogController extends Controller
 {
-    private $moduleRoute = 'logs';      //路由URL
-    private $moduleView = 'log';        //视图路径
-    private $moduleTable = 'logs';
-    private $moduleName = '日志';
+    private $moduleRoute    = 'logs';      //路由URL
+    private $moduleView     = 'log';       //视图路径
+    private $moduleTable    = 'logs';
+    private $moduleName     = '日志';
 
-    public function chairman_audit($controllerType, $methodType)
-    { 
-        $controller  = ucfirst($controllerType).'Controller';
-        $method     = $methodType;
+    public function index($controllerType, $methodType)
+    {       
+        $logType = ucfirst($controllerType).'Log';
+        $method = $methodType.'_title'; 
+        $controller = 'App\\Http\\Controllers\\'.$logType;
+        $title = $controller::$method(); 
+        return view('log/log', ['controllerType'=>$controllerType, 'methodType'=>$methodType, 'title'=>$title]);
+    }
 
-        $logs = Log::where('module', $controller)
-            ->where('function', $method)
-            ->orderBy('created', 'desc')
-            ->get();
+    public function index_ajax(Request $request)
+    {
+        $requests       = $request->all();
+        $draw           = $requests['draw'];
+        $columns        = $requests['columns'];
+        $start          = $requests['start'];
+        $length         = $requests['length'];
+        $search         = $requests['search'];
+        $searchValue    = $search['value'];
+        $order          = $requests['order'];
+        $orderNumber    = $order[0]['column'];
+        $orderDir       = $order[0]['dir'];
+        $controllerType = $requests['controllerType'];
+        $controllerType = ucfirst($controllerType).'Controller';
+        $methodType     = $requests['methodType'];
 
-        if(count($logs))
+        $orderColumns = array(
+            0=>'created', 
+        );
+        $orderColumnsStr = $orderColumns[$orderNumber];
+
+        $sql = " select * from ad_logs ";
+        $sql .= " WHERE module = '{$controllerType}' AND function = '{$methodType}' ";
+        if($searchValue)
         {
-            foreach($logs as $log)
-            {
-                $operator = User::find($log->uid);
-                $log->created = date('Y-m-d H:i:s', $log->created);
-                $log->operator = $operator->name;
-                if($log->operation == 'yes')
-                {
-                    $log->operation = '通过';
-                }else{
-                    $log->operation = '驳回';
-                }
-                $log->person = $log->object;
-
-            }
+            $sql .= " AND content like '%{$searchValue}%' ";
         }
+        $sql .= " ORDER BY {$orderColumnsStr} {$orderDir}";
+        $sql .= " LIMIT {$start}, {$length} ";
 
-        return view($this->moduleView.'/log', ['objects'=>$logs, 'title'=>'会长审核']);
+        $results = DB::select($sql);
+
+        //Count
+        $sqlCount = "SELECT COUNT(*) as total FROM ad_logs ";
+        $sqlCount .= "WHERE module = '{$controllerType}' AND function = '{$methodType}' ";
+        if($searchValue)
+        {
+            $sqlCount .= " AND content like '%{$searchValue}%' ";
+        }
+        $count = DB::select($sqlCount);
+        $total = $count[0]->total;
+
+        $objects = array();
+        $objects['draw'] = $draw;
+        $objects['recordsTotal'] = $total;
+        $objects['recordsFiltered'] = $total;
+
+        $logType = ucfirst($requests['controllerType']).'Log';
+
+        $controllerType = 'App\\Http\\Controllers\\'.$logType;
+        $controllerType::$methodType($results, $objects);
+
+        return json_encode($objects);
+
+    }
+}
+
+class ChairmanLog extends LogController
+{
+    private static $audit_form_submit_title = '会长审核';
+    private static $game_authorization_form_submit_title = '游戏授权';
+
+    public static function audit_form_submit($results, &$objects)
+    {   
+        foreach($results as $result)
+        {        
+            $operator = User::find($result->uid);
+            $operator = $operator->name;
+            $operator_object = DB::select("SELECT * FROM dt_guild_list WHERE Id={$result->object}");
+            $operator_object = $operator_object[0]->Name;
+
+            if($result->operation == 'yes')
+            {
+                $operation = '通过';
+            }elseif($result->operation == 'no'){
+                $operation = '驳回';
+            }
+
+            $object = array();
+            $object[] = date('Y-m-d H:i:s', $result->created);
+            $object[] = $operator;
+            $object[] = $operation;
+            $object[] = $operator_object;
+            $object[] = $result->content;
+            $objects['data'][] = $object;
+        }
+    }
+
+    public static function audit_form_submit_title()
+    {
+        return self::$audit_form_submit_title;
+    }    
+    
+    public static function game_authorization_form_submit($results, &$objects)
+    {   
+        foreach($results as $result)
+        {        
+            $operator = User::find($result->uid);
+            $operator = $operator->name;
+            $operator_object = DB::select("SELECT * FROM dt_guild_list WHERE Id={$result->object}");
+            $operator_object = $operator_object[0]->Name;
+            $operation = $result->operation;
+
+            $object = array();
+            $object[] = date('Y-m-d H:i:s', $result->created);
+            $object[] = $operator;
+            $object[] = $operation;
+            $object[] = $operator_object;
+            $object[] = $result->content;
+            $objects['data'][] = $object;
+        }
+    }
+
+    public static function game_authorization_form_submit_title()
+    {
+        return self::$game_authorization_form_submit_title;
+    }
+}
+
+
+class DeveloperLog extends LogController
+{
+    private static $title = '开发者审核';
+
+    public static function audit_form_submit($results, &$objects)
+    {   
+        foreach($results as $result)
+        {        
+            $operator = User::find($result->uid);
+            $operator = $operator->name;
+            $operator_object = DB::select("SELECT * FROM game_cpinfo WHERE cpid={$result->object}");
+            $operator_object = $operator_object[0]->username;
+
+            if($result->operation == 'yes')
+            {
+                $operation = '通过';
+            }elseif($result->operation == 'no'){
+                $operation = '驳回';
+            }
+
+            $object = array();
+            $object[] = date('Y-m-d H:i:s', $result->created);
+            $object[] = $operator;
+            $object[] = $operation;
+            $object[] = $operator_object;
+            $object[] = $result->content;
+            $objects['data'][] = $object;
+        }
+    }
+
+    public static function audit_form_submit_title()
+    {
+        return self::$title;
+    }
+}
+
+class GameLog extends LogController
+{
+    private static $title = '游戏审核';
+
+    public static function audit_form_submit($results, &$objects)
+    {   
+        foreach($results as $result)
+        {        
+            $operator = User::find($result->uid);
+            $operator = $operator->name;
+            $operator_object = DB::select("SELECT * FROM game_info WHERE id={$result->object}");
+            $operator_object = $operator_object[0]->Gamename;
+
+            if($result->operation == 'yes')
+            {
+                $operation = '通过';
+            }elseif($result->operation == 'no'){
+                $operation = '驳回';
+            }
+
+            $object = array();
+            $object[] = date('Y-m-d H:i:s', $result->created);
+            $object[] = $operator;
+            $object[] = $operation;
+            $object[] = $operator_object;
+            $object[] = $result->content;
+            $objects['data'][] = $object;
+        }
+    }
+
+    public static function audit_form_submit_title()
+    {
+        return self::$title;
+    }
+}
+
+class ApkLog extends LogController
+{
+    private static $title = '游戏包审核';
+
+    public static function audit_form_submit($results, &$objects)
+    {   
+        foreach($results as $result)
+        {        
+            $operator = User::find($result->uid);
+            $operator = $operator->name;
+            $operator_object = DB::select("SELECT * FROM game_apkinfo WHERE apkid={$result->object}");
+            $operator_object = $operator_object[0]->Apkname;
+
+            if($result->operation == 'yes')
+            {
+                $operation = '通过';
+            }elseif($result->operation == 'no'){
+                $operation = '驳回';
+            }
+
+            $object = array();
+            $object[] = date('Y-m-d H:i:s', $result->created);
+            $object[] = $operator;
+            $object[] = $operation;
+            $object[] = $operator_object;
+            $object[] = $result->content;
+            $objects['data'][] = $object;
+        }
+    }
+
+    public static function audit_form_submit_title()
+    {
+        return self::$title;
     }
 }

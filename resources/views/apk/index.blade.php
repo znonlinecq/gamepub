@@ -13,13 +13,13 @@
                 <thead>
                 <tr>
                   <th>ID</th>
-                  <th>登录账号</th>
-                  <th>工会ID</th>
-                  <th>推广游戏</th>
-                  <th>姓名</th>
-                  <th>身份证</th>
-                  <th>QQ</th>
-                  <th>注册时间</th>
+                  <th>游戏包名</th>
+                  <th>游戏名</th>
+                  <th>开发者</th>
+                  <th>类型</th>
+                  <th>开放下载</th>
+                  <th>开服时间</th>
+                  <th>上传时间</th>
                   <th>状态</th>
                   <th>操作</th>
                 </tr>
@@ -57,14 +57,14 @@ $(function () {
     var host = window.location.host;
     var languageUrl = '/chinese.json';
     var localUrl = 'http://localhost/gamepub/public';
-    var ajaxUrl = '/chairmans/index_ajax';
+    var ajaxUrl = '/apks/index_ajax';
 
     if(host == 'localhost')
     {
        languageUrl = localUrl + languageUrl; 
        ajaxUrl = localUrl + ajaxUrl;
     }
-    var type ='{{$type}}';
+
   var table =  $("#tableList").DataTable({
         order: [[0,'asc']],
         columns:[
@@ -86,7 +86,7 @@ $(function () {
         ajax: {
             url: ajaxUrl,
             type: 'POST',
-            data: {"name":"test", "type":type},
+            data: {"name":"test"},
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },

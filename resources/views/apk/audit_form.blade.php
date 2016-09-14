@@ -15,52 +15,45 @@
 <tbody>
     <tr>
         <td width="20%" align="right">ID </td>
-        <td>{{$object->Id}}</td>
-    </tr>
+        <td>{{$object->apkid}}</td>
+    </tr> 
     <tr>
-        <td width="20%" align="right">登录账号</td>
-        <td>{{$object->acount}}</td>
+        <td width="20%" align="right">游戏包名</td>
+        <td>{{$object->Apkname}}</td>
     </tr>
      <tr>
-        <td width="20%" align="right">工会ID</td>
-        <td>{{$object->UserId}}</td>
+        <td width="20%" align="right">游戏名</td>
+        <td>{{$object->game->Gamename}}</td>
+    </tr>
+    
+    <tr>
+        <td width="20%" align="right">开发者姓名</td>
+        <td>{{$object->developer->username}}</td>
     </tr>
     <tr>
-        <td width="20%" align="right">推广游戏</td>
-        <td>{{$object->games}}</td>
+        <td width="20%" align="right">游戏包类型</td>
+        <td>{{$object->type}}</td>
     </tr>
     <tr>
-        <td width="20%" align="right">姓名</td>
-        <td>{{$object->Name}}</td>
+        <td width="20%" align="right">更新类型</td>
+        <td>{{$object->Apkuptype}}</td>
     </tr>
     <tr>
-        <td width="20%" align="right">身份证</td>
-        <td>{{$object->namecard}}</td>
+        <td width="20%" align="right">开放下载时间</td>
+        <td>{{$object->Opendowndate}}</td>
     </tr>
     <tr>
-        <td width="20%" align="right">QQ</td>
-        <td>{{$object->qq}}</td>
+        <td width="20%" align="right">开服时间</td>
+        <td>{{$object->OpeServndate}}</td>
     </tr>
     <tr>
-        <td width="20%" align="right">注册时间</td>
-        <td>{{$object->created}}</td>
-    </tr>
+        <td width="20%" align="right">上传时间</td>
+        <td>{{$object->Uploaddate}}</td>
+    </tr>   
     <tr>
         <td width="20%" align="right">状态</td>
         <td>{{$object->status}}</td>
     </tr>
-     <tr>
-        <td width="20%" align="right">类型</td>
-        <td>
-                  <select class="form-control" name="type" >
-                    <option> - 选择 - </option>
-                    <option value="1" @if($object->GuildType == 1) selected="true" @endif>A</option>
-                    <option value="2" @if($object->GuildType == 2) selected="true" @endif>B</option>
-                  </select>
-
-        </td>
-    </tr>
-    
     <tr>
         <td width="20%" align="right">备注</td>
         <td>
@@ -76,11 +69,10 @@
     </tr>
 
 
-
 </tbody>
 
 </table>
-<input type="hidden" value="{{$object->Id}}" name="gid">
+<input type="hidden" value="{{$object->apkid}}" name="id">
             </form>
 </div>
 </div>
