@@ -38,6 +38,10 @@
     <!-- /.content -->
   </div>
 <!-- DataTables -->
+<link rel="stylesheet" href="{{ asset('resources/plugins/daterangepicker/daterangepicker.css') }}">
+<style>
+#mytoolbox {height:30px; line-height:30px;}
+</style>
 <script src="{{ asset('resources/plugins/datatables/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('resources/plugins/datatables/dataTables.bootstrap.min.js') }}"></script>
 <!-- SlimScroll -->
@@ -58,14 +62,13 @@ $(function () {
     var languageUrl = '/chinese.json';
     var localUrl = 'http://localhost/gamepub/public';
     var ajaxUrl = '/chairmans/index_ajax';
-
     if(host == 'localhost')
     {
        languageUrl = localUrl + languageUrl; 
        ajaxUrl = localUrl + ajaxUrl;
     }
     var type ='{{$type}}';
-  var table =  $("#tableList").DataTable({
+    var table =  $("#tableList").DataTable({
         order: [[0,'asc']],
         columns:[
             {"orderable":false},
@@ -87,11 +90,15 @@ $(function () {
             url: ajaxUrl,
             type: 'POST',
             data: {"name":"test", "type":type},
+            data: function (d){
+                d.dateRange = $('#reportrange span').html();
+                d.type = type;
+            },
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
         },
-        "dom":"<'row'<'span9'l<'#mytoolbox'>><'span3'f>r>"+"t"+"<'row'<'span6'i><'span6'p>>",
+        "dom":"<'row'<'col-sm-1'l><'col-sm-7'<'#mytoolbox' >><'col-sm-4'f>r>"+"t"+"<'row'<'col-sm-6'i><'col-sm-6'p>>",
         initComplete:initComplete,
     });
 /**
@@ -102,12 +109,12 @@ $(function () {
  
        var dataPlugin =
                '<div id="reportrange" class="pull-left dateRange" style="width:400px;margin-left: 10px"> '+
-               '日期：<i class="glyphicon glyphicon-calendar fa fa-calendar"></i> '+
+               '<button class="btn btn-default" >选择日期</button>&nbsp;<i class="glyphicon glyphicon-calendar fa fa-calendar"></i> '+
                '<span id="searchDateRange"></span>  '+
                '<b class="caret"></b></div> ';
        $('#mytoolbox').append(dataPlugin);
        //时间插件
-       $('#reportrange span').html(moment().subtract('hours', 1).format('YYYY-MM-DD HH:mm:ss') + ' - ' + moment().format('YYYY-MM-DD HH:mm:ss'));
+       $('#reportrange span').html(moment().subtract('hours', 1).format('YYYY/MM/DD HH:mm:ss') + ' - ' + moment().format('YYYY/MM/DD HH:mm:ss'));
  
        $('#reportrange').daterangepicker(
                {
@@ -116,7 +123,7 @@ $(function () {
                    //minDate: '01/01/2012',    //最小时间
                    maxDate : moment(), //最大时间
                    dateLimit : {
-                       days : 30
+                       days : 90
                    }, //起止时间的最大间隔
                    showDropdowns : true,
                    showWeekNumbers : false, //是否显示第几周
@@ -149,7 +156,7 @@ $(function () {
                    }
                }, function(start, end, label) {//格式化日期显示框
  
-                   $('#reportrange span').html(start.format('YYYY-MM-DD HH:mm:ss') + ' - ' + end.format('YYYY-MM-DD HH:mm:ss'));
+                   $('#reportrange span').html(start.format('YYYY/MM/DD HH:mm:ss') + ' - ' + end.format('YYYY/MM/DD HH:mm:ss'));
                });
  
        //设置日期菜单被选项  --开始--
@@ -182,26 +189,9 @@ $(function () {
        $("#reportrange").on('apply.daterangepicker',function(){
            //当选择时间后，出发dt的重新加载数据的方法
            table.ajax.reload();
-           //获取dt请求参数
-           var args = table.ajax.params();
-           console.log("额外传到后台的参数值extra_search为："+args.extra_search);
        });
- 
-       function getParam(url) {
-           var data = decodeURI(url).split("?")[1];
-           var param = {};
-           var strs = data.split("&");
- 
-           for(var i = 0; i<strs.length; i++){
-               param[strs[i].split("=")[0]] = strs[i].split("=")[1];
-           }
-           return param;
-       }
    }
 });
 </script>
 
-<div id="dialog-confirm" style="display: none;" title="提示">
-          <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span><br>您确定要执行此操作吗?</p>
-</div>
 @endsection

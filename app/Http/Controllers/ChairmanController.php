@@ -111,6 +111,39 @@ class ChairmanController extends Controller
         $orderNumber    = $order[0]['column'];
         $orderDir       = $order[0]['dir'];
 
+        if(!empty($requests['dateRange']))
+        {
+            $dateRange      = $requests['dateRange'];
+            $dateRange      = explode('-', $dateRange);
+            $from           = trim($dateRange[0]);
+            $from           = explode(' ', $from);
+            $fromYmd        = explode('/', $from[0]);   
+            $fromHis        = explode(':', $from[1]);   
+            $fromHour       = $fromHis[0];
+            $fromMinute     = $fromHis[1];
+            $fromSecond     = $fromHis[2];
+            $fromYear       = $fromYmd[0];
+            $fromMonth      = $fromYmd[1];
+            $fromDay        = $fromYmd[2];
+            $fromTimestamp  = mktime($fromHour, $fromMinute, $fromSecond, $fromMonth, $fromDay, $fromYear);
+            $to             = trim($dateRange[1]);
+            $to             = explode(' ', $to);
+            $toYmd          = explode('/', $to[0]);
+            $toHis          = explode(':', $to[1]);
+            $toHour         = $toHis[0];
+            $toMinute       = $toHis[1];
+            $toSecond       = $toHis[2];
+            $toYear         = $toYmd[0];
+            $toMonth        = $toYmd[1];
+            $toDay          = $toYmd[2];
+            $toTimestamp    = mktime($toHour, $toMinute, $toSecond, $toMonth, $toDay, $toYear);
+        }
+        else
+        {
+            $fromTimestamp  = NULL;
+            $toTimestamp    = NULL;
+        }
+
         $orderColumns = array(
             0=>'Id', 
             7=>'CreateDate',
@@ -127,11 +160,14 @@ class ChairmanController extends Controller
         {
             $sql .= " AND Name like '%{$searchValue}%' ";
         }
+        if($fromTimestamp && $toTimestamp)
+        {
+            $sql .= " AND CreateDate >= {$fromTimestamp} AND CreateDate <= {$toTimestamp}";
+        }
         $sql .= " ORDER BY {$orderColumnsStr} {$orderDir}";
         $sql .= " LIMIT {$start}, {$length} ";
 
         $results = DB::select($sql);
-
         //Count
         $sqlCount = "SELECT COUNT(*) as total FROM dt_guild_list ";
         $sqlCount .= "WHERE GuilderId = 0 ";
@@ -142,7 +178,12 @@ class ChairmanController extends Controller
         if($searchValue)
         {
             $sqlCount .= " AND Name like '%{$searchValue}%' ";
+        }  
+        if($fromTimestamp && $toTimestamp)
+        {
+            $sqlCount .= " AND CreateDate >= {$fromTimestamp} AND CreateDate <= {$toTimestamp}";
         }
+       
         $count = DB::select($sqlCount);
         $total = $count[0]->total;
 
@@ -150,7 +191,8 @@ class ChairmanController extends Controller
         $objects['draw'] = $draw;
         $objects['recordsTotal'] = $total;
         $objects['recordsFiltered'] = $total;
-
+        if(count($results))
+        {
         foreach($results as $result)
         {
             $object = array();
@@ -180,7 +222,11 @@ class ChairmanController extends Controller
             }
             $objects['data'][] = $object;
         }
-
+        }
+        else
+        {
+            $objects['data'][] = array('空',' ',' ',' ',' ',' ',' ',' ',' ', ' ');
+        }
         return json_encode($objects);
     }
 
