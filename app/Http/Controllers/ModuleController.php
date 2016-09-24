@@ -15,13 +15,15 @@ class ModuleController extends Controller
     private $moduleView = 'permission/module';    //视图路径
     private $moduleTable = 'modules';
     private $moduleName = '模块';
-    
+    private $searchPlaceholder = '模块名';
+
     public function __construct()
     {
         parent::__construct();
         View::composer($this->moduleView.'/*', function ($view) {
             $view->with('moduleRoute', $this->moduleRoute);
             $view->with('moduleName', $this->moduleName);
+            $view->with('searchPlaceholder', $this->searchPlaceholder);
         }); 
     }
 

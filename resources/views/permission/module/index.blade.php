@@ -95,7 +95,24 @@
 <!-- page script -->
 <script>
 $(function () {
-    $("#example1").DataTable();
+    var host = window.location.host;
+    var languageUrl = '/chinese.json';
+    var localUrl = 'http://localhost/gamepub/public';
+
+    if(host == 'localhost')
+    {
+       languageUrl = localUrl + languageUrl; 
+    }
+
+
+    $("#example1").DataTable({
+         language: {
+            url: languageUrl,
+            searchPlaceholder: '{{$searchPlaceholder}}',
+        },
+    
+    });
+
 
     $(".delBtn").click(function(){
         var id = $(this).attr("data-object-id");

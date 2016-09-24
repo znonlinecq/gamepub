@@ -20,20 +20,25 @@ class ChairmanController extends Controller
     private $moduleView = 'chairman';    //视图路径
     private $moduleTable = '';
     private $moduleName = '会长';
-    
+    private $moduleIndexAjax = '/chairmans/index_ajax';
+
+    private $searchPlaceholder = '会长姓名';
+
     public function __construct()
     {
         parent::__construct();
         View::composer($this->moduleView.'/*', function ($view) {
             $view->with('moduleRoute', $this->moduleRoute);
             $view->with('moduleName', $this->moduleName);
+            $view->with('moduleIndexAjax', $this->moduleIndexAjax);
+            $view->with('searchPlaceholder', $this->searchPlaceholder);
         }); 
     }
 
 
     public function index()
     {
-        return view($this->moduleView.'/list_not_audit', [ 'title'=>'会长审核', 'type'=>'index']);
+        return view($this->moduleView.'/index', [ 'title'=>'会长审核', 'type'=>'index']);
     }
 
     public function audit_form($id)
@@ -110,6 +115,7 @@ class ChairmanController extends Controller
         $order          = $requests['order'];
         $orderNumber    = $order[0]['column'];
         $orderDir       = $order[0]['dir'];
+        $conditions     = array();
 
         if(!empty($requests['dateRange']))
         {
@@ -151,41 +157,33 @@ class ChairmanController extends Controller
         $orderColumnsStr = $orderColumns[$orderNumber];
 
         $sql = " select * from dt_guild_list ";
-        $sql .= " WHERE GuilderId = 0 ";
+        $conditions [] = "GuilderId = 0";
         if($type == 'game')
         {
-            $sql .= " AND AuditStatus = 1 ";
+            $conditions[] = " AuditStatus = 1 ";
         }
         if($searchValue)
         {
-            $sql .= " AND Name like '%{$searchValue}%' ";
+            $conditions[] = " Name like '%{$searchValue}%' ";
         }
         if($fromTimestamp && $toTimestamp)
         {
-            $sql .= " AND CreateDate >= {$fromTimestamp} AND CreateDate <= {$toTimestamp}";
+            $conditions[] = " CreateDate >= {$fromTimestamp} AND CreateDate <= {$toTimestamp}";
         }
+
+        if(count($conditions))
+        {
+            $sql .= " WHERE ";
+            $sql .= implode(' AND ', $conditions);
+        }
+
+        $countResult = DB::select($sql);
+        $total  = count($countResult);
+
         $sql .= " ORDER BY {$orderColumnsStr} {$orderDir}";
         $sql .= " LIMIT {$start}, {$length} ";
 
         $results = DB::select($sql);
-        //Count
-        $sqlCount = "SELECT COUNT(*) as total FROM dt_guild_list ";
-        $sqlCount .= "WHERE GuilderId = 0 ";
-        if($type == 'game')
-        {
-            $sqlCount .= ' AND AuditStatus = 1 ';
-        }
-        if($searchValue)
-        {
-            $sqlCount .= " AND Name like '%{$searchValue}%' ";
-        }  
-        if($fromTimestamp && $toTimestamp)
-        {
-            $sqlCount .= " AND CreateDate >= {$fromTimestamp} AND CreateDate <= {$toTimestamp}";
-        }
-       
-        $count = DB::select($sqlCount);
-        $total = $count[0]->total;
 
         $objects = array();
         $objects['draw'] = $draw;
@@ -193,35 +191,35 @@ class ChairmanController extends Controller
         $objects['recordsFiltered'] = $total;
         if(count($results))
         {
-        foreach($results as $result)
-        {
-            $object = array();
-            $object[] = $result->Id;
-            $object[] = '13511112222';
-            $object[] = $result->UserId;
-            $object[] = '诛仙';
-            $object[] = $result->Name;
-            $object[] = '11010218761211222236';
-            $object[] = '8172287282';
-            $object[] = date('Y-m-d H:i:s', $result->CreateDate);
-            if($result->AuditStatus == 0)
+            foreach($results as $result)
             {
-                $object[] = '待审核';
-            }elseif($result->AuditStatus == 1)
-            {
-                $object[] = '通过';
-            }elseif($result->AuditStatus == 2)
-            {
-                $object[] = '驳回';
+                $object = array();
+                $object[] = $result->Id;
+                $object[] = '13511112222';
+                $object[] = $result->UserId;
+                $object[] = '诛仙';
+                $object[] = $result->Name;
+                $object[] = '11010218761211222236';
+                $object[] = '8172287282';
+                $object[] = date('Y-m-d H:i:s', $result->CreateDate);
+                if($result->AuditStatus == 0)
+                {
+                    $object[] = '待审核';
+                }elseif($result->AuditStatus == 1)
+                {
+                    $object[] = '通过';
+                }elseif($result->AuditStatus == 2)
+                {
+                    $object[] = '驳回';
+                }
+                if($type == 'game')
+                {
+                    $object[] = '<a href="'.url('chairmans/game_authorization_form/'.$result->Id).'">授权</a>';
+                }else{
+                    $object[] = '<a href="'.url('chairmans/audit_form/'.$result->Id).'">审核</a>';
+                }
+                $objects['data'][] = $object;
             }
-            if($type == 'game')
-            {
-                $object[] = '<a href="'.url('chairmans/game_authorization_form/'.$result->Id).'">授权</a>';
-            }else{
-                $object[] = '<a href="'.url('chairmans/audit_form/'.$result->Id).'">审核</a>';
-            }
-            $objects['data'][] = $object;
-        }
         }
         else
         {
@@ -245,7 +243,7 @@ class ChairmanController extends Controller
         $request = $requests->all();
         $id = $request['id'];
         $gids = $request['gids'];
-        $gidsOld = DB::select("SELECT AppId FROM dt_guild_togames WHERE GuilderId = {$id} AND AuditStatus = 1");
+        $gidsOld = DB::select("SELECT AppId FROM dt_guild_togames WHERE GuildId = {$id} AND AuditStatus = 1");
         if(count($gidsOld))
         {
             foreach($gidsOld as $gidOld)
@@ -258,7 +256,7 @@ class ChairmanController extends Controller
 
         foreach($gidsUpdate as $gidUpdate)
         {
-            GuildToGame::where('GuilderId', $id)->where('AppId', $gidUpdate)->update(['AuditStatus'=>0]); 
+            GuildToGame::where('GuildId', $id)->where('AppId', $gidUpdate)->update(['AuditStatus'=>0]); 
 
             $game = Game::find($gidUpdate);
             //日志
@@ -272,10 +270,10 @@ class ChairmanController extends Controller
 
         foreach($gidsInsert as $gidInsert)
         {
-            $model = GuildToGame::where('GuilderId', $id)->where('AppId', $gidInsert)->get();
+            $model = GuildToGame::where('GuildId', $id)->where('AppId', $gidInsert)->get();
             if(count($model))
             {
-                GuildToGame::where('GuilderId', $id)->where('AppId', $gidInsert)->update(['AuditStatus'=>1]);    
+                GuildToGame::where('GuildId', $id)->where('AppId', $gidInsert)->update(['AuditStatus'=>1]);    
                 $game = Game::find($gidInsert);
                 //日志
                 $params['module'] = __CLASS__;
@@ -311,6 +309,11 @@ class ChairmanController extends Controller
 
     public function game_authorization()
     {
-         return view($this->moduleView.'/list_not_audit', [ 'title'=>'游戏授权', 'type'=>'game']);   
+         return view($this->moduleView.'/index', [ 'title'=>'游戏授权', 'type'=>'game']);   
+    }
+    
+    public function __autoload()
+    {
+        __toString();
     }
 }

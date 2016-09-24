@@ -6,9 +6,22 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Role;
+use View;
 
 class RoleController extends Controller
-{
+{ 
+    private $searchPlaceholder = '角色名';       
+
+    public function __construct()
+    {
+        parent::__construct();
+        View::composer('role/*', function ($view) {
+            $view->with('searchPlaceholder', $this->searchPlaceholder);
+
+        }); 
+    }
+
+
     public function index(){
         $roles = Role::All();
         return view('role/index', ['roles'=>$roles, 'title'=>'角色列表']);

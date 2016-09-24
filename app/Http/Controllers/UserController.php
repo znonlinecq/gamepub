@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\User;
 use App\Role;
+use View;
 
 class UserController extends Controller
 {
@@ -14,7 +15,20 @@ class UserController extends Controller
     private $moduleView = 'user';    //视图路径
     private $moduleTable = 'users';
     private $moduleName = '用户';
-       
+    private $searchPlaceholder = '用户名';       
+
+    public function __construct()
+    {
+        parent::__construct();
+        View::composer($this->moduleView.'/*', function ($view) {
+            $view->with('moduleRoute', $this->moduleRoute);
+            $view->with('moduleName', $this->moduleName); 
+            $view->with('searchPlaceholder', $this->searchPlaceholder);
+
+        }); 
+    }
+
+
     public function index()
     {
         $users = User::all();

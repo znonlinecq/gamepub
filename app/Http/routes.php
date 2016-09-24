@@ -80,10 +80,24 @@ Route::get('developers/audit_form/{id}',    'DeveloperController@audit_form');
 Route::post('developers/audit_form_submit', 'DeveloperController@audit_form_submit');
 
 //游戏
-Route::get('games',                         'GameController@index');
-Route::post('games/index_ajax',             'GameController@index_ajax');
-Route::get('games/audit_form/{id}',         'GameController@audit_form');
-Route::post('games/audit_form_submit',      'GameController@audit_form_submit');
+Route::get('games',                                 'GameController@index');
+Route::post('games/index_ajax',                     'GameController@index_ajax');
+Route::get('games/audit_form/{id}',                 'GameController@audit_form');
+Route::post('games/audit_form_submit',              'GameController@audit_form_submit');
+Route::get('games/types',                           'GameController@types');
+Route::post('games/types_ajax',                     'GameController@types_ajax');
+Route::get('games/types_add',                       'GameController@types_add');
+Route::post('games/types_add_submit',               'GameController@types_add_submit');
+Route::get('games/types_edit/{id}',                 'GameController@types_edit');
+Route::post('games/types_edit_submit',              'GameController@types_edit_submit');
+Route::get('games/types_delete/{id}',               'GameController@types_delete');
+Route::get('games/types/classes/{id?}',             'GameController@types_classes');
+Route::post('games/types/classes_ajax',             'GameController@types_classes_ajax');
+Route::get('games/types/classes_add/{id?}',         'GameController@types_classes_add');
+Route::post('games/types/classes_add_submit',       'GameController@types_classes_add_submit');
+Route::get('games/types/classes_edit/{id}',         'GameController@types_classes_edit');
+Route::post('games/types/classes_edit_submit',      'GameController@types_classes_edit_submit');
+Route::get('games/types/classes_delete/{id}',       'GameController@types_classes_delete');
 
 //游戏包
 Route::get('apks',                          'ApkController@index');

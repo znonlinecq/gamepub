@@ -3,30 +3,36 @@
       <div class="row">
         <div class="col-xs-12">
           <div class="box">
-            <div class="box-header">
+            <div class="box-header"> 
+            <a href="{{url($moduleRoute.'/types')}}" class="btn btn-default btn-sm active" >返回</a>
+            &nbsp;&nbsp;
+            
+            <h3 class="box-title">
+                @if($tid)
+                    <a href="{{url($moduleRoute.'/types/classes_add/'.$tid)}}">添加</a>
+                @else
+                    <a href="{{url($moduleRoute.'/types/classes_add')}}">添加</a>
+                @endif
+            </h3>
             @if(session('message'))
             <p class="bg-success">{{session('message')}}</p>
             @endif    
             <!-- /.box-header -->
-            <div class="box-body">
+           <div class="box-body">
+ 
               <table id="tableList" class="table table-bordered table-striped" data-page-length='25'  >
                 <thead>
                 <tr>
                   <th>ID</th>
-                  <th>登录账号</th>
-                  <th>工会ID</th>
-                  <th>推广游戏</th>
-                  <th>姓名</th>
-                  <th>身份证</th>
-                  <th>QQ</th>
-                  <th>注册时间</th>
-                  <th>状态</th>
+                  <th>分类名称</th>
+                  <th>所属类型</th>
+                  <th>排序</th>
                   <th>操作</th>
                 </tr>
                 </thead>
                 <tbody>
                  </tbody>
-              </table>
+              </table>  
             </div>
             <!-- /.box-body -->
           </div>
@@ -37,8 +43,8 @@
       <!-- /.row -->
     <!-- /.content -->
   </div>
+<input type="hidden" value="{{$tid}}" id="tid" >
 <!-- DataTables -->
-
 <!-- CSS -->
 <link rel="stylesheet" href="{{ asset('resources/plugins/daterangepicker/daterangepicker.css') }}">
 <style>
@@ -56,48 +62,43 @@ $(function () {
     var host = window.location.host;
     var languageUrl = '/chinese.json';
     var localUrl = 'http://localhost/gamepub/public';
-    var ajaxUrl = '{{$moduleIndexAjax}}';
+    var ajaxUrl = '/games/types/classes_ajax';
+
     if(host == 'localhost')
     {
        languageUrl = localUrl + languageUrl; 
        ajaxUrl = localUrl + ajaxUrl;
     }
-    var type ='{{$type}}';
+
     var table =  $("#tableList").DataTable({
-        order: [[0,'asc']],
+        paging: false,
+        searching: false,
+        info: false,
+        order: [[3,'asc']],
         columns:[
-            {"orderable":false},
-            {"orderable":false},
-            {"orderable":false},
-            {"orderable":false},
             {"orderable":false},
             {"orderable":false},
             {"orderable":false},
             {"orderable":true},
             {"orderable":false},
-            {"orderable":false},
         ],
         language: {
             url: languageUrl,
-            searchPlaceholder: '{{$searchPlaceholder}}',
         },
-        serverSide: true,    
+        serverSide: true,   
         ajax: {
             url: ajaxUrl,
             type: 'POST',
-            data: {"type":type},
             data: function (d){
+                d.tid = $('#tid').val(),
                 d.dateRange = $('#reportrange span').html();
-                d.type = type;
             },
-            headers: {
+         headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
-        },
-        "dom":"<'row'<'col-sm-1'l><'col-sm-7'<'#mytoolbox' >><'col-sm-4'f>r>"+"t"+"<'row'<'col-sm-6'i><'col-sm-6'p>>",
-        initComplete:initComplete,
-    });
+        },   
+    });  
+
 });
 </script>
-
 @endsection

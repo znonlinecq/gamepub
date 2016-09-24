@@ -75,13 +75,13 @@ desired effect
         <small>{{ $page_description or null }}</small>
       </h1>
         <!-- You can dynamically generate breadcrumbs here -->
-        <ol class="breadcrumb">
+<!--        <ol class="breadcrumb">
             @if(!empty($breadcrumbs))
                 @foreach($breadcrumbs as $key => $value)
                     <li><a href="{{url($key)}}">{{$value}}</a></li>
                 @endforeach
             @endif
-        </ol>
+        </ol> -->
     </section>
 
     <!-- Main content -->

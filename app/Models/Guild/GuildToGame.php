@@ -13,7 +13,7 @@ class GuildToGame extends Model
 
     public static function check_game_authorization($guildId, $gameId)
     {
-        $toGame = GuildToGame::where('GuilderId', $guildId)
+        $toGame = GuildToGame::where('GuildId', $guildId)
             ->where('Appid', $gameId)
             ->where('AuditStatus', 1)
             ->get();

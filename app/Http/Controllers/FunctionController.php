@@ -15,13 +15,16 @@ class FunctionController extends Controller
     private $moduleView = 'permission/function';    //视图路径
     private $moduleTable = 'ad_functions';
     private $moduleName = '功能';
-    
+    private $searchPlaceholder = '功能名';
+   
     public function __construct()
     {
         parent::__construct();
         View::composer($this->moduleView.'/*', function ($view) {
             $view->with('moduleRoute', $this->moduleRoute);
             $view->with('moduleName', $this->moduleName);
+            $view->with('searchPlaceholder', $this->searchPlaceholder);
+
         }); 
     }
 

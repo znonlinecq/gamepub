@@ -3,7 +3,8 @@
 @inject('Chairman', 'App\Models\Guild\GuildToGame')
 <div class="box box-primary">
     <div class="box-header with-border">
-        @if(session('message'))
+     <a href="{{url($moduleRoute.'/game_authorization')}}" class="btn btn-default btn-sm active" role="button">返回</a>
+       @if(session('message'))
         <p class="bg-success">{{session('message')}}</p>
         @endif    
     </div>
