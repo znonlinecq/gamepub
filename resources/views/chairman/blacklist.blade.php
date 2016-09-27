@@ -4,27 +4,29 @@
         <div class="col-xs-12">
           <div class="box">
             <div class="box-header">
-            <h3 class="box-title"><a href="{{url($moduleRoute.'/types_add')}}">添加</a></h3>
             @if(session('message'))
             <p class="bg-success">{{session('message')}}</p>
             @endif    
             <!-- /.box-header -->
-           <div class="box-body">
- 
+            <div class="box-body">
               <table id="tableList" class="table table-bordered table-striped" data-page-length='25'  >
                 <thead>
                 <tr>
                   <th>ID</th>
-                  <th>类型名称</th>
-                  <th>子分类</th>
-                  <th>排序</th>
+                  <th>登录账号</th>
+                  <th>工会ID</th>
+                  <th>推广游戏</th>
+                  <th>姓名</th>
+                  <th>身份证</th>
+                  <th>QQ</th>
+                  <th>注册时间</th>
+                  <th>状态</th>
                   <th>操作</th>
-                  <th>子分类操作</th>
                 </tr>
                 </thead>
                 <tbody>
                  </tbody>
-              </table>  
+              </table>
             </div>
             <!-- /.box-body -->
           </div>
@@ -36,6 +38,7 @@
     <!-- /.content -->
   </div>
 <!-- DataTables -->
+
 <!-- CSS -->
 <link rel="stylesheet" href="{{ asset('resources/plugins/daterangepicker/daterangepicker.css') }}">
 <style>
@@ -50,26 +53,22 @@
 <script src="{{ asset('resources/js/daterangeconfig.js') }}"></script>
 <script>
 $(function () {
-
-   var host = window.location.host;
+    var host = window.location.host;
     var languageUrl = '/chinese.json';
     var localUrl = 'http://localhost/gamepub/public';
-    var ajaxUrl = '/games/types_ajax';
-    var delUrl = '/games/types_delete';
-
+    var ajaxUrl = '/chairmans/blacklist_ajax';
     if(host == 'localhost')
     {
        languageUrl = localUrl + languageUrl; 
        ajaxUrl = localUrl + ajaxUrl;
-       delUrl = localUrl + delUrl;
     }
-
     var table =  $("#tableList").DataTable({
-        paging: false,
-        searching: false,
-        info: false,
-        order: [[3,'asc']],
+        order: [[0,'asc']],
         columns:[
+            {"orderable":false},
+            {"orderable":false},
+            {"orderable":false},
+            {"orderable":false},
             {"orderable":false},
             {"orderable":false},
             {"orderable":false},
@@ -79,47 +78,23 @@ $(function () {
         ],
         language: {
             url: languageUrl,
+            searchPlaceholder: '{{$searchPlaceholder}}',
         },
-        serverSide: true,   
+        serverSide: true,    
         ajax: {
             url: ajaxUrl,
             type: 'POST',
             data: function (d){
                 d.dateRange = $('#reportrange span').html();
             },
-         headers: {
+            headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
-        },   
-    });  
-/*    table.on("click", ".delBtn", function(){
-        var id = $(this).attr("data-object-id");
-        $( "#dialog-confirm" ).dialog({
-            resizable: false,
-            height: "auto",
-            width: 400,
-            modal: true,
-            buttons: {
-            "删除": function() {
-                $.ajax({
-                    type: 'GET',
-                    url: delUrl + '/' + id,
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    }
-                });
-                $( this ).dialog( "close" );
-            },
-                "取消": function() {
-                    $( this ).dialog( "close" );
-                }
-        }
-        }); 
-}); */
-
+        },
+        "dom":"<'row'<'col-sm-1'l><'col-sm-7'<'#mytoolbox' >><'col-sm-4'f>r>"+"t"+"<'row'<'col-sm-6'i><'col-sm-6'p>>",
+        initComplete:initComplete,
+    });
 });
 </script>
-<div id="dialog-confirm" style="display: none;" title="提示">
-          <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span><br>您确定要执行此操作吗?</p>
-</div>
+
 @endsection

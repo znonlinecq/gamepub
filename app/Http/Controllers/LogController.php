@@ -84,6 +84,9 @@ class ChairmanLog extends LogController
 {
     private static $audit_form_submit_title = '会长审核';
     private static $game_authorization_form_submit_title = '游戏授权';
+    private static $blacklist_join_form_submit_title = '加入黑名单';
+    private static $blacklist_out_form_submit_title = '移除黑名单';
+
 
     public static function audit_form_submit($results, &$objects)
     {   
@@ -139,7 +142,56 @@ class ChairmanLog extends LogController
     public static function game_authorization_form_submit_title()
     {
         return self::$game_authorization_form_submit_title;
+    }    
+    
+    public static function blacklist_join_form_submit($results, &$objects)
+    {   
+        foreach($results as $result)
+        {        
+            $operator = User::find($result->uid);
+            $operator = $operator->name;
+            $operator_object = DB::select("SELECT * FROM dt_guild_list WHERE Id={$result->object}");
+            $operator_object = $operator_object[0]->Name;
+
+            $object = array();
+            $object[] = date('Y-m-d H:i:s', $result->created);
+            $object[] = $operator;
+            $object[] = $result->operation;
+            $object[] = $operator_object;
+            $object[] = $result->content;
+            $objects['data'][] = $object;
+        }
     }
+
+    public static function blacklist_join_form_submit_title()
+    {
+        return self::$blacklist_join_form_submit_title;
+    }    
+    
+    public static function blacklist_out_form_submit($results, &$objects)
+    {   
+        foreach($results as $result)
+        {        
+            $operator = User::find($result->uid);
+            $operator = $operator->name;
+            $operator_object = DB::select("SELECT * FROM dt_guild_list WHERE Id={$result->object}");
+            $operator_object = $operator_object[0]->Name;
+
+            $object = array();
+            $object[] = date('Y-m-d H:i:s', $result->created);
+            $object[] = $operator;
+            $object[] = $result->operation;
+            $object[] = $operator_object;
+            $object[] = $result->content;
+            $objects['data'][] = $object;
+        }
+    }
+
+    public static function blacklist_out_form_submit_title()
+    {
+        return self::$blacklist_out_form_submit_title;
+    }    
+ 
 }
 
 
@@ -249,4 +301,6 @@ class ApkLog extends LogController
     {
         return self::$title;
     }
+
 }
+

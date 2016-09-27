@@ -2,14 +2,13 @@
 @section('content')
 <div class="box">
 <div class="box-header with-border">
-    <a href="{{url($moduleRoute)}}" class="btn btn-default btn-sm active" role="button">返回</a>
     @if(session('message'))
     <p class="bg-success">{{session('message')}}</p>
     @endif    
 </div>
 <div class="box-body">
             <!-- form start -->
-            <form method="POST" action="{{ url($moduleRoute.'/audit_form_submit') }}">
+            <form method="POST" action="{{ url($moduleRoute.'/blacklist_out_form_submit') }}">
  {!! csrf_field() !!} 
 <table class="table table-bordered">
 <tbody>
@@ -49,17 +48,6 @@
         <td width="20%" align="right">状态</td>
         <td>{{$object->status}}</td>
     </tr>
-     <tr>
-        <td width="20%" align="right">类型</td>
-        <td>
-                  <select class="form-control" name="type" @if($object->GuildType !=0) disabled="true" @endif >
-                    <option> - 选择 - </option>
-                    <option value="1" @if($object->GuildType == 1) selected="true" @endif>A</option>
-                    <option value="2" @if($object->GuildType == 2) selected="true" @endif>B</option>
-                  </select>
-
-        </td>
-    </tr>
     
     <tr>
         <td width="20%" align="right">备注</td>
@@ -70,12 +58,10 @@
     <tr>
         <td width="20%" align="right"></td>
         <td>
-            <button name="submit" type="submit" class="btn btn-primary" value="yes">通过</button>
-            <button name="submit" type="submit" class="btn btn-default" value="no">驳回</button>
+            <button name="submit" type="submit" class="btn btn-primary" value="yes">解除</button>&nbsp;
+            <a href="{{url($moduleRoute.'/blacklist')}}" class="btn btn-default active" >返回</a>
         </td>
     </tr>
-
-
 
 </tbody>
 

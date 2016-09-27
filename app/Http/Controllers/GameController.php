@@ -261,11 +261,11 @@ class GameController extends Controller
                 $subOp = '<a href="'.url('games/types/classes/'.$result->Typeid).'" >查看</a>';
                 $subOp .= '&nbsp;&nbsp; | &nbsp;&nbsp;';
                 $subOp .= '<a href="'.url('games/types/classes_add/'.$result->Typeid).'">添加分类</a>';
-                
+                $count = GameClass::where('Typeid', $result->Typeid)->count(); 
                 $object = array();
                 $object[] = $result->Typeid;
                 $object[] = $result->Typename;
-                $object[] = 99;
+                $object[] = $count;
                 $object[] = $ordernum;
                 $object[] = $op;
                 $object[] = $subOp;
@@ -291,9 +291,9 @@ class GameController extends Controller
         return json_encode($objects);
     }
 
-    public function types_add($id)
+    public function types_add()
     {
-        return View($this->moduleView.'/type_create')->with(['title'=>'添加游戏类型', 'tid'=>$id]);
+        return View($this->moduleView.'/type_create')->with(['title'=>'添加游戏类型']);
     }
     public function types_add_submit(Request $request)
     {
@@ -306,7 +306,7 @@ class GameController extends Controller
         $object->Adminid = $user->id;
         $object->ordernum = $ordernum;
         $object->save();
-        return redirect($this->moduleRoute.'/types')->with('message', '添加成功!');
+        return redirect($this->moduleRoute.'/types_add')->with('message', '添加成功!');
     }
 
     public function types_edit($id)
@@ -330,8 +330,16 @@ class GameController extends Controller
 
     public function types_delete($id)
     {
-        GameType::destroy($id); 
-        return redirect($this->moduleRoute.'/types')->with('message', '删除成功!');
+        $class = GameClass::where('Typeid', $id)->get();
+        if(count($class))
+        {
+            return redirect($this->moduleRoute.'/types')->with('message', '有子类，无法删除!');
+        }
+        else
+        {
+            GameType::destroy($id); 
+            return redirect($this->moduleRoute.'/types')->with('message', '删除成功!');
+        }
     }
    
     public function types_classes($id=NULL)
@@ -394,14 +402,14 @@ class GameController extends Controller
                     $typeName = '';
                 }
                 $object = array();
-                $object[] = $result->Typeid;
+                $object[] = $result->Classid;
                 $object[] = $result->Classname;
                 $object[] = $typeName;
                 $ordernum = $result->ordernum;
                 $object[] = $ordernum;
-                $op = '<a href="'.url('games/types_classes_edit/'.$result->Typeid).'">编辑</a>';               
+                $op = '<a href="'.url('games/types/classes_edit/'.$result->Classid).'">编辑</a>';               
                 $op .= '&nbsp;&nbsp; |&nbsp;&nbsp; ';
-                $op .= '<a href="'.url('games/types_classes_delete/'.$result->Typeid).'" >删除</a>';
+                $op .= '<a href="'.url('games/types/classes_delete/'.$result->Classid).'" >删除</a>';
                 $object[] = $op;
 
                 $objects['data'][] = $object;
@@ -444,13 +452,14 @@ class GameController extends Controller
         $object->Typeid   = $tid;
         $object->ordernum = $ordernum;
         $object->save();
-        return redirect($this->moduleRoute.'/types/classes/'.$tid)->with('message', '添加成功!');
+        return redirect($this->moduleRoute.'/types/classes_add/'.$tid)->with('message', '添加成功!');
     }
 
     public function types_classes_edit($id)
     {
         $object = GameClass::find($id);
-        return View($this->moduleView.'/class_edit')->with(['title'=>'编辑游戏分类', 'object'=>$object]);
+        $type   = GameType::all();
+        return View($this->moduleView.'/class_edit')->with(['title'=>'编辑游戏分类', 'object'=>$object, 'types'=>$type, 'tid'=>$object->Typeid]);
     }
 
     public function types_classes_edit_submit(Request $request)
@@ -460,18 +469,20 @@ class GameController extends Controller
         $cid        = $requests['cid'];
         $name       = $requests['name'];
         $weight     = $requests['weight'];
-        $object     = GameType::find($cid);
-        $object->Typename   = $name;
+        $object     = GameClass::find($cid);
+        $object->Classname   = $name;
         $object->ordernum   = $weight;
         $object->Typeid     = $tid;
         $object->save();        
-        return redirect($this->moduleRoute.'/types_classes_edit/'.$cid)->with('message', '编辑成功!');
+        return redirect($this->moduleRoute.'/types/classes_edit/'.$cid)->with('message', '编辑成功!');
     }
 
     public function types_classes_delete($id)
     {
+        $class = GameClass::find($id);
+        $tid = $class->Typeid;
         GameClass::destroy($id); 
-        return redirect($this->moduleRoute.'/types_classes')->with('message', '删除成功!');
+        return redirect($this->moduleRoute.'/types/classes/'.$tid)->with('message', '删除成功!');
     }
 
 }

@@ -65,13 +65,20 @@ Route::resource('functions', 'FunctionController');
 Route::resource('permissions', 'PermissionController');
 
 //会长审核&授权
-Route::get('chairmans',                                 'ChairmanController@index');
-Route::get('chairmans/audit_form/{id}',                 'ChairmanController@audit_form');
-Route::post('chairmans/audit_form_submit',              'ChairmanController@audit_form_submit');
-Route::get('chairmans/game_authorization_form/{id}',         'ChairmanController@game_authorization_form');
-Route::post('chairmans/game_authorization_form_submit',         'ChairmanController@game_authorization_form_submit');
-Route::post('chairmans/index_ajax',                     'ChairmanController@index_ajax');
-Route::get('chairmans/game_authorization',              'ChairmanController@game_authorization');
+Route::get('chairmans',                                     'ChairmanController@index');
+Route::get('chairmans/audit_form/{id}',                     'ChairmanController@audit_form');
+Route::post('chairmans/audit_form_submit',                  'ChairmanController@audit_form_submit');
+Route::get('chairmans/game_authorization_form/{id}',        'ChairmanController@game_authorization_form');
+Route::post('chairmans/game_authorization_form_submit',     'ChairmanController@game_authorization_form_submit');
+Route::post('chairmans/index_ajax',                         'ChairmanController@index_ajax');
+Route::get('chairmans/game_authorization',                  'ChairmanController@game_authorization');
+Route::get('chairmans/blacklist',                           'ChairmanController@blacklist');
+Route::post('chairmans/blacklist_ajax',                     'ChairmanController@blacklist_ajax');
+Route::get('chairmans/blacklist_join_form/{id}',                 'ChairmanController@blacklist_join_form');
+Route::post('chairmans/blacklist_join_form_submit',         'ChairmanController@blacklist_join_form_submit');
+Route::get('chairmans/blacklist_out_form/{id}',                  'ChairmanController@blacklist_out_form');
+Route::post('chairmans/blacklist_out_form_submit',          'ChairmanController@blacklist_out_form_submit');
+
 
 //开发者
 Route::get('developers',                    'DeveloperController@index');
