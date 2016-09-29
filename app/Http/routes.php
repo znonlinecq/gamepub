@@ -74,9 +74,9 @@ Route::post('chairmans/index_ajax',                         'ChairmanController@
 Route::get('chairmans/game_authorization',                  'ChairmanController@game_authorization');
 Route::get('chairmans/blacklist',                           'ChairmanController@blacklist');
 Route::post('chairmans/blacklist_ajax',                     'ChairmanController@blacklist_ajax');
-Route::get('chairmans/blacklist_join_form/{id}',                 'ChairmanController@blacklist_join_form');
+Route::get('chairmans/blacklist_join_form/{id}',            'ChairmanController@blacklist_join_form');
 Route::post('chairmans/blacklist_join_form_submit',         'ChairmanController@blacklist_join_form_submit');
-Route::get('chairmans/blacklist_out_form/{id}',                  'ChairmanController@blacklist_out_form');
+Route::get('chairmans/blacklist_out_form/{id}',             'ChairmanController@blacklist_out_form');
 Route::post('chairmans/blacklist_out_form_submit',          'ChairmanController@blacklist_out_form_submit');
 
 
@@ -117,3 +117,8 @@ Route::get('logs',                          '\Rap2hpoutre\LaravelLogViewer\LogVi
 Route::get('logs/{controller}/{method}',    'LogController@index');
 Route::post('logs/index_ajax',               'LogController@index_ajax');
 
+//财务
+Route::get('finances',                                  'FinanceController@index');
+Route::post('finances/index_ajax',                      'FinanceController@index_ajax');
+Route::get('finances/recharge_form',                         'FinanceController@recharge_form');
+Route::post('finances/recharge_form_submit',                 'FinanceController@recharge_form_submit');
