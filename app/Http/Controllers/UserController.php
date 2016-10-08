@@ -8,6 +8,7 @@ use App\Http\Requests;
 use App\User;
 use App\Role;
 use View;
+use DB;
 
 class UserController extends Controller
 {

@@ -304,3 +304,38 @@ class ApkLog extends LogController
 
 }
 
+class FinanceLog extends LogController
+{
+    private static $title = '公会折扣设置';
+
+    public static function discount_form_submit($results, &$objects)
+    {   
+        foreach($results as $result)
+        {        
+            $operator = User::find($result->uid);
+            $operator = $operator->name;
+
+            if($result->object == 'a')
+            {
+                $operator_object = 'A级';
+            }elseif($result->object == 'b'){
+                $operator_object = 'B级';
+            }
+
+            $object = array();
+            $object[] = date('Y-m-d H:i:s', $result->created);
+            $object[] = $operator;
+            $object[] = $result->operation;
+            $object[] = $operator_object;
+            $object[] = unserialize($result->content);
+            $objects['data'][] = $object;
+        }
+    }
+
+    public static function discount_form_submit_title()
+    {
+        return self::$title;
+    }
+
+}
+

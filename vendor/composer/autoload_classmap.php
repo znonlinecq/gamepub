@@ -14,6 +14,7 @@ return array(
     'CreatePermissionTable' => $baseDir . '/database/migrations/2016_08_30_073725_create_permission_table.php',
     'CreateRolesTable' => $baseDir . '/database/migrations/2016_08_22_053803_create_roles_table.php',
     'CreateUsersTable' => $baseDir . '/database/migrations/2014_10_12_000000_create_users_table.php',
+    'CreateVariablesTable' => $baseDir . '/database/migrations/2016_10_08_080329_create_variables_table.php',
     'DatabaseSeeder' => $baseDir . '/database/seeds/DatabaseSeeder.php',
     'DeveloperTableSeeder' => $baseDir . '/database/seeds/DeveloperTableSeeder.php',
     'File_Iterator' => $vendorDir . '/phpunit/php-file-iterator/src/Iterator.php',

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Models\Finance;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Finance extends Model
+class Variable extends Model
 {
     public $timestamps = false;
 }

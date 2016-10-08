@@ -17,23 +17,33 @@
         <td width="20%" align="right">类型</td>
         <td>
                   <select class="form-control" name="gid" >
-                    <option> - 选择 - </option>
+                    <option value="" > - 选择 - </option>
                     @foreach($guilds as $guild)
                     <option value="{{$guild->Id}}" >{{$guild->Name}}-{{$guild->GuildType}}</option>
                     @endforeach
                   </select>
+                 @if ($errors->has('gid'))
+                    <strong>{{ $errors->first('gid') }}</strong>
+                 @endif
         </td>
     </tr>
     
 
     <tr>
         <td width="20%" align="right">充值金额</td>
-        <td><input type="textfield" name="money" value="" class="form-control" ></td>
+        <td><input type="textfield" name="money" value="" class="form-control" >       
+        @if ($errors->has('money'))
+            <strong>{{ $errors->first('money') }}</strong>
+        @endif
+        </td> 
     </tr>
     <tr>
         <td width="20%" align="right">备注</td>
         <td>
             <textarea class="form-control" name="description"></textarea>
+        @if ($errors->has('description'))
+            <strong>{{ $errors->first('description') }}</strong>
+        @endif
         </td>
     </tr>
     <tr>

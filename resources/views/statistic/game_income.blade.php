@@ -4,7 +4,6 @@
         <div class="col-xs-12">
           <div class="box">
             <div class="box-header">
-            <h3 class="box-title"><a href="{{url($moduleRoute.'/recharge_form')}}" >充值</a></h3>
             @if(session('message'))
             <p class="bg-success">{{session('message')}}</p>
             @endif    
@@ -14,15 +13,15 @@
                 <thead>
                 <tr>
                   <th>ID</th>
-                  <th>公会名称</th>
-                  <th>支付方式</th>
-                  <th>充值金额</th>
-                  <th>8豆数</th>
-                  <th>比率</th>
-                  <th>订单号</th>
-                  <th>操作人</th>
-                  <th>充值时间</th>
-                  <th>操作</th>
+                  <th>日期</th>
+                  <th>游戏名称</th>
+                  <th>游戏类型</th>
+                  <th>充值金额(元)</th>
+                  <th>充值人数</th>
+                  <th>平均充值金额</th>
+                  <th>累计注册</th>
+                  <th>累计下载</th>
+                  <th>累计充值笔数</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -57,14 +56,14 @@ $(function () {
     var host = window.location.host;
     var languageUrl = '/chinese.json';
     var localUrl = 'http://localhost/gamepub/public';
-    var ajaxUrl = '{{$moduleIndexAjax}}';
+    var ajaxUrl = '/statistics/games_income_ajax';
     if(host == 'localhost')
     {
        languageUrl = localUrl + languageUrl; 
        ajaxUrl = localUrl + ajaxUrl;
     }
     var table =  $("#tableList").DataTable({
-        order: [[0,'asc']],
+        order: [[1,'desc']],
         columns:[
             {"orderable":false},
             {"orderable":false},
@@ -73,7 +72,7 @@ $(function () {
             {"orderable":false},
             {"orderable":false},
             {"orderable":false},
-            {"orderable":true},
+            {"orderable":false},
             {"orderable":false},
             {"orderable":false},
         ],

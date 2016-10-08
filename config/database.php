@@ -27,6 +27,7 @@ return [
     */
 
     'default' => env('DB_CONNECTION', 'xfgame'),
+    //'default' => env('DB_CONNECTION', 'mysql'),
 
     /*
     |--------------------------------------------------------------------------
@@ -56,8 +57,8 @@ return [
             'driver' => 'mysql',
             'host' => env('DB_HOST', 'localhost'),
             'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'forge'),
-            'username' => env('DB_USERNAME', 'forge'),
+            'database' => env('DB_DATABASE', 'gamepub'),
+            'username' => env('DB_USERNAME', 'root'),
             'password' => env('DB_PASSWORD', ''),
             'charset' => 'utf8',
             'collation' => 'utf8_unicode_ci',
@@ -105,6 +106,20 @@ return [
             'strict' => false,
             'engine' => null,
         ],
+        'statistics' => [
+            'driver' => 'mysql',
+            'host' => env('DB_HOST', '172.16.16.128'),
+            'port' => env('DB_PORT', '3306'),
+            'database' => env('DB_DATABASE', 'db_xfplatformcenter_statistics'),
+            'username' => env('DB_USERNAME', 'plat_statisuser'),
+            'password' => env('DB_PASSWORD', 'Fzg8YkyOQYuIC64AkVFN'),
+            'charset' => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix' => 'game_',
+            'strict' => false,
+            'engine' => null,
+        ],
+
 
 
         'pgsql' => [

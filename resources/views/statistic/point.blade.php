@@ -4,7 +4,6 @@
         <div class="col-xs-12">
           <div class="box">
             <div class="box-header">
-            <h3 class="box-title"><a href="{{url($moduleRoute.'/recharge_form')}}" >充值</a></h3>
             @if(session('message'))
             <p class="bg-success">{{session('message')}}</p>
             @endif    
@@ -14,15 +13,15 @@
                 <thead>
                 <tr>
                   <th>ID</th>
-                  <th>公会名称</th>
-                  <th>支付方式</th>
+                  <th>日期</th>
                   <th>充值金额</th>
-                  <th>8豆数</th>
-                  <th>比率</th>
-                  <th>订单号</th>
-                  <th>操作人</th>
-                  <th>充值时间</th>
-                  <th>操作</th>
+                  <th>对应8豆</th>
+                  <th>充返8豆</th>
+                  <th>手动添加V豆</th>
+                  <th>8豆比值</th>
+                  <th>8豆消耗</th>
+                  <th>8豆库存</th>
+                  <th>异常8豆</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -57,7 +56,7 @@ $(function () {
     var host = window.location.host;
     var languageUrl = '/chinese.json';
     var localUrl = 'http://localhost/gamepub/public';
-    var ajaxUrl = '{{$moduleIndexAjax}}';
+    var ajaxUrl = '/statistics/channels_ajax';
     if(host == 'localhost')
     {
        languageUrl = localUrl + languageUrl; 
@@ -73,7 +72,7 @@ $(function () {
             {"orderable":false},
             {"orderable":false},
             {"orderable":false},
-            {"orderable":true},
+            {"orderable":false},
             {"orderable":false},
             {"orderable":false},
         ],
