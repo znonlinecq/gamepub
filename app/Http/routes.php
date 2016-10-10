@@ -105,6 +105,10 @@ Route::post('games/types/classes_add_submit',       'GameController@types_classe
 Route::get('games/types/classes_edit/{id}',         'GameController@types_classes_edit');
 Route::post('games/types/classes_edit_submit',      'GameController@types_classes_edit_submit');
 Route::get('games/types/classes_delete/{id}',       'GameController@types_classes_delete');
+Route::get('games/rebates',                         'GameController@rebate');
+Route::post('games/rebates_ajax',                   'GameController@rebate_ajax');
+Route::get('games/rebate_setup_form/{id}',          'GameController@rebate_setup_form');
+Route::post('games/rebate_setup_form_submit',       'GameController@rebate_setup_form_submit');
 
 //游戏包
 Route::get('apks',                                  'ApkController@index');

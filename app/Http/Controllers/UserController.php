@@ -9,6 +9,7 @@ use App\User;
 use App\Role;
 use View;
 use DB;
+use Auth;
 
 class UserController extends Controller
 {
@@ -62,7 +63,14 @@ class UserController extends Controller
     }
 
     public function create(){
+        $currentUser = Auth::User();
+        $rid = $currentUser->rid;
         $roles = Role::All();
+        if($rid != 1)
+        {
+            unset($roles[0]);
+        }
+        
         return view('user/create', ['roles'=>$roles, 'title'=>'添加用户']);
     } 
 
@@ -79,6 +87,8 @@ class UserController extends Controller
         $user->status   = $request->status;
         $user->rid      = $request->role;
         $user->password = bcrypt($request->password);
+        $user->created = time();
+        $user->updated = time();
         $user->save();
         return redirect('users/create')->with('message', '创建成功!');
     }
@@ -89,9 +99,14 @@ class UserController extends Controller
 
     public function edit($id)
     {
-
+        $currentUser = Auth::User();
+        $rid = $currentUser->rid;
         $user = User::find($id);
         $roles = Role::All();
+        if($rid != 1)
+        {
+            unset($roles[0]);
+        }
         return view('user/edit', ['user'=>$user, 'roles'=>$roles,'title'=>'用户编辑']);
     }
 
@@ -110,6 +125,7 @@ class UserController extends Controller
                 'status'=>$request->status,
                 'email'=>$request->email,
                 'password'=>bcrypt($request->password),
+                'updated' => time(),
             ); 
         }else{
              $update = array(
@@ -117,6 +133,7 @@ class UserController extends Controller
                 'rid'=>$request->role,
                 'status'=>$request->status,
                 'email'=>$request->email,
+                'updated' => time(),
             ); 
         }
         User::where('id', $id)->update($update);
@@ -124,6 +141,10 @@ class UserController extends Controller
     }
 
     public function destroy($id){
+        if($id == 1)
+        {
+            return redirect('users')->with('message', '超级管理员无法删除!');
+        }
         User::destroy($id);
         return redirect('users')->with('message', '删除成功!');
     }

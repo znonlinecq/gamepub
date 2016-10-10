@@ -484,5 +484,152 @@ class GameController extends Controller
         GameClass::destroy($id); 
         return redirect($this->moduleRoute.'/types/classes/'.$tid)->with('message', '删除成功!');
     }
+    
+    public function rebate()
+    {
+        return view($this->moduleView.'/rebate', ['title'=>'游戏返点设置']);
+    }
+
+    public function rebate_ajax(Request $request)
+    {
+        $requests       = $request->all();
+        $draw           = $requests['draw'];
+        $columns        = $requests['columns'];
+        $start          = $requests['start'];
+        $length         = $requests['length'];
+        $search         = $requests['search'];
+        $searchValue    = $search['value']; 
+        $order          = $requests['order'];
+        $orderNumber    = $order[0]['column'];
+        $orderDir       = $order[0]['dir'];
+        $conditions     = array();
+
+        if(!empty($requests['dateRange']))
+        {
+            $dateRange      = $requests['dateRange'];
+            $dateRange      = explode('-', $dateRange);
+            $from           = trim($dateRange[0]);
+            $to             = trim($dateRange[1]);
+        }
+        else
+        {
+            $from  = NULL;
+            $to    = NULL;
+        }
+
+        $orderColumns = array(
+            0=>'id', 
+            7=>'adddate',
+        );
+        $orderColumnsStr = $orderColumns[$orderNumber];
+
+        $sql = " select * from {$this->moduleTable} ";
+        $conditions[] = "status = 1";
+        if($searchValue)
+        {
+            $conditions[] .= "Gamename like '%{$searchValue}%' ";
+        }        
+        if($from && $to)
+        {
+            $conditions[] = " (Adddate BETWEEN  '{$from}' AND '{$to}') ";
+        }
+        if(count($conditions))
+        {
+            $sql .= " WHERE ";
+            $sql .= implode(' AND ', $conditions);
+        }
+
+        $countResult = DB::select($sql);
+        $total  = count($countResult);
+
+        $sql .= " ORDER BY {$orderColumnsStr} {$orderDir}";
+        $sql .= " LIMIT {$start}, {$length} ";
+
+        $results = DB::select($sql);
+
+        $objects = array();
+        $objects['draw'] = $draw;
+        $objects['recordsTotal'] = $total;
+        $objects['recordsFiltered'] = $total;
+        if(count($results))
+        {
+
+            foreach($results as $result)
+            {
+                $developer = Game::find($result->Cpid)->developer;
+                if($result->Rebate)
+                {
+                    $rebate = $result->Rebate;
+                }
+                else
+                {
+                    $rebate = 0;
+                }
+                $object = array();
+                $object[] = $result->id;
+                $object[] = $result->Gamename;
+                $object[] = $developer->username;
+                $object[] = $result->Typeid;
+                $object[] = $result->Version;
+                $object[] = $result->Casenumber;
+                $object[] = $result->Onlinedate;
+                $object[] = $result->Adddate;
+                $object[] = $rebate;
+                $object[] = '<a href="'.url($this->moduleRoute.'/rebate_setup_form/'.$result->id).'">设置</a>';
+
+                $objects['data'][] = $object;
+            }
+        }
+        else
+        {
+            for($i=0; $i<10; $i++)
+            {
+                if($i == 0)
+                {
+                    $array[] = '空';
+                }
+                else
+                {
+                    $array[] = '';
+                }
+            }
+            $objects['data'][] = $array;
+        }
+
+        return json_encode($objects);
+    }
+
+    public function rebate_setup_form($id)
+    {
+        
+        $object = Game::find($id); 
+        $developer = Game::find($object->Cpid)->developer;
+        $object->developer = $developer;
+
+        return view($this->moduleView.'/rebate_setup_form', ['object'=>$object, 'title'=>$this->moduleName.'返点设置']);
+    
+    }
+
+    public function rebate_setup_form_submit(Request $request)
+    {
+        $user = Auth::user();
+
+        $id = $request->id;
+        $rebate = $request->rebate;
+
+        $updated = date('Y-m-d H:i:s', time());
+
+        DB::update("UPDATE {$this->moduleTable} set Rebate={$rebate}, checkdate='{$updated}'  where id = {$id}");
+
+        //日志
+        $params['module'] = __CLASS__;
+        $params['function'] = __FUNCTION__;
+        $params['operation'] = '返点设置';
+        $params['object'] = $id;
+        $params['content'] = '返点金额: '.$rebate;
+        Log::record($params);
+        return redirect($this->moduleRoute.'/rebates')->with('message', '设置完成!');
+    }
+
 
 }

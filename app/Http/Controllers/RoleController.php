@@ -35,6 +35,8 @@ class RoleController extends Controller
         $role = new Role();
         $role->name = $request->name;
         $role->description = $request->description;
+        $role->created = time();
+        $role->updated = time();
         $role->save();
         return redirect('roles/create')->with('message', '创建成功!');
     }
@@ -52,13 +54,18 @@ class RoleController extends Controller
         Role::where('id', $id)->update([
             'name'=>$request->name,
             'description' => $request->description,
+            'updated' => time(),
         ]);
         return redirect('roles/'.$id.'/edit')->with('message', '编辑成功!');
 
     } 
 
     public function destroy($id){
-             Role::destroy($id);
+        if($id == 1)
+        {
+            return redirect('roles')->with('message', '超级管理员无法删除!');
+        }
+        Role::destroy($id);
         return redirect('roles')->with('message', '删除成功!');
     } 
 

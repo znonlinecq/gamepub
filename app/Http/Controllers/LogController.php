@@ -234,6 +234,7 @@ class DeveloperLog extends LogController
 class GameLog extends LogController
 {
     private static $title = '游戏审核';
+    private static $rebateTitle = '返点设置';
 
     public static function audit_form_submit($results, &$objects)
     {   
@@ -264,7 +265,34 @@ class GameLog extends LogController
     public static function audit_form_submit_title()
     {
         return self::$title;
+    }    
+    
+    public static function rebate_setup_form_submit($results, &$objects)
+    {   
+        foreach($results as $result)
+        {        
+            $operator = User::find($result->uid);
+            $operator = $operator->name;
+            $operator_object = DB::select("SELECT * FROM game_info WHERE id={$result->object}");
+            $operator_object = $operator_object[0]->Gamename;
+
+            $operation = '返点设置';
+
+            $object = array();
+            $object[] = date('Y-m-d H:i:s', $result->created);
+            $object[] = $operator;
+            $object[] = $operation;
+            $object[] = $operator_object;
+            $object[] = $result->content;
+            $objects['data'][] = $object;
+        }
     }
+
+    public static function rebate_setup_form_submit_title()
+    {
+        return self::$rebateTitle;
+    }
+
 }
 
 class ApkLog extends LogController

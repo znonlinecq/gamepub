@@ -9,6 +9,10 @@ class Permission extends Model
     public $timestamps = false;
 
     static public function check_exist($rid, $mid, $fid){
+        if($rid == 1)
+        {
+            return true;
+        }
         $permission = Permission::where('rid', $rid)
             ->where('mid', $mid)
             ->where('fid', $fid)
@@ -22,6 +26,10 @@ class Permission extends Model
     }    
     
     static public function check_module($rid, $mid){
+        if($rid == 1)
+        {
+            return true;
+        }
         $permission = Permission::where('rid', $rid)
             ->where('mid', $mid)
             ->get();

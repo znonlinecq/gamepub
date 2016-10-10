@@ -36,7 +36,12 @@
                             <tr>
                                 <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{$function->name}}</td>
                                 @foreach($roles as $role)
-                                   <td> <input type="checkbox" name="permissions[]" value="{{$role->id}}-{{$object->id}}-{{$function->id}}" @if(App\Models\Permission::check_exist($role->id, $object->id, $function->id)) checked="true" @endif /></td>
+                                    @if($role->id == 1) 
+                                        <td> <input type="checkbox" name="permissions[]" value="{{$role->id}}-{{$object->id}}-{{$function->id}}" checked="true" disabled></td>
+
+                                    @else
+                                        <td> <input type="checkbox" name="permissions[]" value="{{$role->id}}-{{$object->id}}-{{$function->id}}" @if(App\Models\Permission::check_exist($role->id, $object->id, $function->id)) checked="true" @endif /></td>
+                                    @endif
                                 @endforeach
                             </tr>
                         @endforeach

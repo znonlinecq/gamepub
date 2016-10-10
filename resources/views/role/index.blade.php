@@ -37,7 +37,7 @@
                             <td> {{$role->id}} </td>
                             <td>{{$role->name}}</td>
                             <td>{{$role->description}}</td>
-                            <td>{{$role->created_at}}</td>
+                            <td>{{ date('Y-m-d H:i:s', $role->created) }}</td>
                             <td width="12%">
 <!-- <a href="{{ url('roles/'.$role->id.'/edit') }}" class="btn btn-default" >编辑</a>
 <button data-role-id="{{$role->id}}" href="#" class="btn btn-default btnDel" >删除</button>

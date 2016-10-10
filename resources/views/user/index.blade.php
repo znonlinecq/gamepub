@@ -43,7 +43,7 @@
                             <td>{{$user->role}}</td>
                             <td>{{$user->email}}</td>
                             <td>{{$user->status}}</td>
-                            <td>{{$user->created_at}}</td>
+                            <td>{{date('Y-m-d H:i:s', $user->created) }}</td>
                             <td width="12%">
  <div class="row">
 <div class="col-sm-6">
