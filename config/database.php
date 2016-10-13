@@ -1,4 +1,123 @@
 <?php
+if(!empty($_SERVER['SERVER_NAME']))
+{
+    $domain = $_SERVER['SERVER_NAME'];  
+    $debug = true;
+    if($domain == 'localhost')
+    {
+        if($debug)
+        {
+            $dbInfo['db_ip']       = '120.92.56.192';
+            $dbInfo['db_db']       = 'db_xfplatformcenter';
+            $dbInfo['db_username'] = 'u_gamecenter';
+            $dbInfo['db_password'] = 'PVAxQjetsU8X2eN0Sw4T';
+            $dbInfo['st_ip']       = '120.92.56.192';
+            $dbInfo['st_db']       = 'db_xfplatformcenter_statistics';
+            $dbInfo['st_username'] = 'statisuser';
+            $dbInfo['st_password'] = 'kCZTdI6CMhl35MUIu0DS';
+        }
+        else
+        {
+            $dbInfo['db_ip']       = '42.62.24.232';
+            $dbInfo['db_db']       = 'db_xfplatformcenter';
+            $dbInfo['db_username'] = 'u_gamecenter';
+            $dbInfo['db_password'] = 'jTdDEZHonOrbR98YQn9q';
+            $dbInfo['st_ip']       = '42.62.24.246';
+            $dbInfo['st_db']       = 'db_xfplatformcenter_statistics';
+            $dbInfo['st_username'] = 'statisuser';
+            $dbInfo['st_password'] = 'BmFO62n5PbQ7GJQCrlsL';
+        }
+    }
+    if($domain == 'www.xfgame.com')
+    {
+        if($debug)
+        {
+            $dbInfo['db_ip']       = '120.92.56.192';
+            $dbInfo['db_db']       = 'db_xfplatformcenter';
+            $dbInfo['db_username'] = 'u_gamecenter';
+            $dbInfo['db_password'] = 'PVAxQjetsU8X2eN0Sw4T';
+            $dbInfo['st_ip']       = '120.92.56.192';
+            $dbInfo['st_db']       = 'db_xfplatformcenter_statistics';
+            $dbInfo['st_username'] = 'statisuser';
+            $dbInfo['st_password'] = 'kCZTdI6CMhl35MUIu0DS';
+        }
+        else
+        {
+            $dbInfo['db_ip']       = '42.62.24.232';
+            $dbInfo['db_db']       = 'db_xfplatformcenter';
+            $dbInfo['db_username'] = 'u_gamecenter';
+            $dbInfo['db_password'] = 'jTdDEZHonOrbR98YQn9q';
+            $dbInfo['st_ip']       = '42.62.24.246';
+            $dbInfo['st_db']       = 'db_xfplatformcenter_statistics';
+            $dbInfo['st_username'] = 'statisuser';
+            $dbInfo['st_password'] = 'BmFO62n5PbQ7GJQCrlsL';
+        }
+    }
+    if($domain == 'localhost.xfgame.com')
+    {
+        if($debug)
+        {
+            $dbInfo['db_ip']       = '172.16.16.119';
+            $dbInfo['db_db']       = 'db_xfplatformcenter';
+            $dbInfo['db_username'] = 'u_gamecenter';
+            $dbInfo['db_password'] = 'PVAxQjetsU8X2eN0Sw4T';
+            $dbInfo['st_ip']       = '172.16.16.119';
+            $dbInfo['st_db']       = 'db_xfplatformcenter_statistics';
+            $dbInfo['st_username'] = 'u_dbpassort';
+            $dbInfo['st_password'] = 'dd0Kgmtfh9C2IHwg0S32';
+        }
+        else
+        {
+            $dbInfo['db_ip']       = '42.62.24.232';
+            $dbInfo['db_db']       = 'db_xfplatformcenter';
+            $dbInfo['db_username'] = 'u_gamecenter';
+            $dbInfo['db_password'] = 'jTdDEZHonOrbR98YQn9q';
+            $dbInfo['st_ip']       = '42.62.24.246';
+            $dbInfo['st_db']       = 'db_xfplatformcenter_statistics';
+            $dbInfo['st_username'] = 'statisuser';
+            $dbInfo['st_password'] = 'BmFO62n5PbQ7GJQCrlsL';
+        }
+    }
+
+
+
+    if($domain == 'admin.game.87870.com')
+    {
+        if($debug)
+        {
+            $dbInfo['db_ip']       = '120.92.56.192';
+            $dbInfo['db_db']       = 'db_xfplatformcenter';
+            $dbInfo['db_username'] = 'u_gamecenter';
+            $dbInfo['db_password'] = 'PVAxQjetsU8X2eN0Sw4T';
+            $dbInfo['st_ip']       = '120.92.56.192';
+            $dbInfo['st_db']       = 'db_xfplatformcenter_statistics';
+            $dbInfo['st_username'] = 'statisuser';
+            $dbInfo['st_password'] = 'kCZTdI6CMhl35MUIu0DS';
+        }
+        else
+        {
+            $dbInfo['db_ip']       = '42.62.24.232';
+            $dbInfo['db_db']       = 'db_xfplatformcenter';
+            $dbInfo['db_username'] = 'u_gamecenter';
+            $dbInfo['db_password'] = 'jTdDEZHonOrbR98YQn9q';
+            $dbInfo['st_ip']       = '42.62.24.246';
+            $dbInfo['st_db']       = 'db_xfplatformcenter_statistics';
+            $dbInfo['st_username'] = 'statisuser';
+            $dbInfo['st_password'] = 'BmFO62n5PbQ7GJQCrlsL';
+        }
+    }
+}
+else
+{
+    $dbInfo['db_ip']       = '120.92.56.192';
+    $dbInfo['db_db']       = 'db_xfplatformcenter';
+    $dbInfo['db_username'] = 'u_gamecenter';
+    $dbInfo['db_password'] = 'PVAxQjetsU8X2eN0Sw4T';
+    $dbInfo['st_ip']       = '120.92.56.192';
+    $dbInfo['st_db']       = 'db_xfplatformcenter_statistics';
+    $dbInfo['st_username'] = 'statisuser';
+    $dbInfo['st_password'] = 'kCZTdI6CMhl35MUIu0DS';
+}
 
 return [
 
@@ -69,13 +188,11 @@ return [
         
         'xfgame' => [
             'driver' => 'mysql',
-            //'host' => env('DB_HOST', '172.16.16.119'),
-            'host' => env('DB_HOST', '42.62.24.232'),
+            'host' => env('DB_HOST', $dbInfo['db_ip']),
             'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'db_xfplatformcenter'),
-            'username' => env('DB_USERNAME', 'u_gamecenter'),
-            //'password' => env('DB_PASSWORD', 'PVAxQjetsU8X2eN0Sw4T'),
-            'password' => env('DB_PASSWORD', 'jTdDEZHonOrbR98YQn9q'),
+            'database' => env('DB_DATABASE', $dbInfo['db_db']),
+            'username' => env('DB_USERNAME', $dbInfo['db_username']),
+            'password' => env('DB_PASSWORD', $dbInfo['db_password']),
             'charset' => 'utf8',
             'collation' => 'utf8_unicode_ci',
             'prefix' => 'ad_',
@@ -83,14 +200,12 @@ return [
             'engine' => null,
         ],
         'xfgame1' => [
-            'driver' => 'mysql',
-            //'host' => env('DB_HOST', '172.16.16.119'),
-            'host' => env('DB_HOST', '42.62.24.232'),
+            'driver' => 'mysql', 
+            'host' => env('DB_HOST', $dbInfo['db_ip']),
             'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'db_xfplatformcenter'),
-            'username' => env('DB_USERNAME', 'u_gamecenter'),
-            //'password' => env('DB_PASSWORD', 'PVAxQjetsU8X2eN0Sw4T'),
-            'password' => env('DB_PASSWORD', 'jTdDEZHonOrbR98YQn9q'),
+            'database' => env('DB_DATABASE', $dbInfo['db_db']),
+            'username' => env('DB_USERNAME', $dbInfo['db_username']),
+            'password' => env('DB_PASSWORD', $dbInfo['db_password']),
             'charset' => 'utf8',
             'collation' => 'utf8_unicode_ci',
             'prefix' => 'dt_',
@@ -98,14 +213,12 @@ return [
             'engine' => null,
         ],
         'xfgame2' => [
-            'driver' => 'mysql',
-            //'host' => env('DB_HOST', '172.16.16.119'),
-            'host' => env('DB_HOST', '42.62.24.232'),
+            'driver' => 'mysql', 
+            'host' => env('DB_HOST', $dbInfo['db_ip']),
             'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'db_xfplatformcenter'),
-            'username' => env('DB_USERNAME', 'u_gamecenter'),
-            //'password' => env('DB_PASSWORD', 'PVAxQjetsU8X2eN0Sw4T'),
-            'password' => env('DB_PASSWORD', 'jTdDEZHonOrbR98YQn9q'),
+            'database' => env('DB_DATABASE', $dbInfo['db_db']),
+            'username' => env('DB_USERNAME', $dbInfo['db_username']),
+            'password' => env('DB_PASSWORD', $dbInfo['db_password']),
             'charset' => 'utf8',
             'collation' => 'utf8_unicode_ci',
             'prefix' => 'game_',
@@ -113,23 +226,18 @@ return [
             'engine' => null,
         ],
         'statistics' => [
-            'driver' => 'mysql',
-            //'host' => env('DB_HOST', '172.16.16.128'),
-            'host' => env('DB_HOST', '42.62.24.246'),
+            'driver' => 'mysql', 
+            'host' => env('DB_HOST', $dbInfo['st_ip']),
             'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'db_xfplatformcenter_statistics'),
-            //'username' => env('DB_USERNAME', 'plat_statisuser'),
-            'username' => env('DB_USERNAME', 'statisuser'),
-            //'password' => env('DB_PASSWORD', 'Fzg8YkyOQYuIC64AkVFN'),
-            'password' => env('DB_PASSWORD', 'BmFO62n5PbQ7GJQCrlsL'),
+            'database' => env('DB_DATABASE', $dbInfo['st_db']),
+            'username' => env('DB_USERNAME', $dbInfo['st_username']),
+            'password' => env('DB_PASSWORD', $dbInfo['st_password']),
             'charset' => 'utf8',
             'collation' => 'utf8_unicode_ci',
             'prefix' => 'game_',
             'strict' => false,
             'engine' => null,
         ],
-
-
 
         'pgsql' => [
             'driver' => 'pgsql',

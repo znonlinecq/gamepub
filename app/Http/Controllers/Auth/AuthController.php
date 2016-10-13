@@ -29,7 +29,7 @@ class AuthController extends Controller
      * @var string
      */
     protected $redirectTo = '/';
-
+    protected $username = 'name';
     /**
      * Create a new authentication controller instance.
      *
@@ -49,7 +49,7 @@ class AuthController extends Controller
     protected function validator(array $data)
     {
         return Validator::make($data, [
-            'name' => 'required|max:255',
+            'username' => 'required|max:255',
             'email' => 'required|email|max:255|unique:users',
             'password' => 'required|confirmed',
             'agreement' => 'required',
@@ -65,7 +65,7 @@ class AuthController extends Controller
     protected function create(array $data)
     {
         return User::create([
-            'name' => $data['name'],
+            'username' => $data['username'],
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
         ]);
@@ -78,8 +78,10 @@ class AuthController extends Controller
      */
     public function authenticate()
     {
+        print_r('aa');die();
         // 尝试登录
-        if (Auth::attempt(['email' => $email, 'password' => $password],true)) {
+        if (Auth::attempt(['username' => $username, 'password' => $password],true)) {
+print_r('tg');die();
             // 认证通过...
             return redirect()->intended('dashboard');
         }

@@ -12,6 +12,7 @@ use Auth;
 use App\Models\Log;
 use App\Models\GameType;
 use App\Models\GameClass;
+use App\Models\Developer;
 
 class GameController extends Controller
 {
@@ -104,7 +105,26 @@ class GameController extends Controller
 
             foreach($results as $result)
             {
-                $developer = Game::find($result->Cpid)->developer;
+                $developer = Developer::where('cpid', $result->Cpid)->get();
+                if(count($developer))
+                {
+                    $developerName = $developer[0]->username;
+                }
+                else
+                {
+                    $developerName = '未定义';
+                }
+
+                $gameType   = GameType::where('Typeid', $result->Typeid)->get();
+                if(count($gameType))
+                {
+                    $type = $gameType[0]->Typename;
+                }
+                else
+                {
+                    $type = '未分类';
+                }
+
 
                 if($result->status == 0)
                 {
@@ -119,8 +139,8 @@ class GameController extends Controller
                 $object = array();
                 $object[] = $result->id;
                 $object[] = $result->Gamename;
-                $object[] = $developer->username;
-                $object[] = $result->Typeid;
+                $object[] = $developerName;
+                $object[] = $type;
                 $object[] = $result->Version;
                 $object[] = $result->Casenumber;
                 $object[] = $result->Onlinedate;
@@ -155,8 +175,19 @@ class GameController extends Controller
     {
         
         $object = Game::find($id); 
-        $developer = Game::find($object->Cpid)->developer;
-        $object->developer = $developer;
+        
+        $developer = Developer::where('cpid', $object->Cpid)->get();
+        if(count($developer))
+        {
+            $developerName = $developer[0]->username;
+        }
+        else
+        {
+            $developerName = '未定义';
+        }
+
+
+        $object->developer = $developer[0];
 
         $object->created = date('Y-m-d H:i:s', $object->CreateDate); 
         if($object->status == 0)
@@ -252,7 +283,18 @@ class GameController extends Controller
         if(count($results))
         {
             foreach($results as $result)
-            {
+            { 
+                $gameType   = GameType::where('Typeid', $result->Typeid)->get();
+                if(count($gameType))
+                {
+                    $type = $gameType[0]->Typename;
+                }
+                else
+                {
+                    $type = '未分类';
+                }
+
+
                 $ordernum = $result->ordernum;
                 $op = '<a href="'.url('games/types_edit/'.$result->Typeid).'">编辑</a>';               
                 $op .= '&nbsp;&nbsp; |&nbsp;&nbsp; ';
@@ -264,7 +306,7 @@ class GameController extends Controller
                 $count = GameClass::where('Typeid', $result->Typeid)->count(); 
                 $object = array();
                 $object[] = $result->Typeid;
-                $object[] = $result->Typename;
+                $object[] = $type;
                 $object[] = $count;
                 $object[] = $ordernum;
                 $object[] = $op;
@@ -556,7 +598,26 @@ class GameController extends Controller
 
             foreach($results as $result)
             {
-                $developer = Game::find($result->Cpid)->developer;
+                $developer = Developer::where('cpid', $result->Cpid)->get();
+                if(count($developer))
+                {
+                    $developerName = $developer[0]->username;
+                }
+                else
+                {
+                    $developerName = '未定义';
+                }
+
+                $gameType   = GameType::where('Typeid', $result->Typeid)->get();
+                if(count($gameType))
+                {
+                    $type = $gameType[0]->Typename;
+                }
+                else
+                {
+                    $type = '未分类';
+                }
+
                 if($result->Rebate)
                 {
                     $rebate = $result->Rebate;
@@ -568,8 +629,8 @@ class GameController extends Controller
                 $object = array();
                 $object[] = $result->id;
                 $object[] = $result->Gamename;
-                $object[] = $developer->username;
-                $object[] = $result->Typeid;
+                $object[] = $developerName;
+                $object[] = $type;
                 $object[] = $result->Version;
                 $object[] = $result->Casenumber;
                 $object[] = $result->Onlinedate;
@@ -603,8 +664,8 @@ class GameController extends Controller
     {
         
         $object = Game::find($id); 
-        $developer = Game::find($object->Cpid)->developer;
-        $object->developer = $developer;
+        $developer = Developer::where('cpid', $object->Cpid)->get();
+        $object->developer = $developer[0];
 
         return view($this->moduleView.'/rebate_setup_form', ['object'=>$object, 'title'=>$this->moduleName.'返点设置']);
     
@@ -629,6 +690,402 @@ class GameController extends Controller
         $params['content'] = '返点金额: '.$rebate;
         Log::record($params);
         return redirect($this->moduleRoute.'/rebates')->with('message', '设置完成!');
+    }
+
+    public function online()
+    {
+        return view($this->moduleView.'/online', ['title'=>'游戏上线/下线']);
+    }
+
+    public function online_ajax(Request $request)
+    {
+        $requests       = $request->all();
+        $draw           = $requests['draw'];
+        $columns        = $requests['columns'];
+        $start          = $requests['start'];
+        $length         = $requests['length'];
+        $search         = $requests['search'];
+        $searchValue    = $search['value']; 
+        $order          = $requests['order'];
+        $orderNumber    = $order[0]['column'];
+        $orderDir       = $order[0]['dir'];
+        $conditions     = array();
+
+        if(!empty($requests['dateRange']))
+        {
+            $dateRange      = $requests['dateRange'];
+            $dateRange      = explode('-', $dateRange);
+            $from           = trim($dateRange[0]);
+            $to             = trim($dateRange[1]);
+        }
+        else
+        {
+            $from  = NULL;
+            $to    = NULL;
+        }
+
+        $orderColumns = array(
+            0=>'id', 
+            7=>'adddate',
+        );
+        $orderColumnsStr = $orderColumns[$orderNumber];
+
+        $sql = " select * from {$this->moduleTable} ";
+        $conditions[] = "status = 1";
+        if($searchValue)
+        {
+            $conditions[] .= "Gamename like '%{$searchValue}%' ";
+        }        
+        if($from && $to)
+        {
+            $conditions[] = " (Adddate BETWEEN  '{$from}' AND '{$to}') ";
+        }
+        if(count($conditions))
+        {
+            $sql .= " WHERE ";
+            $sql .= implode(' AND ', $conditions);
+        }
+
+        $countResult = DB::select($sql);
+        $total  = count($countResult);
+
+        $sql .= " ORDER BY {$orderColumnsStr} {$orderDir}";
+        $sql .= " LIMIT {$start}, {$length} ";
+
+        $results = DB::select($sql);
+
+        $objects = array();
+        $objects['draw'] = $draw;
+        $objects['recordsTotal'] = $total;
+        $objects['recordsFiltered'] = $total;
+        if(count($results))
+        {
+
+            foreach($results as $result)
+            {
+                $developer = Developer::where('cpid', $result->Cpid)->get();
+                if(count($developer))
+                {
+                    $developerName = $developer[0]->username;
+                }
+                else
+                {
+                    $developerName = '未定义';
+                }
+
+
+                $gameType   = GameType::where('Typeid', $result->Typeid)->get();
+                if(count($gameType))
+                {
+                    $type = $gameType[0]->Typename;
+                }
+                else
+                {
+                    $type = '未分类';
+                }
+
+                if($result->onlineStatus == 0)
+                {
+                    $onlineStatus = '待上线';
+                    $op =  '<a href="'.url($this->moduleRoute.'/online_handle_submit/'.$result->id.'/1').'">上线</a>';
+                }
+                elseif($result->onlineStatus == 1)
+                {
+                    $onlineStatus = '上线';
+                    $op =  '<a href="'.url($this->moduleRoute.'/online_handle_submit/'.$result->id.'/2').'">下线</a>';
+                }
+                elseif($result->onlineStatus == 2)
+                {
+                    $onlineStatus = '下线';
+                    $op =  '<a href="'.url($this->moduleRoute.'/online_handle_submit/'.$result->id.'/1').'">上线</a>';
+                }
+
+                $object = array();
+                $object[] = $result->id;
+                $object[] = $result->Gamename;
+                $object[] = $developerName;
+                $object[] = $type;
+                $object[] = $result->Version;
+                $object[] = $result->Casenumber;
+                $object[] = $result->Onlinedate;
+                $object[] = $result->Adddate;
+                $object[] = $onlineStatus;
+                $object[] = $op;
+
+                $objects['data'][] = $object;
+            }
+        }
+        else
+        {
+            for($i=0; $i<10; $i++)
+            {
+                if($i == 0)
+                {
+                    $array[] = '空';
+                }
+                else
+                {
+                    $array[] = '';
+                }
+            }
+            $objects['data'][] = $array;
+        }
+
+        return json_encode($objects);
+    }
+
+    public function online_handle_submit($id, $status)
+    {
+        if($status != 1 && $status != 2 )
+        {
+            return redirect($this->moduleRoute.'/online')->with('message', '参数错误!');
+        }
+        $user = Auth::user();
+
+        $updated = date('Y-m-d H:i:s', time());
+
+        DB::update("UPDATE {$this->moduleTable} set onlineStatus={$status}, checkdate='{$updated}'  where id = {$id}");
+
+        //日志
+        $params['module'] = __CLASS__;
+        $params['function'] = __FUNCTION__;
+        $params['operation'] = '游戏上线/下线';
+        $params['object'] = $id;
+        $params['content'] = '游戏状态: '.$status;
+        Log::record($params);
+        return redirect($this->moduleRoute.'/online')->with('message', '设置完成!');
+    }
+    
+    public function blacklist()
+    {
+        return view($this->moduleView.'/blacklist', ['title'=>'游戏黑名单']);
+    }
+
+    public function blacklist_ajax(Request $request)
+    {
+        $requests       = $request->all();
+        $draw           = $requests['draw'];
+        $columns        = $requests['columns'];
+        $start          = $requests['start'];
+        $length         = $requests['length'];
+        $search         = $requests['search'];
+        $searchValue    = $search['value']; 
+        $order          = $requests['order'];
+        $orderNumber    = $order[0]['column'];
+        $orderDir       = $order[0]['dir'];
+        $conditions     = array();
+
+        if(!empty($requests['dateRange']))
+        {
+            $dateRange      = $requests['dateRange'];
+            $dateRange      = explode('-', $dateRange);
+            $from           = trim($dateRange[0]);
+            $to             = trim($dateRange[1]);
+        }
+        else
+        {
+            $from  = NULL;
+            $to    = NULL;
+        }
+
+        $orderColumns = array(
+            0=>'id', 
+            7=>'adddate',
+        );
+        $orderColumnsStr = $orderColumns[$orderNumber];
+
+        $sql = " select * from {$this->moduleTable} ";
+        $conditions[] = "status IN (1,9)";
+        if($searchValue)
+        {
+            $conditions[] .= "Gamename like '%{$searchValue}%' ";
+        }        
+        if($from && $to)
+        {
+            $conditions[] = " (Adddate BETWEEN  '{$from}' AND '{$to}') ";
+        }
+        if(count($conditions))
+        {
+            $sql .= " WHERE ";
+            $sql .= implode(' AND ', $conditions);
+        }
+
+        $countResult = DB::select($sql);
+        $total  = count($countResult);
+
+        $sql .= " ORDER BY {$orderColumnsStr} {$orderDir}";
+        $sql .= " LIMIT {$start}, {$length} ";
+
+        $results = DB::select($sql);
+
+        $objects = array();
+        $objects['draw'] = $draw;
+        $objects['recordsTotal'] = $total;
+        $objects['recordsFiltered'] = $total;
+        if(count($results))
+        {
+
+            foreach($results as $result)
+            {
+                $developer = Developer::where('cpid', $result->Cpid)->get();
+                if(count($developer))
+                {
+                    $developerName = $developer[0]->username;
+                }
+                else
+                {
+                    $developerName = '未定义';
+                }
+
+
+                $gameType   = GameType::where('Typeid', $result->Typeid)->get();
+                if(count($gameType))
+                {
+                    $type = $gameType[0]->Typename;
+                }
+                else
+                {
+                    $type = '未分类';
+                }
+
+                if($result->status == 1)
+                {
+                    $status = '审核通过';
+                }
+                elseif($result->status == 2)
+                {
+                    $status = '审核拒绝';
+                }
+                elseif($result->status == 9)
+                {
+                    $status = '黑名单';
+                }
+                if($result->status == 9)
+                {
+                    $op = '<a href="'.url($this->moduleRoute.'/blacklist_form/'.$result->id.'/2').'">解除</a>';
+                }
+                else
+                {
+                     $op = '<a href="'.url($this->moduleRoute.'/blacklist_form/'.$result->id.'/1').'">加入</a>';
+                }
+                $object = array();
+                $object[] = $result->id;
+                $object[] = $result->Gamename;
+                $object[] = $developerName;
+                $object[] = $type;
+                $object[] = $result->Version;
+                $object[] = $result->Casenumber;
+                $object[] = $result->Onlinedate;
+                $object[] = $result->Adddate;
+                $object[] = $status;
+                $object[] = $op;
+
+                $objects['data'][] = $object;
+            }
+        }
+        else
+        {
+            for($i=0; $i<10; $i++)
+            {
+                if($i == 0)
+                {
+                    $array[] = '空';
+                }
+                else
+                {
+                    $array[] = '';
+                }
+            }
+            $objects['data'][] = $array;
+        }
+
+        return json_encode($objects);
+    }
+
+    public function blacklist_form($id, $type)
+    {
+        
+        $object = Game::find($id); 
+        $developer = Developer::where('cpid', $object->Cpid)->get();
+        $object->developer = $developer[0];
+        if($type == 1)
+        {
+            $button = '加入';
+        }
+        if($type == 2)
+        {
+            $button = '解除';
+        } 
+        if($object->onlineStatus == 0)
+        {
+            $object->onlineStatus = '待上线';
+        }
+        elseif($object->onlineStatus == 1)
+        {
+            $object->onlineStatus = '上线';
+        }
+        elseif($object->onlineStatus == 2)
+        {
+            $object->onlineStatus = '下线';
+        }
+
+        if($object->status == 1)
+        {
+            $object->status = '审核通过';
+        }
+        elseif($object->status == 2)
+        {
+            $object->status = '审核拒绝';
+        }
+        elseif($object->status == 9)
+        {
+            $object->status = '黑名单';
+        }
+
+        return view($this->moduleView.'/blacklist_form', ['object'=>$object, 'title'=>$this->moduleName.'游戏黑名单', 'type'=>$type, 'button'=>$button]);
+    }
+
+    public function blacklist_form_submit(Request $request)
+    {
+        $user = Auth::user();
+
+        $id = $request->id;
+        $description = $request->description;
+        $cpid = $request->cpid;
+        $submit = $request->submit;
+        $created = date('Y-m-d H:i:s', time());
+        $updated = date('Y-m-d H:i:s', time());
+        if($submit == 1)
+        {
+            DB::insert("INSERT INTO game_blacklist (cpid, gameid, adddate, enddate, adminid, reason) Value ({$cpid}, {$id}, '{$created}', '{$created}', {$user->id}, '{$description}')");
+            DB::update("UPDATE {$this->moduleTable} set status=9, checkdate='{$updated}'  where id = {$id}");
+
+            //日志
+            $params['module'] = __CLASS__;
+            $params['function'] = __FUNCTION__;
+            $params['operation'] = '加入';
+            $params['object'] = $id;
+            $params['content'] = '加入游戏黑名单';
+            Log::record($params);
+        }
+
+        if($submit == 2)
+        {
+             DB::delete("delete from game_blacklist where id={$id}");
+            DB::update("UPDATE {$this->moduleTable} set status=1, checkdate='{$updated}'  where id = {$id}");
+
+            //日志
+            $params['module'] = __CLASS__;
+            $params['function'] = __FUNCTION__;
+            $params['operation'] = '解除';
+            $params['object'] = $id;
+            $params['content'] = '解除游戏黑名单';
+            Log::record($params);
+        
+        }
+
+
+        return redirect($this->moduleRoute.'/blacklist')->with('message', '操作完成!');
     }
 
 

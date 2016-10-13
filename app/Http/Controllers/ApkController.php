@@ -8,6 +8,8 @@ use App\Http\Requests;
 use View;
 use DB;
 use App\Models\Apk;
+use App\Models\Game;
+use App\Models\Developer;
 use Auth;
 use App\Models\Log;
 
@@ -104,8 +106,25 @@ class ApkController extends Controller
 
             foreach($results as $result)
             {
-                $game       = Apk::find($result->Gameid)->game;
-                $developer  = Apk::find($result->Cpid)->developer;
+                $game       = Game::where('Gameid', $result->Gameid)->get();
+                if(count($game))
+                {
+                    $gameName = $game[0]->Gamename;
+                }
+                else
+                {
+                    $gameName = '未定义';
+                }
+            
+                $developer  = Developer::where('cpid', $result->Cpid)->get();
+                if(count($developer))
+                {
+                    $developerName = $developer[0]->username;
+                }
+                else
+                {
+                    $developerName = '未定义';
+                }
 
                 if($result->status == 0)
                 {
@@ -128,8 +147,8 @@ class ApkController extends Controller
                 $object = array();
                 $object[] = $result->apkid;
                 $object[] = $result->Apkname;
-                $object[] = $game->Gamename;
-                $object[] = $developer->username;
+                $object[] = $gameName;
+                $object[] = $developerName;
                 $object[] = $type;
                 $object[] = $result->Opendowndate;
                 $object[] = $result->OpeServndate;
@@ -164,10 +183,26 @@ class ApkController extends Controller
     {
         
         $object     = Apk::find($id); 
-        $developer  = Apk::find($object->Cpid)->developer;
-        $game       = Apk::find($object->Gameid)->game;
-        $object->developer  = $developer;
-        $object->game       = $game;
+        $game       = Game::where('Gameid', $object->Gameid)->get();
+        if(count($game))
+        {
+            $object->gameName = $game[0]->Gamename;
+        }
+        else
+        {
+            $object->gameName = '未定义';
+        }
+
+        $developer  = Developer::where('cpid', $object->Cpid)->get();
+        if(count($developer))
+        {
+            $object->developerName = $developer[0]->username;
+        }
+        else
+        {
+            $object->developerName = '未定义';
+        }
+
 
         $object->created = date('Y-m-d H:i:s', $object->CreateDate); 
         if($object->status == 0)
@@ -190,7 +225,7 @@ class ApkController extends Controller
         if($object->Apktypeid == 0)
         {
             $object->type = '新品';
-        }elseif($result->Apktypeid == 1){
+        }elseif($object->Apktypeid == 1){
             $object->type = '更新';
         }
 
@@ -203,6 +238,7 @@ class ApkController extends Controller
         $user = Auth::user();
 
         $id = $request->id;
+        $gid = $request->gid;
         $submit = $request->submit;
         $description = $request->description;
         
@@ -216,6 +252,12 @@ class ApkController extends Controller
         $updated = date('Y-m-d H:i:s', time());
 
         DB::update("UPDATE {$this->moduleTable} set Checkuserid={$user->id}, status={$status}, checkdate='{$updated}'  where apkid = {$id}");
+        
+        //更新游戏表
+        if($status == 1)
+        {
+            DB::update("UPDATE game_info set Apkid={$id}, isnewapk=0, checkdate='{$updated}'  where Gameid = {$gid}");
+        }
 
         //日志
         $params['module'] = __CLASS__;

@@ -56,13 +56,13 @@ class ChairmanController extends Controller
         $object->status = '待审';
         if($object->AuditStatus == 0)
         {
-            $object->status = '待审核';
+            $object->status = '驳回';
         }elseif($object->AuditStatus == 1)
         {
             $object->status = '通过';
         }elseif($object->AuditStatus == 2)
         {
-            $object->status = '驳回';
+            $object->status = '待审核';
         }
 
         return view('chairman/audit_form', ['object'=>$object, 'title'=>'会长审核', 'moduleRoute'=>$this->moduleRoute]);
@@ -80,27 +80,34 @@ class ChairmanController extends Controller
         {
             $auditStatus = 1;
         }else{
-            $auditStatus = 2;
+            $auditStatus = 0;
         }
         $summary = $description;
         $updated = time();
-
-        DB::update("update dt_guild_list set GuildType={$type}, AuditStatus={$auditStatus}, Summary='{$summary}', UpdateDate={$updated}  where id = {$gid}");
-        if($type == 1)
+        
+        if($type)
         {
-            DB::update("update dt_guild_toguild set GuildType={$type} , Guild_A={$gid}, Guild_B=0  where GuildId = {$gid}");
+            DB::update("update dt_guild_list set GuildType={$type}, AuditStatus={$auditStatus}, Summary='{$summary}', UpdateDate={$updated}  where id = {$gid}");
+            if($type == 1)
+            {
+                DB::update("update dt_guild_toguild set GuildType={$type} , Guild_A={$gid}, Guild_B=0  where GuildId = {$gid}");
+            }
+            else
+            {
+                DB::update("update dt_guild_toguild set GuildType={$type} , Guild_A=0, Guild_B={$gid} where GuildId = {$gid}");
+            }
         }
         else
         {
-            DB::update("update dt_guild_toguild set GuildType={$type} , Guild_A=0, Guild_B={$gid} where GuildId = {$gid}");
-        }
+            DB::update("update dt_guild_list set AuditStatus={$auditStatus}, Summary='{$summary}', UpdateDate={$updated}  where id = {$gid}");
+        }    
 
         //日志
         $params['module'] = __CLASS__;
         $params['function'] = __FUNCTION__;
         $params['operation'] = $submit;
         $params['object'] = $gid;
-        $params['content'] = $description;
+        $params['content'] = $description.'-'.$submit;
         Log::record($params);
         return redirect($this->moduleRoute)->with('message', '审核完成!');
     }
@@ -207,13 +214,13 @@ class ChairmanController extends Controller
                 $object[] = date('Y-m-d H:i:s', $result->CreateDate);
                 if($result->AuditStatus == 0)
                 {
-                    $object[] = '待审核';
+                    $object[] = '驳回';
                 }elseif($result->AuditStatus == 1)
                 {
                     $object[] = '通过';
                 }elseif($result->AuditStatus == 2)
                 {
-                    $object[] = '驳回';
+                    $object[] = '待审核';
                 }
                 if($type == 'game')
                 {
@@ -234,7 +241,7 @@ class ChairmanController extends Controller
     public function game_authorization_form($id)
     {
         $permissionsHandle = array();
-        $games    = Game::All();
+        $games    = Game::where('status',1)->get();
         $chairman  = Guild::find($id);
         if(count($games))
         {
@@ -257,11 +264,17 @@ class ChairmanController extends Controller
         $id = $request['id'];
         if(!isset($request['gids'])) 
         {
-              return redirect($this->moduleRoute.'/game_authorization_form/'.$id)->with('message', '没有选择游戏!');
+            $gids = array();
+            //  return redirect($this->moduleRoute.'/game_authorization_form/'.$id)->with('message', '没有选择游戏!');
         }
-        $gids = $request['gids'];
+        else
+        {
+            $gids = $request['gids'];
+        }    
         $gidsOldNew = array();
         $gidsOld = DB::select("SELECT AppId FROM dt_guild_togames WHERE GuildId = {$id} AND AuditStatus = 1");
+        
+
         if(count($gidsOld))
         {
             foreach($gidsOld as $gidOld)
@@ -276,13 +289,13 @@ class ChairmanController extends Controller
         {
             GuildToGame::where('GuildId', $id)->where('AppId', $gidUpdate)->update(['AuditStatus'=>0]); 
 
-            $game = Game::find($gidUpdate);
+            $game = Game::where('Gameid', $gidUpdate)->get();
             //日志
             $params['module'] = __CLASS__;
             $params['function'] = __FUNCTION__;
             $params['operation'] = '取消授权';
             $params['object'] = $id;
-            $params['content'] = "取消工会对<<{$game->Gamename}>>的授权.";
+            $params['content'] = "取消工会对<<{$game[0]->Gamename}>>的授权.";
             Log::record($params);
         }
 
@@ -292,13 +305,13 @@ class ChairmanController extends Controller
             if(count($model))
             {
                 GuildToGame::where('GuildId', $id)->where('AppId', $gidInsert)->update(['AuditStatus'=>1]);    
-                $game = Game::find($gidInsert);
+                $game = Game::where('Gameid', $gidInsert)->get();
                 //日志
                 $params['module'] = __CLASS__;
                 $params['function'] = __FUNCTION__;
                 $params['operation'] = '恢复授权';
                 $params['object'] = $id;
-                $params['content'] = "恢复工会对<<{$game->Gamename}>>的授权.";
+                $params['content'] = "恢复工会对<<{$game[0]->Gamename}>>的授权.";
                 Log::record($params);
             }
             else
@@ -311,18 +324,18 @@ class ChairmanController extends Controller
                 $object->UpdateDate = time();
                 $object->save();
                 
-                $game = Game::find($gidInsert);
+                $game = Game::where('Gameid', $gidInsert)->get();
                 //日志
                 $params['module'] = __CLASS__;
                 $params['function'] = __FUNCTION__;
                 $params['operation'] = '新添授权';
                 $params['object'] = $id;
-                $params['content'] = "新添工会对<<{$game->Gamename}>>的授权.";
+                $params['content'] = "新添工会对<<{$game[0]->Gamename}>>的授权.";
                 Log::record($params);
 
             }
         }
-        return redirect($this->moduleRoute.'/game_authorization_form/'.$id)->with('message', '审核完成!');
+        return redirect($this->moduleRoute.'/game_authorization_form/'.$id)->with('message', '授权完成!');
     }
 
     public function game_authorization()

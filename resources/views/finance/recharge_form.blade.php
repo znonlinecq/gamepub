@@ -19,7 +19,7 @@
                   <select class="form-control" name="gid" >
                     <option value="" > - 选择 - </option>
                     @foreach($guilds as $guild)
-                    <option value="{{$guild->Id}}" >{{$guild->Name}}-{{$guild->GuildType}}</option>
+                    <option value="{{$guild->UserId}}" >{{$guild->Name}}-{{$guild->GuildType}}</option>
                     @endforeach
                   </select>
                  @if ($errors->has('gid'))

@@ -12,6 +12,11 @@ class Game extends Model
 
     public function developer()
     {
-        return $this->belongsTo('App\Models\Developer', 'Cpid');
+        return $this->belongsTo('App\Models\Developer', 'Cpid', 'cpid');
+    }
+
+    public function typename()
+    {
+        return $this->belongsTo('App\Models\GameType', 'Typeid', 'Typeid');
     }
 }

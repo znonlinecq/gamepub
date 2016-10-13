@@ -34,10 +34,10 @@
     <form action="{{ url('/auth/login') }}" method="post">
     {!! csrf_field() !!} 
     <div class="form-group has-feedback">
-        <input type="email" name="email" class="form-control" value="{{ old('email') }}" placeholder="邮箱">
+        <input type="name" name="name" class="form-control" value="{{ old('name') }}" placeholder="用户名">
         <span class="glyphicon glyphicon-envelope form-control-feedback"> </span>
-        @if ($errors->has('email'))
-            <strong>{{ $errors->first('email') }}</strong>
+        @if ($errors->has('name'))
+            <strong>{{ $errors->first('name') }}</strong>
         @endif
       </div>
       <div class="form-group has-feedback">
@@ -64,8 +64,8 @@
     </form>
 
 
-    <a href="{{ url('/password/email') }}">忘记密码</a><br>
-    <a href="{{ url('/auth/register') }}" class="text-center">注册账号</a>
+   <!-- <a href="{{ url('/password/email') }}">忘记密码</a><br>
+    <a href="{{ url('/auth/register') }}" class="text-center">注册账号</a> --!>
 
   </div>
   <!-- /.login-box-body -->

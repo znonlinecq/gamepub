@@ -109,12 +109,26 @@ Route::get('games/rebates',                         'GameController@rebate');
 Route::post('games/rebates_ajax',                   'GameController@rebate_ajax');
 Route::get('games/rebate_setup_form/{id}',          'GameController@rebate_setup_form');
 Route::post('games/rebate_setup_form_submit',       'GameController@rebate_setup_form_submit');
+Route::get('games/online',                          'GameController@online');
+Route::post('games/online_ajax',                    'GameController@online_ajax');
+Route::get('games/online_handle_submit/{id}/{status}',  'GameController@online_handle_submit');
+Route::get('games/blacklist',                           'GameController@blacklist');
+Route::post('games/blacklist_ajax',                     'GameController@blacklist_ajax');
+Route::get('games/blacklist_form/{id}/{type}',                 'GameController@blacklist_form');
+Route::post('games/blacklist_form_submit',                 'GameController@blacklist_form_submit');
+
+
 
 //游戏包
 Route::get('apks',                                  'ApkController@index');
 Route::post('apks/index_ajax',                      'ApkController@index_ajax');
 Route::get('apks/audit_form/{id}',                  'ApkController@audit_form');
 Route::post('apks/audit_form_submit',               'ApkController@audit_form_submit');
+Route::get('apks/sdks',                                  'SdkController@index');
+Route::post('apks/sdks/index_ajax',                      'SdkController@index_ajax');
+Route::get('apks/sdks/audit_form/{id}',                  'SdkController@audit_form');
+Route::post('apks/sdks/audit_form_submit',               'SdkController@audit_form_submit');
+
 
 //日志
 Route::get('logs',                                  '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
@@ -128,7 +142,8 @@ Route::get('finances/recharge_form',                    'FinanceController@recha
 Route::post('finances/recharge_form_submit',            'FinanceController@recharge_form_submit');
 Route::get('finances/discount_form',                    'FinanceController@discount_form');
 Route::post('finances/discount_form_submit',            'FinanceController@discount_form_submit');
-
+Route::get('finances/order_pay_form/{id}',              'FinanceController@order_pay_form');
+Route::post('finances/order_pay_form_submit',           'FinanceController@order_pay_form_submit');
 
 //统计
 Route::get('statistics/channels',                               'StatisticController@channel');
@@ -139,3 +154,12 @@ Route::get('statistics/games_users',                             'StatisticContr
 Route::post('statistics/games_users_ajax',                       'StatisticController@game_user_ajax');
 Route::get('statistics/points',                                 'StatisticController@point');
 Route::post('statistics/points_ajax',                           'StatisticController@point_ajax');
+
+//订单
+Route::get('orders',                                            'OrderController@index');
+Route::post('orders/index_ajax',                                'OrderController@index_ajax');
+Route::get('orders/payment_orders',                             'OrderController@payment_orders');
+Route::post('orders/payment_orders_ajax',                       'OrderController@payment_orders_ajax');
+Route::get('orders/give_orders',                                'OrderController@give_orders');
+Route::post('orders/give_orders_ajax',                          'OrderController@give_orders_ajax');
+

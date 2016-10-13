@@ -67,7 +67,7 @@ $(function () {
     }
 
   var table =  $("#tableList").DataTable({
-        order: [[0,'asc']],
+        order: [[0,'desc']],
         columns:[
             {"orderable":false},
             {"orderable":false},

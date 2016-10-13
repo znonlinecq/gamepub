@@ -36,7 +36,7 @@
                                 <td>{{$object->typeName}}</td>
                                 <td>{{$object->className}}</td>
                                 <td>{{$object->Brief}}</td>
-                                   <td> <input type="checkbox" name="gids[]" value="{{$object->id}}" @if(App\Models\Guild\GuildToGame::check_game_authorization($chairman->Id, $object->id)) checked="true" @endif /></td>
+                                   <td> <input type="checkbox" name="gids[]" value="{{$object->Gameid}}" @if(App\Models\Guild\GuildToGame::check_game_authorization($chairman->Id, $object->Gameid)) checked="true" @endif /></td>
                             </tr>
                         @endforeach
                   @endif  

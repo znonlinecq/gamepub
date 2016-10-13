@@ -34,7 +34,7 @@
     <form action="{{ url('/auth/register') }}" method="post">
 {!! csrf_field() !!}
       <div class="form-group has-feedback">
-        <input type="text" name="name" class="form-control" value="{{old('name')}}" placeholder="Full name">
+        <input type="text" name="name" class="form-control" value="{{old('name')}}" placeholder="用户名">
         <span class="glyphicon glyphicon-user form-control-feedback"></span>
         @if ($errors->has('name'))
             <strong>{{ $errors->first('name') }}</strong>

@@ -23,12 +23,12 @@
     </tr>
      <tr>
         <td width="20%" align="right">游戏名</td>
-        <td>{{$object->game->Gamename}}</td>
+        <td>{{$object->gameName}}</td>
     </tr>
     
     <tr>
         <td width="20%" align="right">开发者姓名</td>
-        <td>{{$object->developer->username}}</td>
+        <td>{{$object->developerName}}</td>
     </tr>
     <tr>
         <td width="20%" align="right">游戏包类型</td>
@@ -73,6 +73,7 @@
 
 </table>
 <input type="hidden" value="{{$object->apkid}}" name="id">
+<input type="hidden" value="{{$object->Gameid}}" name="gid">
             </form>
 </div>
 </div>

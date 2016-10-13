@@ -18,10 +18,10 @@
                   <th>支付方式</th>
                   <th>充值金额</th>
                   <th>8豆数</th>
-                  <th>比率</th>
                   <th>订单号</th>
                   <th>操作人</th>
                   <th>充值时间</th>
+                  <th>状态</th>
                   <th>操作</th>
                 </tr>
                 </thead>
@@ -64,7 +64,7 @@ $(function () {
        ajaxUrl = localUrl + ajaxUrl;
     }
     var table =  $("#tableList").DataTable({
-        order: [[0,'asc']],
+        order: [[0,'desc']],
         columns:[
             {"orderable":false},
             {"orderable":false},

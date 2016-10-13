@@ -12,6 +12,7 @@ use DB;
 use Auth;
 use App\Models\Finance\Finance;
 use App\Models\Finance\FinanceRecord;
+use App\Models\Finance\FinanceOrder;
 use App\Models\Log;
 use App\Models\Variable;
 
@@ -38,7 +39,7 @@ class FinanceController extends Controller
 
     public function index()
     {
-        return view($this->moduleView.'/index', [ 'title'=>'充值记录']);
+        return view($this->moduleView.'/index', [ 'title'=>'充值结算']);
     }
 
     public function index_ajax(Request $request)
@@ -94,7 +95,7 @@ class FinanceController extends Controller
         );
         $orderColumnsStr = $orderColumns[$orderNumber];
 
-        $sql = " select * from ad_finances_records ";
+        $sql = " select * from ad_finances_orders ";
         if($searchValue)
         {
             $conditions[] = " money like '%{$searchValue}%' ";
@@ -130,20 +131,41 @@ class FinanceController extends Controller
         {
             foreach($results as $result)
             {
-                $guild  = Guild::find($result->gid);
+                $guild  = Guild::where('UserId', $result->gid)->get();
+                if(count($guild))
+                {
+                    $guildName = $guild[0]->Name;
+                }
+                else
+                {
+                    $guildName = '未定义';
+                }
                 $user   = User::find($result->operator);
+                
+                if($result->status == 0)
+                {
+                    $status ='待支付';
+                }
+                elseif($result->status == 1)
+                {
+                    $status = '支付完成';
+                }
+                elseif($result->status == 2)
+                {
+                    $status = '支付失败';
+                }
 
                 $object = array();
                 $object[] = $result->id;
-                $object[] = $guild->Name;
+                $object[] = $guildName;
                 $object[] = $result->type;
                 $object[] = $result->money;
                 $object[] = $result->points;
-                $object[] = $result->percent;
                 $object[] = $result->orderid;
                 $object[] = $user->name;
                 $object[] = date('Y-m-d H:i:s', $result->created);
-                $object[] = '<a href="'.url('finances/'.$result->id).'">详情</a>';
+                $object[] = $status;
+                $object[] = '<a href="'.url('finances/order_pay_form/'.$result->id).'">支付</a>';
                 
                 $objects['data'][] = $object;
             }
@@ -160,7 +182,7 @@ class FinanceController extends Controller
         $permissionsHandle = array();
         $sql = "SELECT * FROM dt_guild_list WHERE GuildType IN (1,2) ORDER BY GuildType ASC";
         $guilds  = DB::select($sql);
-        return view($this->moduleView.'/recharge_form', ['title'=>'公会充值', 'guilds'=>$guilds]);    
+        return view($this->moduleView.'/recharge_form', ['title'=>'公会充值下单', 'guilds'=>$guilds]);    
     }
 
     public function recharge_form_submit(Request $requests)
@@ -177,10 +199,33 @@ class FinanceController extends Controller
         $money          = $request['money'];
         $user           = Auth::User();
         $description    = $request['description'];
-        $guild          = Guild::find($gid);
+        $guild          = Guild::where('UserId', $gid)->get();
+        $guild          = $guild[0];
 
-        //TODO
-        $orderId = '';
+        //调用订单API
+        $apiUrl = 'https://passport2016.87870.com/pay/AdminCreateOrder.ashx';
+        $params['appid'] = '16090104';
+        $params['actionid'] = 94;
+        $params['timestamp'] = time();
+        $params['extracommonparam'] = '';
+        $params['touserid'] = $gid;
+        $params['adminid'] = $user->id;
+        $params['tobadou'] = ceil($money + ($money/100 * 20));
+        $params['adminremark'] = 'test';
+        $params['rmb'] = $money;
+        ksort($params);
+        foreach($params as $key => $value)
+        {
+            $paramsArray[] = $key.'='.$value;
+        }
+        $signStr = implode('&', $paramsArray).'&B6C00B3137ACB99526DCA3FA5BCFD596';
+        //print_r($signStr);
+        $sign = md5($signStr);
+        $params['sign'] = $sign;
+        $result = $this->curl_get($apiUrl, $params);  //调用API
+        $result = json_decode($result);
+        $orderId = $result->Data->GameOrder;
+        
         $type = 0;
         $status = 0;
         $percent    = 0;
@@ -188,7 +233,7 @@ class FinanceController extends Controller
         $pointsVr   = 0;
         $operator   = $user->id;
 
-        $object = new FinanceRecord();
+        $object = new FinanceOrder();
         $object->gid            = $gid;
         $object->orderid        = $orderId;
         $object->type           = $type;
@@ -217,14 +262,113 @@ class FinanceController extends Controller
         }
 
         //日志
-        //$params['module'] = __CLASS__;
-        //$params['function'] = __FUNCTION__;
-        //$params['operation'] = '公会充值';
-        //$params['object'] = $gid;
-        //$params['content'] = "{$guild->Name} 充值金额 {$money}.";
-        //Log::record($params);
+        $params['module'] = __CLASS__;
+        $params['function'] = __FUNCTION__;
+        $params['operation'] = '公会充值下单';
+        $params['object'] = $gid;
+        $params['content'] = "{$guild->Name} 充值金额 {$money}.";
+        Log::record($params);
         
-        return redirect($this->moduleRoute)->with('message', '充值成功!');
+        return redirect($this->moduleRoute)->with('message', '下单成功!');
+    }
+    
+    public function order_pay_form($oid)
+    {
+        $order = FinanceOrder::find($oid);
+        $guild = Guild::where('UserId', $order->gid)->get();
+        $guild = $guild[0];
+        return view($this->moduleView.'/order_pay_form', ['title'=>'公会充值支付', 'order'=>$order, 'guild'=>$guild]);    
+    }
+
+    public function order_pay_form_submit(Request $requests)
+    {
+        $this->validate($requests, [
+            'oid'           => 'required',
+            'description'   => 'required',
+        ]);
+
+        $request        = $requests->all();
+        $oid            = $request['oid'];
+        $user           = Auth::User();
+        $description    = $request['description'];
+        $order          = FinanceOrder::find($oid);
+        $gid            = $order->gid;
+        $money          = $order->money;
+
+        //调用支付API
+        $apiUrl = 'https://passport2016.87870.com/pay/AdminAddGuildBadou.ashx';
+        $params['appid'] = '16090104';
+        $params['actionid'] = 94;
+        $params['timestamp'] = time();
+        $params['extracommonparam'] = '';
+        $params['touserid'] = $gid;
+        $params['adminid'] = $user->id;
+        $params['adminremark'] = $description;
+        $params['systemorder'] = $order->orderid;
+        ksort($params);
+        foreach($params as $key => $value)
+        {
+            $paramsArray[] = $key.'='.$value;
+        }
+        $signStr = implode('&', $paramsArray).'&B6C00B3137ACB99526DCA3FA5BCFD596';
+        $sign = md5($signStr);
+        $params['sign'] = $sign;
+        $result = $this->curl_get($apiUrl, $params);  //调用API
+        $result = json_decode($result);
+        if($result->Result->Ret == 0)
+        {
+            //更新订单状态
+            $object = FinanceOrder::find($oid);
+            $object->status             = 1;
+            $object->closed             = time();
+            $object->pay_operator       = $user->id;
+            $object->pay_description    = $description;
+            $object->save();
+
+            //更新财务数据
+            $finance = Finance::where('gid', $gid)->get();
+            if(count($finance))
+            {
+                Finance::where('gid', $gid)->update(['sum'=>$finance[0]->sum+$money]);
+            }
+            else{
+                $finance = new Finance();
+                $finance->gid = $gid;
+                $finance->sum = $money;
+                $finance->points = 0;
+                $finance->pointsvr = 0;
+                $finance->save();
+            }
+
+            //日志
+            $params['module'] = __CLASS__;
+            $params['function'] = __FUNCTION__;
+            $params['operation'] = '公会充值支付';
+            $params['object'] = $oid;
+            $params['content'] = "{$order->orderid} 支付金额 {$money},支付成功!";
+            Log::record($params);
+
+            return redirect($this->moduleRoute)->with('message', '支付成功!');
+
+        }
+        else
+        {
+            //更新订单状态
+            $object = FinanceOrder::find($oid);
+            $object->status     = 2;
+            $object->closed     = time();
+            $object->save();
+
+            //日志
+            $params['module'] = __CLASS__;
+            $params['function'] = __FUNCTION__;
+            $params['operation'] = '公会充值支付';
+            $params['object'] = $oid;
+            $params['content'] = "{$order->orderid} 支付金额 {$money},支付失败.";
+            Log::record($params);
+
+            return redirect($this->moduleRoute)->with('message', '支付成功!');
+        }
     }
     
     public function discount_form()

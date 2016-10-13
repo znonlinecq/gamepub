@@ -19,7 +19,7 @@ class Apk extends Model
     
     public function game()
     {
-        return $this->belongsTo('App\Models\Game', 'Gameid');
+        return $this->belongsTo('App\Models\Game', 'Gameid', 'Gameid');
     }
 
 

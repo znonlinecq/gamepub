@@ -18,7 +18,8 @@ class UserController extends Controller
     private $moduleTable = 'users';
     private $moduleName = '用户';
     private $searchPlaceholder = '用户名';       
-
+    
+    
     public function __construct()
     {
         parent::__construct();
