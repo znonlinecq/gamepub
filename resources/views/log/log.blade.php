@@ -71,6 +71,7 @@ $(function () {
         ],
         language: {
             url: languageUrl,
+           searchPlaceholder: '{{$searchPlaceholder}}',
         },
         serverSide: true,    
         ajax: {

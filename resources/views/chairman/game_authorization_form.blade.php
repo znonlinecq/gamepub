@@ -5,7 +5,7 @@
 <div class="box box-primary">
     <div class="box-header with-border">
 
-     <a href="{{url($moduleRoute.'/game_authorization')}}" class="btn btn-default btn-sm active" role="button">返回</a>
+     <a href="{{url($moduleRoute.'/game_authorization')}}" class="btn btn-default btn-sm " role="button">返回</a>
 &nbsp;&nbsp;
     <button type="submit" class="btn btn-primary btn-sm">提交</button>
        @if(session('message'))

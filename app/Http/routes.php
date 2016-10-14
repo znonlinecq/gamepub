@@ -163,3 +163,6 @@ Route::post('orders/payment_orders_ajax',                       'OrderController
 Route::get('orders/give_orders',                                'OrderController@give_orders');
 Route::post('orders/give_orders_ajax',                          'OrderController@give_orders_ajax');
 
+//验证码
+Route::get('kit/captcha/{tmp}', 'KitController@captcha');
+

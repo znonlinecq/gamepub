@@ -845,13 +845,22 @@ class GameController extends Controller
         $updated = date('Y-m-d H:i:s', time());
 
         DB::update("UPDATE {$this->moduleTable} set onlineStatus={$status}, checkdate='{$updated}'  where id = {$id}");
+        
+        if($status == 1)
+        {
+            $status = '上线';
+        }
+        elseif($status == 2)
+        {
+            $status = '下线';
+        }
 
         //日志
         $params['module'] = __CLASS__;
         $params['function'] = __FUNCTION__;
         $params['operation'] = '游戏上线/下线';
         $params['object'] = $id;
-        $params['content'] = '游戏状态: '.$status;
+        $params['content'] = '游戏状态修改为: '.$status;
         Log::record($params);
         return redirect($this->moduleRoute.'/online')->with('message', '设置完成!');
     }

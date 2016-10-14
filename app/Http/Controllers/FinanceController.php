@@ -145,27 +145,37 @@ class FinanceController extends Controller
                 if($result->status == 0)
                 {
                     $status ='待支付';
+                    $op = '<a href="'.url('finances/order_pay_form/'.$result->id).'">支付</a>';
                 }
                 elseif($result->status == 1)
                 {
                     $status = '支付完成';
+                    $op = ' ';
                 }
                 elseif($result->status == 2)
                 {
                     $status = '支付失败';
+                    $op = ' ';
                 }
 
+                if($result->type == 1)
+                {
+                    $type = '手工充值';
+                }elseif($result->type == 0)
+                {
+                    $type = '未知';
+                }
                 $object = array();
                 $object[] = $result->id;
                 $object[] = $guildName;
-                $object[] = $result->type;
+                $object[] = $type;
                 $object[] = $result->money;
                 $object[] = $result->points;
                 $object[] = $result->orderid;
                 $object[] = $user->name;
                 $object[] = date('Y-m-d H:i:s', $result->created);
                 $object[] = $status;
-                $object[] = '<a href="'.url('finances/order_pay_form/'.$result->id).'">支付</a>';
+                $object[] = $op;
                 
                 $objects['data'][] = $object;
             }
@@ -180,7 +190,7 @@ class FinanceController extends Controller
     public function recharge_form()
     {
         $permissionsHandle = array();
-        $sql = "SELECT * FROM dt_guild_list WHERE GuildType IN (1,2) ORDER BY GuildType ASC";
+        $sql = "SELECT * FROM dt_guild_list WHERE GuildType IN (1,2) AND GuilderId = 0 ORDER BY GuildType ASC";
         $guilds  = DB::select($sql);
         return view($this->moduleView.'/recharge_form', ['title'=>'公会充值下单', 'guilds'=>$guilds]);    
     }
@@ -226,10 +236,10 @@ class FinanceController extends Controller
         $result = json_decode($result);
         $orderId = $result->Data->GameOrder;
         
-        $type = 0;
-        $status = 0;
+        $type       = 1; //手工充值
+        $status     = 0; //等待支付
         $percent    = 0;
-        $points     = 0;
+        $points     = ceil($money + ($money * 0.2));
         $pointsVr   = 0;
         $operator   = $user->id;
 
@@ -266,7 +276,7 @@ class FinanceController extends Controller
         $params['function'] = __FUNCTION__;
         $params['operation'] = '公会充值下单';
         $params['object'] = $gid;
-        $params['content'] = "{$guild->Name} 充值金额 {$money}.";
+        $params['content'] = "{$guild->Name} 充值下单金额 {$money}.";
         Log::record($params);
         
         return redirect($this->moduleRoute)->with('message', '下单成功!');
@@ -285,6 +295,8 @@ class FinanceController extends Controller
         $this->validate($requests, [
             'oid'           => 'required',
             'description'   => 'required',
+            'password'      => 'required|numeric|payment_password',
+            'captcha'      => 'required|captcha',
         ]);
 
         $request        = $requests->all();
@@ -315,6 +327,7 @@ class FinanceController extends Controller
         $params['sign'] = $sign;
         $result = $this->curl_get($apiUrl, $params);  //调用API
         $result = json_decode($result);
+        
         if($result->Result->Ret == 0)
         {
             //更新订单状态
@@ -345,7 +358,7 @@ class FinanceController extends Controller
             $params['function'] = __FUNCTION__;
             $params['operation'] = '公会充值支付';
             $params['object'] = $oid;
-            $params['content'] = "{$order->orderid} 支付金额 {$money},支付成功!";
+            $params['content'] = "订单号: {$order->orderid} | 支付金额 {$money},支付成功!";
             Log::record($params);
 
             return redirect($this->moduleRoute)->with('message', '支付成功!');

@@ -2,7 +2,7 @@
 @section('content')
 <div class="box">
 <div class="box-header with-border">
-    <a href="{{url($moduleRoute.'/blacklist')}}" class="btn btn-default btn-sm active" role="button">返回</a>
+    <a href="{{url($moduleRoute.'/blacklist')}}" class="btn btn-default btn-sm" role="button">返回</a>
     @if(session('message'))
     <p class="bg-success">{{session('message')}}</p>
     @endif    

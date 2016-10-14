@@ -2,7 +2,7 @@
 @section('content')
 <div class="box box-primary">
     <div class="box-header with-border">
-        <a href="{{url('users')}}" class="btn btn-default btn-sm active" >返回</a>
+        <a href="{{url('users')}}" class="btn btn-default btn-sm" >返回</a>
         @if(session('message'))
         <p class="bg-success">{{session('message')}}</p>
         @endif    

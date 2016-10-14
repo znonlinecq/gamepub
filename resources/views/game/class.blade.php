@@ -4,7 +4,7 @@
         <div class="col-xs-12">
           <div class="box">
             <div class="box-header"> 
-            <a href="{{url($moduleRoute.'/types')}}" class="btn btn-default btn-sm active" >返回</a>
+            <a href="{{url($moduleRoute.'/types')}}" class="btn btn-default btn-sm" >返回</a>
             &nbsp;&nbsp;
             
             <h3 class="box-title">

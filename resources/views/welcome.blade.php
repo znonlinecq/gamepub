@@ -1,17 +1,18 @@
-@extends('layouts.app')
+@extends('dashboard')
 
 @section('content')
-<div class="container">
-    <div class="row">
-        <div class="col-md-10 col-md-offset-1">
-            <div class="panel panel-default">
-                <div class="panel-heading">Welcome</div>
 
-                <div class="panel-body">
-                    Your Application's Landing Page.
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="container" style="width:100%">
+<div class="col-md-12">
+<div class="row">
+@foreach($objects as $object)
+<blockquote>
+<p>{{$object['title']}}</p>
+<footer>{{$object['content']}}</footer>
+</blockquote>
+@endforeach
+</div>
+
+</div>
 </div>
 @endsection

@@ -3,9 +3,9 @@
 <div class="box box-primary">
     <div class="box-header with-border">
         @if($tid)
-            <a href="{{url($moduleRoute.'/types/classes/'.$tid)}}" class="btn btn-default btn-sm active" >返回</a>
+            <a href="{{url($moduleRoute.'/types/classes/'.$tid)}}" class="btn btn-default btn-sm" >返回</a>
         @else
-            <a href="{{url($moduleRoute.'/types/classes')}}" class="btn btn-default btn-sm active" >返回</a>
+            <a href="{{url($moduleRoute.'/types/classes')}}" class="btn btn-default btn-sm" >返回</a>
         @endif
 
         @if(session('message'))

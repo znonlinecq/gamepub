@@ -2,6 +2,7 @@
 @section('content')
 <div class="box">
 <div class="box-header with-border">
+            <a href="{{url($moduleRoute.'/blacklist')}}" class="btn btn-default btn-sm" >返回</a>
     @if(session('message'))
     <p class="bg-success">{{session('message')}}</p>
     @endif    
@@ -59,7 +60,6 @@
         <td width="20%" align="right"></td>
         <td>
             <button name="submit" type="submit" class="btn btn-primary" value="yes">加入</button> &nbsp;
-            <a href="{{url($moduleRoute.'/blacklist')}}" class="btn btn-default active" >返回</a>
         </td>
     </tr>
 

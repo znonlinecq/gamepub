@@ -6,6 +6,8 @@ use App\Http\Requests;
 use App\Models\Log;
 use App\User;
 use DB;
+use App\Models\Guild\Guild;
+use App\Models\Finance\FinanceOrder;
 
 class LogController extends Controller
 {
@@ -20,7 +22,9 @@ class LogController extends Controller
         $method = $methodType.'_title'; 
         $controller = 'App\\Http\\Controllers\\'.$logType;
         $title = $controller::$method(); 
-        return view('log/log', ['controllerType'=>$controllerType, 'methodType'=>$methodType, 'title'=>$title]);
+        $searchPlaceholder = '描述';
+
+        return view('log/log', ['controllerType'=>$controllerType, 'methodType'=>$methodType, 'title'=>$title, 'searchPlaceholder'=>$searchPlaceholder]);
     }
 
     public function index_ajax(Request $request)
@@ -95,8 +99,14 @@ class ChairmanLog extends LogController
             $operator = User::find($result->uid);
             $operator = $operator->name;
             $operator_object = DB::select("SELECT * FROM dt_guild_list WHERE Id={$result->object}");
-            $operator_object = $operator_object[0]->Name;
-
+            if(count($operator_object))
+            {
+                $operator_object = $operator_object[0]->Name;
+            }
+            else
+            {
+                $operator_object = '未知';
+            }
             if($result->operation == 'yes')
             {
                 $operation = '通过';
@@ -126,7 +136,16 @@ class ChairmanLog extends LogController
             $operator = User::find($result->uid);
             $operator = $operator->name;
             $operator_object = DB::select("SELECT * FROM dt_guild_list WHERE Id={$result->object}");
-            $operator_object = $operator_object[0]->Name;
+            if(count($operator_object))
+            {
+                $operator_object = $operator_object[0]->Name;
+            }
+            else
+            {
+                $operator_object = '未知';
+            }
+
+
             $operation = $result->operation;
 
             $object = array();
@@ -151,7 +170,15 @@ class ChairmanLog extends LogController
             $operator = User::find($result->uid);
             $operator = $operator->name;
             $operator_object = DB::select("SELECT * FROM dt_guild_list WHERE Id={$result->object}");
-            $operator_object = $operator_object[0]->Name;
+            if(count($operator_object))
+            {
+                $operator_object = $operator_object[0]->Name;
+            }
+            else
+            {
+                $operator_object = '未知';
+            }
+
 
             $object = array();
             $object[] = date('Y-m-d H:i:s', $result->created);
@@ -175,7 +202,15 @@ class ChairmanLog extends LogController
             $operator = User::find($result->uid);
             $operator = $operator->name;
             $operator_object = DB::select("SELECT * FROM dt_guild_list WHERE Id={$result->object}");
-            $operator_object = $operator_object[0]->Name;
+            if(count($operator_object))
+            {
+                $operator_object = $operator_object[0]->Name;
+            }
+            else
+            {
+                $operator_object = '未知';
+            }
+
 
             $object = array();
             $object[] = date('Y-m-d H:i:s', $result->created);
@@ -206,8 +241,14 @@ class DeveloperLog extends LogController
             $operator = User::find($result->uid);
             $operator = $operator->name;
             $operator_object = DB::select("SELECT * FROM game_cpinfo WHERE cpid={$result->object}");
-            $operator_object = $operator_object[0]->username;
-
+            if(count($operator_object))
+            {
+                $operator_object = $operator_object[0]->username;
+            }
+            else
+            {
+                $operator_object = '未知';
+            }
             if($result->operation == 'yes')
             {
                 $operation = '通过';
@@ -233,8 +274,10 @@ class DeveloperLog extends LogController
 
 class GameLog extends LogController
 {
-    private static $title = '游戏审核';
-    private static $rebateTitle = '返点设置';
+    private static $title           = '游戏审核';
+    private static $rebateTitle     = '返点设置';
+    private static $onlineTitle     = '游戏上下线';
+    private static $blacklistTitle  = '游戏黑名单';
 
     public static function audit_form_submit($results, &$objects)
     {   
@@ -243,7 +286,14 @@ class GameLog extends LogController
             $operator = User::find($result->uid);
             $operator = $operator->name;
             $operator_object = DB::select("SELECT * FROM game_info WHERE id={$result->object}");
-            $operator_object = $operator_object[0]->Gamename;
+            if(count($operator_object))
+            {
+                $operator_object = $operator_object[0]->Gamename;
+            }
+            else
+            {
+                $operator_object = '未知';
+            }
 
             if($result->operation == 'yes')
             {
@@ -274,7 +324,15 @@ class GameLog extends LogController
             $operator = User::find($result->uid);
             $operator = $operator->name;
             $operator_object = DB::select("SELECT * FROM game_info WHERE id={$result->object}");
-            $operator_object = $operator_object[0]->Gamename;
+            if(count($operator_object))
+            {
+                $operator_object = $operator_object[0]->Gamename;
+            }
+            else
+            {
+                $operator_object = '未知';
+            }
+
 
             $operation = '返点设置';
 
@@ -293,6 +351,76 @@ class GameLog extends LogController
         return self::$rebateTitle;
     }
 
+    public static function online_handle_submit($results, &$objects)
+    {   
+        foreach($results as $result)
+        {        
+            $operator = User::find($result->uid);
+            $operator = $operator->name;
+            $operator_object = DB::select("SELECT * FROM game_info WHERE id={$result->object}");
+            if(count($operator_object))
+            {
+                $operator_object = $operator_object[0]->Gamename;
+            }
+            else
+            {
+                $operator_object = '未知';
+            }
+
+
+            $operation = $result->operation;
+
+            $object = array();
+            $object[] = date('Y-m-d H:i:s', $result->created);
+            $object[] = $operator;
+            $object[] = $operation;
+            $object[] = $operator_object;
+            $object[] = $result->content;
+            $objects['data'][] = $object;
+        }
+    }
+
+    public static function online_handle_submit_title()
+    {
+        return self::$onlineTitle;
+    }
+
+    public static function blacklist_form_submit($results, &$objects)
+    {   
+        foreach($results as $result)
+        {        
+            $operator = User::find($result->uid);
+            $operator = $operator->name;
+            $operator_object = DB::select("SELECT * FROM game_info WHERE id={$result->object}");
+            if(count($operator_object))
+            {
+                $operator_object = $operator_object[0]->Gamename;
+            }
+            else
+            {
+                $operator_object = '未知';
+            }
+
+
+            $operation = $result->operation;
+
+            $object = array();
+            $object[] = date('Y-m-d H:i:s', $result->created);
+            $object[] = $operator;
+            $object[] = $operation;
+            $object[] = $operator_object;
+            $object[] = $result->content;
+            $objects['data'][] = $object;
+        }
+    }
+
+    public static function blacklist_form_submit_title()
+    {
+        return self::$blacklistTitle;
+    }
+
+
+
 }
 
 class ApkLog extends LogController
@@ -306,7 +434,15 @@ class ApkLog extends LogController
             $operator = User::find($result->uid);
             $operator = $operator->name;
             $operator_object = DB::select("SELECT * FROM game_apkinfo WHERE apkid={$result->object}");
-            $operator_object = $operator_object[0]->Apkname;
+            if(count($operator_object))
+            {
+                $operator_object = $operator_object[0]->Apkname;
+            }
+            else
+            {
+                $operator_object = '未知';
+            }
+
 
             if($result->operation == 'yes')
             {
@@ -334,7 +470,9 @@ class ApkLog extends LogController
 
 class FinanceLog extends LogController
 {
-    private static $title = '公会折扣设置';
+    private static $title       = '公会折扣设置';
+    private static $titleOrder  = '公会充值下单';
+    private static $titlePay    = '公会充值支付';
 
     public static function discount_form_submit($results, &$objects)
     {   
@@ -364,6 +502,73 @@ class FinanceLog extends LogController
     {
         return self::$title;
     }
+    
+    public static function recharge_form_submit($results, &$objects)
+    {   
+        foreach($results as $result)
+        {        
+            $operator = User::find($result->uid);
+            $operator = $operator->name;
+
+            $guild = Guild::where('Userid', $result->object)->get();
+            if(count($guild))
+            {
+                $guildName = $guild[0]->Name;
+            }
+            else
+            {
+                $guildName = '未知';
+            }
+            $object = array();
+            $object[] = date('Y-m-d H:i:s', $result->created);
+            $object[] = $operator;
+            $object[] = $result->operation;
+            $object[] = $guildName;
+            $object[] = $result->content;
+            $objects['data'][] = $object;
+        }
+    }
+
+    public static function recharge_form_submit_title()
+    {
+        return self::$title;
+    }
+
+    public static function order_pay_form_submit($results, &$objects)
+    {   
+        foreach($results as $result)
+        {        
+            $operator = User::find($result->uid);
+            $operator = $operator->name;
+            $order  = FinanceOrder::find($result->object);
+            if(count($order))
+            {
+                $guild = Guild::where('Userid', $order->gid)->get();
+                if(count($guild))
+                {
+                    $guildName = $guild[0]->Name;
+                }
+                else
+                {
+                    $guildName = '未知';
+                }
+            }
+
+            $object = array();
+            $object[] = date('Y-m-d H:i:s', $result->created);
+            $object[] = $operator;
+            $object[] = $result->operation;
+            $object[] = $guildName;
+            $object[] = $result->content;
+            $objects['data'][] = $object;
+        }
+    }
+
+    public static function order_pay_form_submit_title()
+    {
+        return self::$titlePay;
+    }
+
 
 }
 

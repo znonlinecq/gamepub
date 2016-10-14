@@ -96,16 +96,43 @@ if(!empty($_SERVER['SERVER_NAME']))
         }
         else
         {
-            $dbInfo['db_ip']       = '42.62.24.232';
+            $dbInfo['db_ip']       = '10.0.1.245';
             $dbInfo['db_db']       = 'db_xfplatformcenter';
             $dbInfo['db_username'] = 'u_gamecenter';
             $dbInfo['db_password'] = 'jTdDEZHonOrbR98YQn9q';
-            $dbInfo['st_ip']       = '42.62.24.246';
+            $dbInfo['st_ip']       = '10.0.1.245';
             $dbInfo['st_db']       = 'db_xfplatformcenter_statistics';
             $dbInfo['st_username'] = 'statisuser';
             $dbInfo['st_password'] = 'BmFO62n5PbQ7GJQCrlsL';
         }
+    }    
+    
+    if($domain == 'admin2016.game.87870.com')
+    {
+        if($debug)
+        {
+            $dbInfo['db_ip']       = '10.254.213.201';
+            $dbInfo['db_db']       = 'db_xfplatformcenter';
+            $dbInfo['db_username'] = 'u_gamecenter';
+            $dbInfo['db_password'] = 'PVAxQjetsU8X2eN0Sw4T';
+            $dbInfo['st_ip']       = '10.254.213.201';
+            $dbInfo['st_db']       = 'db_xfplatformcenter_statistics';
+            $dbInfo['st_username'] = 'statisuser';
+            $dbInfo['st_password'] = 'kCZTdI6CMhl35MUIu0DS';
+        }
+        else
+        {
+            $dbInfo['db_ip']       = '120.92.56.192';
+            $dbInfo['db_db']       = 'db_xfplatformcenter';
+            $dbInfo['db_username'] = 'u_gamecenter';
+            $dbInfo['db_password'] = 'jTdDEZHonOrbR98YQn9q';
+            $dbInfo['st_ip']       = '120.92.56.192';
+            $dbInfo['st_db']       = 'db_xfplatformcenter_statistics';
+            $dbInfo['st_username'] = 'statisuser';
+            $dbInfo['st_password'] = 'kCZTdI6CMhl35MUIu0DS';
+        }
     }
+
 }
 else
 {

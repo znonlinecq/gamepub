@@ -93,6 +93,9 @@ class OrderController extends Controller
         $sql .= " LIMIT {$start}, {$length} ";
 
         //$results = DB::select($sql);
+        //$statistic = DB::connection('statistics')->select("call db_xfplatformcenter_statistics.pro_paltform_dataall_sel(?,?,?)",array($gid, $start, $end));
+//        $test = DB::connection('statistics')->select("call db_xfplatformcenter_statistics.pro_guild_gamerecharge_byguildid_sel(?,?,?)",array('1970-01-01', '2016-10-10', 0));
+
 
         $objects = array();
         $objects['draw'] = $draw;
