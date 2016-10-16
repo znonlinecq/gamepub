@@ -158,10 +158,13 @@ Route::post('statistics/points_ajax',                           'StatisticContro
 //订单
 Route::get('orders',                                            'OrderController@index');
 Route::post('orders/index_ajax',                                'OrderController@index_ajax');
-Route::get('orders/payment_orders',                             'OrderController@payment_orders');
-Route::post('orders/payment_orders_ajax',                       'OrderController@payment_orders_ajax');
-Route::get('orders/give_orders',                                'OrderController@give_orders');
-Route::post('orders/give_orders_ajax',                          'OrderController@give_orders_ajax');
+Route::get('orders/recharge/{id}',                              'OrderController@recharge_show');
+Route::get('orders/payments',                                   'OrderController@payment_orders');
+Route::post('orders/payments_ajax',                             'OrderController@payment_orders_ajax');
+Route::get('orders/payments/{id}',                              'OrderController@payment_show');
+Route::get('orders/gives',                                      'OrderController@give_orders');
+Route::post('orders/gives_ajax',                                'OrderController@give_orders_ajax');
+Route::get('orders/gives/{id}',                                 'OrderController@give_show');
 
 //验证码
 Route::get('kit/captcha/{tmp}', 'KitController@captcha');

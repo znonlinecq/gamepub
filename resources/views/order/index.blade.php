@@ -13,13 +13,13 @@
                 <thead>
                 <tr>
                   <th>ID</th>
-                  <th>开发者</th>
+                  <th>订单号</th>
                   <th>游戏名称</th>
-                  <th>APIKey</th>
-                  <th>测试支付URL</th>
-                  <th>正式支付URL</th>
-                  <th>生成时间</th>
-                  <th>更新时间</th>
+                  <th>推广类型</th>
+                  <th>推广等级</th>
+                  <th>推广员ID</th>
+                  <th>充值金额</th>
+                  <th>充值时间</th>
                   <th>状态</th>
                   <th>操作</th>
                 </tr>
@@ -58,7 +58,7 @@ $(function () {
     var host = window.location.host;
     var languageUrl = '/chinese.json';
     var localUrl = 'http://localhost/gamepub/public';
-    var ajaxUrl = '{{$moduleIndexAjax}}';
+    var ajaxUrl = '/orders/index_ajax';
 
     if(host == 'localhost')
     {
@@ -69,7 +69,7 @@ $(function () {
   var table =  $("#tableList").DataTable({
         order: [[0,'asc']],
         columns:[
-            {"orderable":false},
+            {"orderable":true},
             {"orderable":false},
             {"orderable":false},
             {"orderable":false},

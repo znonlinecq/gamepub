@@ -9,6 +9,10 @@ use View;
 use DB;
 use Auth;
 use App\Models\Log;
+use App\Models\Game;
+use App\Models\Statistic\OrderRecharge;
+use App\Models\Statistic\OrderPay;
+use App\Models\Statistic\OrderGive;
 
 class OrderController extends Controller
 {
@@ -32,6 +36,47 @@ class OrderController extends Controller
 
     public function index()
     {
+        $games = Game::all();
+        if(count($games))
+        {
+            DB::delete("truncate ad_statistic_order_recharges");
+            foreach($games as $game)
+            {
+                $gameId         = $game->Gameid;        //ID
+                $gameType       = 0;                    //游戏类型 game_info里的typeid
+                $payType        = 0;                    //支付类型
+                $orderStatus    = 0;                    //订单状态 9=成功, 其它失败
+                $userType       = 1;                    //推广员类型, 1=公会
+                $start          = '1970-01-01';         // 1970-01-01
+                $end            = date('Y-m-d', time()+24*3600);         // 2016-10-10
+                $searchType     = 1;                    //1=充值，2=消费
+                $orders = DB::connection('statistics')->select("call db_xfplatformcenter_statistics.pro_ordermanager_sel(?,?,?,?,?,?,?,?)",array($gameId, $gameType, $payType, $orderStatus, $userType, $start, $end,$searchType));
+                
+                if(count($orders))
+                {
+                    //DB::table('statistic_order_recharges')->delete();
+                    foreach($orders as $order)
+                    {
+                        $object = new OrderRecharge();
+                        $object->order_id       = $order->systemorder;
+                        $object->createdate     = $order->CreateDate;
+                        $object->gamename       = $order->Gamename;
+                        $object->type           = $order->usertype;
+                        $object->level          = $order->userlevel;
+                        $object->username       = $order->UserName ? $order->UserName : '未知';
+                        $object->payaccount     = $order->payaccount;
+                        $object->paymethod      = $order->paymethod? $order->paymethod : '未知';
+                        $object->rmb            = $order->rmb;
+                        $object->status         = $order->stat;
+                        $object->isrebate       = $order->isRebate;
+                        $object->rebate         = $order->Rebate;
+                        $object->remark         = $order->remark;
+                        $object->created        = time();
+                        $object->save();
+                    }
+                }
+            }
+        }
         return view($this->moduleView.'/index', ['title'=>'充值订单总会']);
     }
 
@@ -54,7 +99,9 @@ class OrderController extends Controller
             $dateRange      = $requests['dateRange'];
             $dateRange      = explode('-', $dateRange);
             $from           = trim($dateRange[0]);
+            $from           = str_replace('/', '-', $from);
             $to             = trim($dateRange[1]);
+            $to             = str_replace('/', '-', $to);
         }
         else
         {
@@ -64,20 +111,19 @@ class OrderController extends Controller
 
  
         $orderColumns = array(
-            0=>'apkid', 
-            7=>'Uploaddate',
+            0=>'id', 
+            7=>'createdate',
         );
         $orderColumnsStr = $orderColumns[$orderNumber];
 
-        $sql = " SELECT * FROM {$this->moduleTable} ";
+        $sql = " SELECT * FROM ad_statistic_order_recharges ";
         if($searchValue)
         {
-            $conditions[] = " Apkname like '%{$searchValue}%' ";
+            $conditions[] = " order_id like '%{$searchValue}%' ";
         }
- 
         if($from && $to)
         {
-            $conditions[] = " (Uploaddate BETWEEN  '{$from}' AND '{$to}') ";
+            $conditions[] = " (createdate BETWEEN  '{$from}' AND '{$to}') ";
         }
         if(count($conditions))
         {
@@ -85,76 +131,42 @@ class OrderController extends Controller
             $sql .= implode(' AND ', $conditions);
         }
 
-        //$countResult = DB::select($sql);
-        //$total  = count($countResult);
-        $total = 0;
+        $countResult = DB::select($sql);
+        $total  = count($countResult);
 
         $sql .= " ORDER BY {$orderColumnsStr} {$orderDir}";
         $sql .= " LIMIT {$start}, {$length} ";
-
-        //$results = DB::select($sql);
-        //$statistic = DB::connection('statistics')->select("call db_xfplatformcenter_statistics.pro_paltform_dataall_sel(?,?,?)",array($gid, $start, $end));
-//        $test = DB::connection('statistics')->select("call db_xfplatformcenter_statistics.pro_guild_gamerecharge_byguildid_sel(?,?,?)",array('1970-01-01', '2016-10-10', 0));
-
-
+        $results = DB::select($sql);
+        
         $objects = array();
         $objects['draw'] = $draw;
         $objects['recordsTotal'] = $total;
         $objects['recordsFiltered'] = $total;
-        if(count(array()))
+        if(count($results))
         {
 
             foreach($results as $result)
             {
-                $game       = Game::where('Gameid', $result->Gameid)->get();
-                if(count($game))
-                {
-                    $gameName = $game[0]->Gamename;
-                }
-                else
-                {
-                    $gameName = '未定义';
-                }
-            
-                $developer  = Developer::where('cpid', $result->Cpid)->get();
-                if(count($developer))
-                {
-                    $developerName = $developer[0]->username;
-                }
-                else
-                {
-                    $developerName = '未定义';
-                }
 
-                if($result->status == 0)
+                if($result->status == 9)
                 {
-                    $status = '待审核';
-                }elseif($result->status == 1)
+                    $status = '成功';
+                }else
                 {
-                    $status = '通过';
-                }elseif($result->status == 2)
-                {
-                    $status = '驳回';
+                    $status = '失败';
                 }
-
-                if($result->Apktypeid == 0)
-                {
-                    $type = '新品';
-                }elseif($result->Apktypeid == 1){
-                    $type = '更新';
-                }
-
+                
                 $object = array();
-                $object[] = $result->apkid;
-                $object[] = $result->Apkname;
-                $object[] = $gameName;
-                $object[] = $developerName;
-                $object[] = $type;
-                $object[] = $result->Opendowndate;
-                $object[] = $result->OpeServndate;
-                $object[] = $result->Uploaddate;
+                $object[] = $result->id;
+                $object[] = $result->order_id;
+                $object[] = $result->gamename;
+                $object[] = $result->type;
+                $object[] = $result->level;
+                $object[] = $result->username;
+                $object[] = $result->rmb;
+                $object[] = $result->createdate;
                 $object[] = $status;
-                $object[] = '<a href="'.url($this->moduleRoute.'/audit_form/'.$result->apkid).'">审核</a>';
+                $object[] = '<a href="'.url($this->moduleRoute.'/recharge/'.$result->id).'">详情</a>';
 
                 $objects['data'][] = $object;
             }    
@@ -179,68 +191,77 @@ class OrderController extends Controller
     }
 
 
-    public function show($id)
+    public function recharge_show($id)
     {
-        
-//        $object     = Apk::find($id); 
-//        $game       = Game::where('Gameid', $object->Gameid)->get();
-//        if(count($game))
-//        {
-//            $object->gameName = $game[0]->Gamename;
-//        }
-//        else
-//        {
-//            $object->gameName = '未定义';
-//        }
-//
-//        $developer  = Developer::where('cpid', $object->Cpid)->get();
-//        if(count($developer))
-//        {
-//            $object->developerName = $developer[0]->username;
-//        }
-//        else
-//        {
-//            $object->developerName = '未定义';
-//        }
-//
-//
-//        $object->created = date('Y-m-d H:i:s', $object->CreateDate); 
-//        if($object->status == 0)
-//        {
-//            $object->status = '待审核';
-//        }elseif($object->status == 1)
-//        {
-//            $object->status = '通过';
-//        }elseif($object->status == 2)
-//        {
-//            $object->status = '驳回';
-//        }
-//
-//        if($object->Isself == 0)
-//        {
-//            $object->Isself = '独家代理';
-//        }else{
-//            $object->Isself = '自主研发';
-//        }
-//        if($object->Apktypeid == 0)
-//        {
-//            $object->type = '新品';
-//        }elseif($object->Apktypeid == 1){
-//            $object->type = '更新';
-//        }
-        $object = array();
+        $object  = OrderRecharge::find($id); 
+        if($object->status == 9)
+        {
+            $object->status = '成功';
+        }else
+        {
+            $object->status = '失败';
+        }
+        if($object->isrebate == 1)
+        {
+            $object->isrebate = '是';
+        }else
+        {
+            $object->isrebate = '否';
+        }
 
-        return view($this->moduleView.'/show', ['object'=>$object, 'title'=>'充值订单汇总详情']);
+
+        return view($this->moduleView.'/show', ['object'=>$object, 'title'=>'充值订单详情']);
     
     }
     
     public function payment_orders()
-    {
+    {    
+        $games = Game::all();
+        if(count($games))
+        {
+            DB::delete("truncate ad_statistic_order_pays");
+            foreach($games as $game)
+            {
+                $gameId         = $game->Gameid;        //ID
+                $gameType       = 0;                    //游戏类型 game_info里的typeid
+                $payType        = 0;                    //支付类型
+                $orderStatus    = 0;                    //订单状态 9=成功, 其它失败
+                $userType       = 1;                    //推广员类型, 1=公会
+                $start          = '1970-01-01';         // 1970-01-01
+                $end            = date('Y-m-d', time()+24*3600);         // 2016-10-10
+                $searchType     = 2;                    //1=充值，2=消费
+                $orders = DB::connection('statistics')->select("call db_xfplatformcenter_statistics.pro_ordermanager_sel(?,?,?,?,?,?,?,?)",array($gameId, $gameType, $payType, $orderStatus, $userType, $start, $end,$searchType));
+                
+                if(count($orders))
+                {
+                    //DB::table('statistic_order_recharges')->delete();
+                    foreach($orders as $order)
+                    {
+                        $object = new OrderPay();
+                        $object->order_id       = $order->systemorder;
+                        $object->createdate     = $order->CreateDate;
+                        $object->gamename       = $order->Gamename;
+                        $object->username       = $order->UserName ? $order->UserName : '未知';
+                        $object->payaccount     = $order->payaccount;
+                        $object->goodsname      = $order->goodsname;
+                        $object->goodsnum       = $order->goodsnum;
+                        $object->paymethod      = $order->paymethod? $order->paymethod : '未知';
+                        $object->paynum         = $order->paynum;
+                        $object->status         = $order->stat;
+                        $object->remark         = $order->remark;
+                        $object->created        = time();
+                        $object->save();
+                    }
+                }
+            }
+        }
+     
         return view($this->moduleView.'/payment_orders', ['title'=>'消费订单总会']);
     }
 
     public function payment_orders_ajax(Request $request)
     {
+        
         $requests       = $request->all();
         $draw           = $requests['draw'];
         $columns        = $requests['columns'];
@@ -258,7 +279,9 @@ class OrderController extends Controller
             $dateRange      = $requests['dateRange'];
             $dateRange      = explode('-', $dateRange);
             $from           = trim($dateRange[0]);
+            $from           = str_replace('/', '-', $from);
             $to             = trim($dateRange[1]);
+            $to             = str_replace('/', '-', $to);
         }
         else
         {
@@ -268,20 +291,19 @@ class OrderController extends Controller
 
  
         $orderColumns = array(
-            0=>'apkid', 
-            7=>'Uploaddate',
+            0=>'id', 
+            7=>'createdate',
         );
         $orderColumnsStr = $orderColumns[$orderNumber];
 
-        $sql = " SELECT * FROM {$this->moduleTable} ";
+        $sql = " SELECT * FROM ad_statistic_order_pays ";
         if($searchValue)
         {
-            $conditions[] = " Apkname like '%{$searchValue}%' ";
+            $conditions[] = " order_id like '%{$searchValue}%' ";
         }
- 
         if($from && $to)
         {
-            $conditions[] = " (Uploaddate BETWEEN  '{$from}' AND '{$to}') ";
+            $conditions[] = " (createdate BETWEEN  '{$from}' AND '{$to}') ";
         }
         if(count($conditions))
         {
@@ -289,73 +311,42 @@ class OrderController extends Controller
             $sql .= implode(' AND ', $conditions);
         }
 
-        //$countResult = DB::select($sql);
-        //$total  = count($countResult);
-        $total = 0;
+        $countResult = DB::select($sql);
+        $total  = count($countResult);
 
         $sql .= " ORDER BY {$orderColumnsStr} {$orderDir}";
         $sql .= " LIMIT {$start}, {$length} ";
-
-        //$results = DB::select($sql);
-
+        $results = DB::select($sql);
+        
         $objects = array();
         $objects['draw'] = $draw;
         $objects['recordsTotal'] = $total;
         $objects['recordsFiltered'] = $total;
-        if(count(array()))
+        if(count($results))
         {
 
             foreach($results as $result)
             {
-                $game       = Game::where('Gameid', $result->Gameid)->get();
-                if(count($game))
-                {
-                    $gameName = $game[0]->Gamename;
-                }
-                else
-                {
-                    $gameName = '未定义';
-                }
-            
-                $developer  = Developer::where('cpid', $result->Cpid)->get();
-                if(count($developer))
-                {
-                    $developerName = $developer[0]->username;
-                }
-                else
-                {
-                    $developerName = '未定义';
-                }
 
-                if($result->status == 0)
+                if($result->status == 9)
                 {
-                    $status = '待审核';
-                }elseif($result->status == 1)
+                    $status = '成功';
+                }else
                 {
-                    $status = '通过';
-                }elseif($result->status == 2)
-                {
-                    $status = '驳回';
+                    $status = '失败';
                 }
-
-                if($result->Apktypeid == 0)
-                {
-                    $type = '新品';
-                }elseif($result->Apktypeid == 1){
-                    $type = '更新';
-                }
-
+                
                 $object = array();
-                $object[] = $result->apkid;
-                $object[] = $result->Apkname;
-                $object[] = $gameName;
-                $object[] = $developerName;
-                $object[] = $type;
-                $object[] = $result->Opendowndate;
-                $object[] = $result->OpeServndate;
-                $object[] = $result->Uploaddate;
+                $object[] = $result->id;
+                $object[] = $result->order_id;
+                $object[] = $result->gamename;
+                $object[] = $result->goodsname;
+                $object[] = $result->goodsnum;
+                $object[] = $result->username;
+                $object[] = $result->paynum;
+                $object[] = $result->createdate;
                 $object[] = $status;
-                $object[] = '<a href="'.url($this->moduleRoute.'/audit_form/'.$result->apkid).'">审核</a>';
+                $object[] = '<a href="'.url($this->moduleRoute.'/payments/'.$result->id).'">详情</a>';
 
                 $objects['data'][] = $object;
             }    
@@ -376,17 +367,74 @@ class OrderController extends Controller
             $objects['data'][] = $array;
         }
 
+
         return json_encode($objects);
     }
 
 
-    public function payment_order_show($id)
+    public function payment_show($id)
     {
-        
+        $object  = OrderPay::find($id); 
+        if($object->status == 9)
+        {
+            $object->status = '成功';
+        }else
+        {
+            $object->status = '失败';
+        }
+        if($object->isrebate == 1)
+        {
+            $object->isrebate = '是';
+        }else
+        {
+            $object->isrebate = '否';
+        }
+
+
+        return view($this->moduleView.'/payment_order_show', ['object'=>$object, 'title'=>'消费订单详情']);
+    
+   
     }
 
     public function give_orders()
-    {
+    {    
+        DB::delete("truncate ad_statistic_order_gives");
+        for($level = 1; $level<4; $level++)
+        {
+            $type       = 1;                                //发起方类型
+            $start      = '1970-01-01';                     // 1970-01-01
+            $end        = date('Y-m-d', time()+24*3600);    // 2016-10-10
+            
+            $orders = DB::connection('statistics')->select("call db_xfplatformcenter_statistics.pro_platform_transorder_sel(?,?,?,?)",array($type, $level, $start, $end));
+
+            if(count($orders))
+            {
+                foreach($orders as $order)
+                {
+                    if(trim($order->stat) == '成功')
+                    {
+                        $status = 1;
+                    }
+                    else
+                    {
+                        $status = 0;
+                    }
+                    $object = new OrderGive();
+                    $object->order_id       = $order->Systemorder;
+                    $object->createdate     = $order->createdate;
+                    $object->type           = $order->usertype;
+                    $object->level          = $order->userlevel;
+                    $object->username       = $order->username ? $order->username : '未知';
+                    $object->tousername     = $order->tousername ? $order->tousername : '未知';
+                    $object->badou          = $order->badou;
+                    $object->afterbadou     = $order->afterbadou;
+                    $object->status         = $status;
+                    $object->remark         = $order->remark;
+                    $object->created        = time();
+                    $object->save();
+                }
+            }
+        }
         return view($this->moduleView.'/give_orders', ['title'=>'转增订单总会']);
     }
 
@@ -409,7 +457,9 @@ class OrderController extends Controller
             $dateRange      = $requests['dateRange'];
             $dateRange      = explode('-', $dateRange);
             $from           = trim($dateRange[0]);
+            $from           = str_replace('/', '-', $from);
             $to             = trim($dateRange[1]);
+            $to             = str_replace('/', '-', $to);
         }
         else
         {
@@ -419,20 +469,19 @@ class OrderController extends Controller
 
  
         $orderColumns = array(
-            0=>'apkid', 
-            7=>'Uploaddate',
+            0=>'id', 
+            7=>'createdate',
         );
         $orderColumnsStr = $orderColumns[$orderNumber];
 
-        $sql = " SELECT * FROM {$this->moduleTable} ";
+        $sql = " SELECT * FROM ad_statistic_order_gives ";
         if($searchValue)
         {
-            $conditions[] = " Apkname like '%{$searchValue}%' ";
+            $conditions[] = " order_id like '%{$searchValue}%' ";
         }
- 
         if($from && $to)
         {
-            $conditions[] = " (Uploaddate BETWEEN  '{$from}' AND '{$to}') ";
+            $conditions[] = " (createdate BETWEEN  '{$from}' AND '{$to}') ";
         }
         if(count($conditions))
         {
@@ -440,73 +489,42 @@ class OrderController extends Controller
             $sql .= implode(' AND ', $conditions);
         }
 
-        //$countResult = DB::select($sql);
-        //$total  = count($countResult);
-        $total = 0;
+        $countResult = DB::select($sql);
+        $total  = count($countResult);
 
         $sql .= " ORDER BY {$orderColumnsStr} {$orderDir}";
         $sql .= " LIMIT {$start}, {$length} ";
-
-        //$results = DB::select($sql);
-
+        $results = DB::select($sql);
+        
         $objects = array();
         $objects['draw'] = $draw;
         $objects['recordsTotal'] = $total;
         $objects['recordsFiltered'] = $total;
-        if(count(array()))
+        if(count($results))
         {
 
             foreach($results as $result)
             {
-                $game       = Game::where('Gameid', $result->Gameid)->get();
-                if(count($game))
-                {
-                    $gameName = $game[0]->Gamename;
-                }
-                else
-                {
-                    $gameName = '未定义';
-                }
-            
-                $developer  = Developer::where('cpid', $result->Cpid)->get();
-                if(count($developer))
-                {
-                    $developerName = $developer[0]->username;
-                }
-                else
-                {
-                    $developerName = '未定义';
-                }
 
-                if($result->status == 0)
+                if($result->status == 9)
                 {
-                    $status = '待审核';
-                }elseif($result->status == 1)
+                    $status = '成功';
+                }else
                 {
-                    $status = '通过';
-                }elseif($result->status == 2)
-                {
-                    $status = '驳回';
+                    $status = '失败';
                 }
-
-                if($result->Apktypeid == 0)
-                {
-                    $type = '新品';
-                }elseif($result->Apktypeid == 1){
-                    $type = '更新';
-                }
-
+                
                 $object = array();
-                $object[] = $result->apkid;
-                $object[] = $result->Apkname;
-                $object[] = $gameName;
-                $object[] = $developerName;
-                $object[] = $type;
-                $object[] = $result->Opendowndate;
-                $object[] = $result->OpeServndate;
-                $object[] = $result->Uploaddate;
+                $object[] = $result->id;
+                $object[] = $result->order_id;
+                $object[] = $result->type;
+                $object[] = $result->level;
+                $object[] = $result->username;
+                $object[] = $result->tousername;
+                $object[] = $result->badou;
+                $object[] = $result->createdate;
                 $object[] = $status;
-                $object[] = '<a href="'.url($this->moduleRoute.'/audit_form/'.$result->apkid).'">审核</a>';
+                $object[] = '<a href="'.url($this->moduleRoute.'/gives/'.$result->id).'">详情</a>';
 
                 $objects['data'][] = $object;
             }    
@@ -527,13 +545,23 @@ class OrderController extends Controller
             $objects['data'][] = $array;
         }
 
+
         return json_encode($objects);
     }
 
 
-    public function give_order_show($id)
+    public function give_show($id)
     {
-        
+        $object  = OrderGive::find($id); 
+        if($object->status == 9)
+        {
+            $object->status = '成功';
+        }else
+        {
+            $object->status = '失败';
+        }
+
+        return view($this->moduleView.'/give_order_show', ['object'=>$object, 'title'=>'转增订单详情']);
     }
 
 

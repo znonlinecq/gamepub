@@ -8,68 +8,60 @@
     @endif    
 </div>
 <div class="box-body">
-            <!-- form start -->
-            <form method="POST" action="{{ url($moduleRoute.'/audit_form_submit') }}">
- {!! csrf_field() !!} 
 <table class="table table-bordered">
 <tbody>
     <tr>
-        <td width="20%" align="right">ID </td>
-        <td>{{$object->id}}</td>
+        <td width="20%" align="right">订单ID </td>
+        <td>{{$object->order_id}}</td>
     </tr> 
     <tr>
-        <td width="20%" align="right">开发者</td>
-        <td>{{$object->username}}</td>
-    </tr>
-     <tr>
         <td width="20%" align="right">游戏名称</td>
-        <td>{{$object->Gamename}}</td>
+        <td>{{$object->gamename}}</td>
     </tr>
     
     <tr>
-        <td width="20%" align="right">APIKey</td>
-        <td>{{$object->Apikey}}</td>
+        <td width="20%" align="right">推广员类型</td>
+        <td>{{$object->type}}</td>
     </tr>
     <tr>
-        <td width="20%" align="right">测试支付URL</td>
-        <td>{{$object->Testpayturl}}</td>
+        <td width="20%" align="right">推广员等级</td>
+        <td>{{$object->level}}</td>
     </tr>
     <tr>
-        <td width="20%" align="right">正式支付URL</td>
-        <td>{{$object->Payturl}}</td>
+        <td width="20%" align="right">推广员ID</td>
+        <td>{{$object->username}}</td>
     </tr>
     <tr>
-        <td width="20%" align="right">生成时间</td>
-        <td>{{$object->Adddate}}</td>
+        <td width="20%" align="right">支付方式</td>
+        <td>{{$object->paymethod}}</td>
     </tr>
     <tr>
-        <td width="20%" align="right">更新时间</td>
-        <td>{{$object->Lastupdate}}</td>
+        <td width="20%" align="right">充值金额</td>
+        <td>{{$object->rmb}}</td>
     </tr>
     <tr>
         <td width="20%" align="right">状态</td>
         <td>{{$object->status}}</td>
+    </tr> 
+    <tr>
+        <td width="20%" align="right">是否充返</td>
+        <td>{{$object->isrebate}}</td>
     </tr>
+    <tr>
+        <td width="20%" align="right">充返金额</td>
+        <td>{{$object->rebate}}</td>
+    </tr>
+     <tr>
+        <td width="20%" align="right">充值时间</td>
+        <td>{{$object->createdate}}</td>
+    </tr>
+    
     <tr>
         <td width="20%" align="right">备注</td>
-        <td>
-            <textarea class="form-control" name="description"></textarea>
-        </td>
+        <td>{{$object->remark}}</td>
     </tr>
-    <tr>
-        <td width="20%" align="right"></td>
-        <td>
-            <button name="submit" type="submit" class="btn btn-primary" value="yes">通过</button>
-            <button name="submit" type="submit" class="btn btn-default" value="no">驳回</button>
-        </td>
-    </tr>
-
-
 </tbody>
-
 </table>
-<input type="hidden" value="{{$object->id}}" name="id">
-            </form>
 </div>
 </div>
 @endsection

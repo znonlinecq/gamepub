@@ -58,7 +58,7 @@ $(function () {
     var host = window.location.host;
     var languageUrl = '/chinese.json';
     var localUrl = 'http://localhost/gamepub/public';
-    var ajaxUrl = '/orders/payment_orders_ajax';
+    var ajaxUrl = '/orders/payments_ajax';
 
     if(host == 'localhost')
     {
@@ -67,7 +67,7 @@ $(function () {
     }
 
   var table =  $("#tableList").DataTable({
-        order: [[0,'desc']],
+        order: [[0,'asc']],
         columns:[
             {"orderable":false},
             {"orderable":false},
