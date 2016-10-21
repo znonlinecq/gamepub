@@ -19,25 +19,12 @@ use App\Models\GameClass;
 
 class ChairmanController extends Controller
 {    
-    private $moduleRoute = 'chairmans';             //路由URL
-    private $moduleView = 'chairman';    //视图路径
-    private $moduleTable = '';
-    private $moduleName = '会长';
-    private $moduleIndexAjax = '/chairmans/index_ajax';
-
-    private $searchPlaceholder = '会长姓名';
-
-    public function __construct()
-    {
-        parent::__construct();
-        View::composer($this->moduleView.'/*', function ($view) {
-            $view->with('moduleRoute', $this->moduleRoute);
-            $view->with('moduleName', $this->moduleName);
-            $view->with('moduleIndexAjax', $this->moduleIndexAjax);
-            $view->with('searchPlaceholder', $this->searchPlaceholder);
-        }); 
-    }
-
+    protected $moduleRoute = 'chairmans';             //路由URL
+    protected $moduleView = 'chairman';    //视图路径
+    protected $moduleTable = '';
+    protected $moduleName = '会长';
+    protected $moduleIndexAjax = '/chairmans/index_ajax';
+    protected $searchPlaceholder = '会长姓名';
 
     public function index()
     {
@@ -66,7 +53,6 @@ class ChairmanController extends Controller
         }
 
         return view('chairman/audit_form', ['object'=>$object, 'title'=>'会长审核', 'moduleRoute'=>$this->moduleRoute]);
-    
     }
 
     public function audit_form_submit(Request $request)
@@ -272,7 +258,7 @@ class ChairmanController extends Controller
             $gids = $request['gids'];
         }    
         $gidsOldNew = array();
-        $gidsOld = DB::select("SELECT AppId FROM dt_guild_togames WHERE GuildId = {$id} AND AuditStatus = 1");
+        $gidsOld = DB::select("SELECT AppId FROM dt_guild_togames WHERE GuildId = {$id} AND AuditStatus <> 0");
         
 
         if(count($gidsOld))
@@ -304,7 +290,7 @@ class ChairmanController extends Controller
             $model = GuildToGame::where('GuildId', $id)->where('AppId', $gidInsert)->get();
             if(count($model))
             {
-                GuildToGame::where('GuildId', $id)->where('AppId', $gidInsert)->update(['AuditStatus'=>1]);    
+                GuildToGame::where('GuildId', $id)->where('AppId', $gidInsert)->update(['AuditStatus'=>3]);    
                 $game = Game::where('Gameid', $gidInsert)->get();
                 //日志
                 $params['module'] = __CLASS__;
@@ -319,7 +305,7 @@ class ChairmanController extends Controller
                 $object = new GuildToGame();
                 $object->GuildId = $id;
                 $object->Appid = $gidInsert;
-                $object->AuditStatus = 1;
+                $object->AuditStatus = 3;
                 $object->CreateDate = time();
                 $object->UpdateDate = time();
                 $object->save();

@@ -18,24 +18,12 @@ use App\Models\Variable;
 
 class FinanceController extends Controller
 {
-    private $moduleRoute = 'finances';     //路由URL
-    private $moduleView = 'finance';       //视图路径
-    private $moduleTable = 'finances';
-    private $moduleName = '财务';
-    private $moduleIndexAjax = '/finances/index_ajax';
-
-    private $searchPlaceholder = '公会名称';
-
-    public function __construct()
-    {
-        parent::__construct();
-        View::composer($this->moduleView.'/*', function ($view) {
-            $view->with('moduleRoute', $this->moduleRoute);
-            $view->with('moduleName', $this->moduleName);
-            $view->with('moduleIndexAjax', $this->moduleIndexAjax);
-            $view->with('searchPlaceholder', $this->searchPlaceholder);
-        }); 
-    }
+    protected $moduleRoute = 'finances';     //路由URL
+    protected $moduleView = 'finance';       //视图路径
+    protected $moduleTable = 'finances';
+    protected $moduleName = '财务';
+    protected $moduleIndexAjax = '/finances/index_ajax';
+    protected $searchPlaceholder = '公会名称';
 
     public function index()
     {
@@ -220,7 +208,7 @@ class FinanceController extends Controller
         $params['extracommonparam'] = '';
         $params['touserid'] = $gid;
         $params['adminid'] = $user->id;
-        $params['tobadou'] = ceil($money + ($money/100 * 20));
+        $params['badou'] = ceil($money + ($money/100 * 20));
         $params['adminremark'] = 'test';
         $params['rmb'] = $money;
         ksort($params);

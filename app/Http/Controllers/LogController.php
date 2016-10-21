@@ -11,12 +11,12 @@ use App\Models\Finance\FinanceOrder;
 
 class LogController extends Controller
 {
-    private $moduleRoute    = 'logs';      //路由URL
-    private $moduleView     = 'log';       //视图路径
-    private $moduleTable    = 'logs';
-    private $moduleName     = '日志';
+    protected $moduleRoute    = 'logs';      //路由URL
+    protected $moduleView     = 'log';       //视图路径
+    protected $moduleTable    = 'logs';
+    protected $moduleName     = '日志';
 
-    public function index($controllerType, $methodType)
+    public function index($controllerType=NULL, $methodType=NULL)
     {       
         $logType = ucfirst($controllerType).'Log';
         $method = $methodType.'_title'; 

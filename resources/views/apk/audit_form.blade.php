@@ -39,6 +39,22 @@
         <td>{{$object->Apkuptype}}</td>
     </tr>
     <tr>
+        <td width="20%" align="right">版本号</td>
+        <td>{{$object->versionName}}</td>
+    </tr>
+    <tr>
+        <td width="20%" align="right">版本更新次数</td>
+        <td>{{$object->versionCode}}</td>
+    </tr>
+    <tr>
+        <td width="20%" align="right">游戏包大小</td>
+        <td>{{$object->Apksize}}</td>
+    </tr>
+    <tr>
+        <td width="20%" align="right">下载地址</td>
+        <td>{{$object->Apkurl}}</td>
+    </tr>
+    <tr>
         <td width="20%" align="right">开放下载时间</td>
         <td>{{$object->Opendowndate}}</td>
     </tr>

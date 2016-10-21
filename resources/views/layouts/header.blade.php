@@ -5,8 +5,11 @@
     <a href="{{url('/')}}" class="logo">
       <!-- mini logo for sidebar mini 50x50 pixels -->
       <span class="logo-mini">Logo</span>
-      <!-- logo for regular state and mobile devices -->
-      <span class="logo-lg">管理后台</span>
+   <!-- logo for regular state and mobile devices -->
+      <span class="logo-lg" style="text-align: left;">
+        <img src="{{ asset('resources/dist/img/logo1.png') }}" width="50px" height="50px" class="user-image" alt="User Image">       
+ 游戏后台
+      </span>
     </a>
 
     <!-- Header Navbar -->

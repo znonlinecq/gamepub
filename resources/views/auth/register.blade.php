@@ -29,7 +29,7 @@
   </div>
 
   <div class="register-box-body">
-    <p class="login-box-msg">Register a new membership</p>
+    <p class="login-box-msg">注册新用户</p>
 
     <form action="{{ url('/auth/register') }}" method="post">
 {!! csrf_field() !!}
@@ -68,7 +68,7 @@
         <div class="col-xs-8">
           <div class="checkbox icheck">
             <label>
-              <input name="agreement" type="checkbox"> I agree to the <a href="#">terms</a>
+              <input name="agreement" type="checkbox"> 我同意此 <a href="#">条款</a>
             </label>
           </div>
         @if ($errors->has('agreement'))
@@ -78,13 +78,13 @@
         </div>
         <!-- /.col -->
         <div class="col-xs-4">
-          <button type="submit" class="btn btn-primary btn-block btn-flat">Register</button>
+          <button type="submit" class="btn btn-primary btn-block btn-flat">注册</button>
         </div>
         <!-- /.col -->
       </div>
     </form>
 
-    <a href="{{ url('/auth/login')}}" class="text-center">I already have a membership</a>
+    <a href="{{ url('/auth/login')}}" class="text-center">用户登录</a>
   </div>
   <!-- /.form-box -->
 </div>

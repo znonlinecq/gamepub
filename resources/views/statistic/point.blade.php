@@ -56,7 +56,7 @@ $(function () {
     var host = window.location.host;
     var languageUrl = '/chinese.json';
     var localUrl = 'http://localhost/gamepub/public';
-    var ajaxUrl = '/statistics/channels_ajax';
+    var ajaxUrl = '/statistics/points_ajax';
     if(host == 'localhost')
     {
        languageUrl = localUrl + languageUrl; 

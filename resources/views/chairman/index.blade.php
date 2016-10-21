@@ -63,9 +63,7 @@ $(function () {
        ajaxUrl = localUrl + ajaxUrl;
     }
     var type ='{{$type}}';
-    var table =  $("#tableList").DataTable({
-        order: [[0,'asc']],
-        columns:[
+    var columns = [
             {"orderable":false},
             {"orderable":false},
             {"orderable":false},
@@ -76,7 +74,10 @@ $(function () {
             {"orderable":true},
             {"orderable":false},
             {"orderable":false},
-        ],
+        ];   
+        var table =  $("#tableList").DataTable({
+        order: [[0,'asc']],
+        columns:columns,
         language: {
             url: languageUrl,
             searchPlaceholder: '{{$searchPlaceholder}}',

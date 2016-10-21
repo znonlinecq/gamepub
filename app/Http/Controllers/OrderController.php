@@ -16,23 +16,12 @@ use App\Models\Statistic\OrderGive;
 
 class OrderController extends Controller
 {
-    private $moduleRoute    = 'orders';      //路由URL
-    private $moduleView     = 'order';       //视图路径
-    private $moduleTable    = '';
-    private $moduleName     = '订单';
-    private $moduleIndexAjax = '/orders/index_ajax';
-    private $searchPlaceholder = '订单号';   
-    public function __construct()
-    {
-        parent::__construct();
-        View::composer($this->moduleView.'/*', function ($view) {
-            $view->with('moduleRoute', $this->moduleRoute);
-            $view->with('moduleName', $this->moduleName); 
-            $view->with('moduleIndexAjax', $this->moduleIndexAjax);
-            $view->with('searchPlaceholder', $this->searchPlaceholder);
-
-        }); 
-    }
+    protected $moduleRoute    = 'orders';      //路由URL
+    protected $moduleView     = 'order';       //视图路径
+    protected $moduleTable    = '';
+    protected $moduleName     = '订单';
+    protected $moduleIndexAjax = '/orders/index_ajax';
+    protected $searchPlaceholder = '订单号';   
 
     public function index()
     {
@@ -256,7 +245,7 @@ class OrderController extends Controller
             }
         }
      
-        return view($this->moduleView.'/payment_orders', ['title'=>'消费订单总会']);
+        return view($this->moduleView.'/payment_orders', ['title'=>'消费订单总汇']);
     }
 
     public function payment_orders_ajax(Request $request)
@@ -413,7 +402,7 @@ class OrderController extends Controller
                 {
                     if(trim($order->stat) == '成功')
                     {
-                        $status = 1;
+                        $status = 9;
                     }
                     else
                     {

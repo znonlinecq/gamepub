@@ -10,17 +10,8 @@ use View;
 
 class RoleController extends Controller
 { 
-    private $searchPlaceholder = '角色名';       
-
-    public function __construct()
-    {
-        parent::__construct();
-        View::composer('role/*', function ($view) {
-            $view->with('searchPlaceholder', $this->searchPlaceholder);
-
-        }); 
-    }
-
+    protected $searchPlaceHolder = '角色名';       
+    protected $moduleView = 'role';
 
     public function index(){
         $roles = Role::All();
@@ -41,7 +32,7 @@ class RoleController extends Controller
         return redirect('roles/create')->with('message', '创建成功!');
     }
 
-    public function show(){
+    public function show($id=NULL){
         return view('role/show', ['title'=>'角色查看']);
     } 
 
@@ -63,8 +54,17 @@ class RoleController extends Controller
     public function destroy($id){
         if($id == 1)
         {
-            return redirect('roles')->with('message', '超级管理员无法删除!');
+            return redirect('roles')->with('message', '超级管理员角色无法删除!');
         }
+        if($id == 2)
+        {
+            return redirect('roles')->with('message', '管理员角色无法删除!');
+        }
+        if($id == 3)
+        {
+            return redirect('roles')->with('message', '财务角色无法删除!');
+        }
+ 
         Role::destroy($id);
         return redirect('roles')->with('message', '删除成功!');
     } 

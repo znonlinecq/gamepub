@@ -12,27 +12,17 @@ use App\Models\Game;
 use App\Models\Developer;
 use Auth;
 use App\Models\Log;
+use App\Models\Sdk;
 
 
 class ApkController extends Controller
 {
-    private $moduleRoute    = 'apks';      //路由URL
-    private $moduleView     = 'apk';       //视图路径
-    private $moduleTable    = 'game_apkinfo';
-    private $moduleName     = '游戏包';
-    private $moduleIndexAjax = '/apks/index_ajax';
-    private $searchPlaceholder = '游戏包名';   
-    public function __construct()
-    {
-        parent::__construct();
-        View::composer($this->moduleView.'/*', function ($view) {
-            $view->with('moduleRoute', $this->moduleRoute);
-            $view->with('moduleName', $this->moduleName); 
-            $view->with('moduleIndexAjax', $this->moduleIndexAjax);
-            $view->with('searchPlaceholder', $this->searchPlaceholder);
-
-        }); 
-    }
+    protected $moduleRoute    = 'apks';      //路由URL
+    protected $moduleView     = 'apk';       //视图路径
+    protected $moduleTable    = 'game_apkinfo';
+    protected $moduleName     = '游戏包';
+    protected $moduleIndexAjax = '/apks/index_ajax';
+    protected $searchPlaceholder = '游戏包名';   
 
     public function index()
     {
@@ -106,6 +96,20 @@ class ApkController extends Controller
 
             foreach($results as $result)
             {
+
+                $sdk = Sdk::where('Gameid', $result->Gameid)->get();
+                if(count($sdk))
+                {
+                    if($sdk[0]->status != 1)
+                    {
+                        continue;
+                    } 
+                } 
+                else
+                {
+                    continue;
+                }
+
                 $game       = Game::where('Gameid', $result->Gameid)->get();
                 if(count($game))
                 {
@@ -143,6 +147,11 @@ class ApkController extends Controller
                 }elseif($result->Apktypeid == 1){
                     $type = '更新';
                 }
+                
+                $op = '<a href="'.url($this->moduleRoute.'/audit_form/'.$result->apkid).'">审核</a>';
+                $op .= ' | ';
+                //$op .= '<a href="'.url($this->moduleRoute.'/download/'.$result->apkid).'">下载</a>';
+                $op .= '<a href="'.$result->Apkurl.'" target="_blank">下载</a>';
 
                 $object = array();
                 $object[] = $result->apkid;
@@ -154,7 +163,7 @@ class ApkController extends Controller
                 $object[] = $result->OpeServndate;
                 $object[] = $result->Uploaddate;
                 $object[] = $status;
-                $object[] = '<a href="'.url($this->moduleRoute.'/audit_form/'.$result->apkid).'">审核</a>';
+                $object[] = $op;
 
                 $objects['data'][] = $object;
             }    
@@ -251,7 +260,7 @@ class ApkController extends Controller
         $summary = $description;
         $updated = date('Y-m-d H:i:s', time());
 
-        DB::update("UPDATE {$this->moduleTable} set Checkuserid={$user->id}, status={$status}, checkdate='{$updated}'  where apkid = {$id}");
+        DB::update("UPDATE {$this->moduleTable} set Checkuserid={$user->id}, status={$status}, checkdate='{$updated}', Checkreason='{$description}'  where apkid = {$id}");
         
         //更新游戏表
         if($status == 1)
@@ -269,5 +278,29 @@ class ApkController extends Controller
         return redirect($this->moduleRoute)->with('message', '审核完成!');
     }
 
+    public function download($id)
+    {
+        $object     = Apk::find($id); 
+        $file_path = $object->Apkurl;    
+        //$file_path = 'http://pic.87870.com/upload/files/opengame/2016/10/17/c0d123aa-539f-4864-a0af-007d40b9205b.rar';
+        $buffer = 102400; //一次返回102400个字节  
+        $fp = fopen($file_path, "r");  
+        $file_data = '';  
+        while (!feof($fp)) {  
+            $file_data .= fread($fp, $buffer);  
+        }  
+        fclose($fp);  
 
+        //Begin writing headers  
+        header("Pragma: public");  
+        header("Expires: 0");  
+        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");  
+        header("Cache-Control: public");  
+        header("Content-Description: File Transfer");  
+        header("Content-type:application/octet-stream;");  
+        header("Accept-Ranges:bytes");  
+        header("Content-Disposition:attachment; filename={$file_path}");  
+        header("Content-Transfer-Encoding: binary");  
+        echo $file_data; 
+    }
 }

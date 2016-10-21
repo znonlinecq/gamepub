@@ -1,23 +1,16 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Guild;
 
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Foundation\Validation\ValidatesRequests;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Foundation\Auth\Access\AuthorizesResources;
-use App\Models\Menu;
-use View;
-use Auth;
 use Illuminate\Http\Request;
+
+use App\Http\Requests;
+use App\Http\Controllers\Controller;
+use View;
 use DB;
 
-class Controller extends BaseController
+class StatisticBaseController extends Controller
 {
-    use AuthorizesRequests, AuthorizesResources, DispatchesJobs, ValidatesRequests;
-
-    public $breadcrumbs;
     protected $modelName;                   //模型名称
     protected $table;                       //数据表名
     protected $database;                    //数据库名
@@ -30,10 +23,7 @@ class Controller extends BaseController
     protected $searchPlaceHolder;           //搜索占位符
     protected $listTitle;                   //列表页标题
     protected $showTitle;                   //详情页标题   
-    protected $moduleIndexAjax;             //index列表 回调url
-    protected $moduleView='pages';                  //模板路径
-    protected $showType = false;            //详情是否传递类型参数
-
+    
     protected $dataFormat   = 1;            //1='Y-m-d' 2='Y-m-d H:i:s'
     protected $languageUrl  = '/chinese.json';
     protected $localUrl     = 'http://localhost/gamepub/public';
@@ -41,23 +31,10 @@ class Controller extends BaseController
     protected $tableColumns = 'true,false,false,true,false,false,false,false,true,false';
     protected $dateFilter   = true;
 
-
     public function __construct()
     {
-        if(Auth::check())
-        {
-            View::composer('*', function ($view) {
-                $breadcrumbs = array(
-                    '/' => 'Dashboard'
-                );
-                $view->with('breadcrumbs', $breadcrumbs);
-            });
-            View::composer('layouts/sidebar', function($view){
-                $menus = Menu::menuLoad();
-                $view->with('menus', $menus);
-            });
-        }
-        View::composer($this->moduleView.'/*', function ($view) {
+        parent::__construct();
+        View::composer('pages/*', function ($view) {
             $view->with('languageUrl',          $this->languageUrl);
             $view->with('localUrl',             $this->localUrl);
             $view->with('moduleRoute',          $this->moduleRoute);
@@ -66,90 +43,9 @@ class Controller extends BaseController
             $view->with('tableOrder',           $this->tableOrder);
             $view->with('tableColumns',         $this->tableColumns);
             $view->with('dateFilter',           $this->dateFilter);
-            $view->with('moduleIndexAjax',      $this->moduleIndexAjax);
-            $view->with('moduleView',           $this->moduleView);
         }); 
     }
 
-    public function set_breadcrumbs($data)
-    {
-        foreach($data AS $key => $value)
-        {
-            $this->breadcrumbs[$key] = $value;
-        }
-    }
-    
-    public function get_breadcrumbs()
-    {
-        return $this->breadcrumbs;
-    }
-
-    public function page_empty()
-    {
-        abort(503);
-    }
-    
-    /**
-     * 提交GET请求，curl方法
-     * @param string  $url	   请求url地址
-     * @param mixed   $data	  GET数据,数组或类似id=1&k1=v1
-     * @param array   $header	头信息
-     * @param int	 $timeout   超时时间
-     * @param int	 $port	  端口号
-     * @return array			 请求结果,
-     *							如果出错,返回结果为array('error'=>'','result'=>''),
-     *							未出错，返回结果为array('result'=>''),
-     */
-    function curl_get($url, $data = array(), $header = array(), $timeout = 5, $port = 80)
-    {
-        $ch = curl_init();
-        if (!empty($data)) {
-            $data = is_array($data)?http_build_query($data): $data;
-            $url .= (strpos($url,'?')?  '&': "?") . $data;
-        }
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
-        curl_setopt($ch, CURLOPT_POST, 0);
-        //curl_setopt($ch, CURLOPT_PORT, $port);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION ,1); //是否抓取跳转后的页面
-        $result = curl_exec($ch);
-        if (0 != curl_errno($ch)) {
-            $result = "Error:\n" . curl_error($ch);
-        }
-        curl_close($ch);
-        return $result;
-    }
-    /**
-     * 提交POST请求，curl方法
-     * @param string  $url	   请求url地址
-     * @param mixed   $data	  POST数据,数组或类似id=1&k1=v1
-     * @param array   $header	头信息
-     * @param int	 $timeout   超时时间
-     * @param int	 $port	  端口号
-     * @return string			请求结果,
-     *							如果出错,返回结果为array('error'=>'','result'=>''),
-     *							未出错，返回结果为array('result'=>''),
-     */
-    function curl_post($url, $data = array(), $header = array(), $timeout = 5, $port = 80)
-    {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
-        //curl_setopt($ch, CURLOPT_PORT, $port);
-        !empty ($header) && curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        $result = curl_exec($ch);
-        if (0 != curl_errno($ch)) {
-            $result  = "Error:\n" . curl_error($ch);
-        }
-        curl_close($ch);
-        return $result;
-    }
-    
     protected function dataObject()
     {
     }
@@ -262,8 +158,7 @@ class Controller extends BaseController
                         $object[] = $result->$key;
                     }
                 }
-                    $opShow = '<a href="'.url($this->moduleRoute.'/'.$result->id).'">详情</a>';
-                $object[] = $opShow;
+                $object[] = '<a href="'.url($this->moduleRoute.'/'.$result->id).'">详情</a>';
 
                 $objects['data'][] = $object;
             }    
@@ -295,5 +190,4 @@ class Controller extends BaseController
         $list_fields = $dataObject['show_fields'];
         return view('pages/show', ['object'=>$object, 'title'=>$this->showTitle, 'fields'=>$list_fields]);
     }
-
 }

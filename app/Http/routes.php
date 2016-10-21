@@ -124,10 +124,11 @@ Route::get('apks',                                  'ApkController@index');
 Route::post('apks/index_ajax',                      'ApkController@index_ajax');
 Route::get('apks/audit_form/{id}',                  'ApkController@audit_form');
 Route::post('apks/audit_form_submit',               'ApkController@audit_form_submit');
-Route::get('apks/sdks',                                  'SdkController@index');
-Route::post('apks/sdks/index_ajax',                      'SdkController@index_ajax');
-Route::get('apks/sdks/audit_form/{id}',                  'SdkController@audit_form');
-Route::post('apks/sdks/audit_form_submit',               'SdkController@audit_form_submit');
+Route::get('apks/sdks',                             'SdkController@index');
+Route::post('apks/sdks/index_ajax',                 'SdkController@index_ajax');
+Route::get('apks/sdks/audit_form/{id}',             'SdkController@audit_form');
+Route::post('apks/sdks/audit_form_submit',          'SdkController@audit_form_submit');
+Route::get('apks/download/{id}',                    'ApkController@download');
 
 
 //日志
@@ -168,4 +169,30 @@ Route::get('orders/gives/{id}',                                 'OrderController
 
 //验证码
 Route::get('kit/captcha/{tmp}', 'KitController@captcha');
+
+//创建表
+Route::get('create_table/statistic_guild_user',                 'Guild\StatisticUserController@create_table');
+
+//公会统计
+Route::get('chairmans/statistic/users',                     'Guild\StatisticUserController@index');
+Route::post('chairmans/statistic/users_ajax',               'Guild\StatisticUserController@index_ajax');
+Route::get('chairmans/statistic/users/{id}',                'Guild\StatisticUserController@show');
+Route::get('chairmans/statistic/users_guilds',              'Guild\StatisticUserGuildController@index');
+Route::post('chairmans/statistic/users_guilds_ajax',        'Guild\StatisticUserGuildController@index_ajax');
+Route::get('chairmans/statistic/users_guilds/{id}',         'Guild\StatisticUserGuildController@show');
+Route::get('chairmans/statistic/games_recharges',           'Guild\StatisticGameRechargeController@index');
+Route::post('chairmans/statistic/games_recharges_ajax',     'Guild\StatisticGameRechargeController@index_ajax');
+Route::get('chairmans/statistic/games_recharges/{id}',      'Guild\StatisticGameRechargeController@show');
+Route::get('chairmans/statistic/games_consumes',            'Guild\StatisticGameConsumeController@index');
+Route::post('chairmans/statistic/games_consumes_ajax',      'Guild\StatisticGameConsumeController@index_ajax');
+Route::get('chairmans/statistic/games_consumes/{id}',       'Guild\StatisticGameConsumeController@show');
+Route::get('chairmans/statistic/badous_consumes',            'Guild\StatisticBadouConsumeController@index');
+Route::post('chairmans/statistic/badous_consumes_ajax',      'Guild\StatisticBadouConsumeController@index_ajax');
+Route::get('chairmans/statistic/badous_consumes/{id}',       'Guild\StatisticBadouConsumeController@show');
+
+//数据统计
+Route::get('statistics/{type}',                  'StatisticController@index_type');
+Route::post('statistics/ajax/{type}',            'StatisticController@index_ajax_type');
+Route::get('statistics/{type}/{id}',             'StatisticController@show_type');
+
 

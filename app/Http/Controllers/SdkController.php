@@ -14,23 +14,12 @@ use App\Models\Log;
 
 class SdkController extends Controller
 {
-    private $moduleRoute    = 'apks/sdks';      //路由URL
-    private $moduleView     = 'sdk';       //视图路径
-    private $moduleTable    = 'game_sdkinfo';
-    private $moduleName     = 'SDK包';
-    private $moduleIndexAjax = '/apks/sdks/index_ajax';
-    private $searchPlaceholder = '游戏名称';   
-    public function __construct()
-    {
-        parent::__construct();
-        View::composer($this->moduleView.'/*', function ($view) {
-            $view->with('moduleRoute', $this->moduleRoute);
-            $view->with('moduleName', $this->moduleName); 
-            $view->with('moduleIndexAjax', $this->moduleIndexAjax);
-            $view->with('searchPlaceholder', $this->searchPlaceholder);
-
-        }); 
-    }
+    protected $moduleRoute    = 'apks/sdks';      //路由URL
+    protected $moduleView     = 'sdk';       //视图路径
+    protected $moduleTable    = 'game_sdkinfo';
+    protected $moduleName     = 'SDK包';
+    protected $moduleIndexAjax = '/apks/sdks/index_ajax';
+    protected $searchPlaceholder = '游戏名称';   
 
     public function index()
     {

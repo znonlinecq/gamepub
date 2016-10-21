@@ -11,22 +11,11 @@ use App\Models\Module;
 
 class FunctionController extends Controller
 {
-    private $moduleRoute = 'functions';             //路由URL
-    private $moduleView = 'permission/function';    //视图路径
-    private $moduleTable = 'ad_functions';
-    private $moduleName = '功能';
-    private $searchPlaceholder = '功能名';
-   
-    public function __construct()
-    {
-        parent::__construct();
-        View::composer($this->moduleView.'/*', function ($view) {
-            $view->with('moduleRoute', $this->moduleRoute);
-            $view->with('moduleName', $this->moduleName);
-            $view->with('searchPlaceholder', $this->searchPlaceholder);
-
-        }); 
-    }
+    protected $moduleRoute = 'functions';             //路由URL
+    protected $moduleView = 'permission/function';    //视图路径
+    protected $moduleTable = 'ad_functions';
+    protected $moduleName = '功能';
+    protected $searchPlaceholder = '功能名';
 
     /**
      * 首页
@@ -92,7 +81,7 @@ class FunctionController extends Controller
     /**
      * 显示
      */
-    public function show(){
+    public function show($id=NULL){
         return view($this->moduleView.'/show', ['title'=>$this->moduleName.'查看']);
     } 
 

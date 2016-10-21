@@ -25,7 +25,7 @@
     </tr>
     <tr>
         <td width="20%" align="right">购买数量</td>
-        <td>{{$object->goodsname}}</td>
+        <td>{{$object->goodsnum}}</td>
     </tr>
     <tr>
         <td width="20%" align="right">推广员ID</td>

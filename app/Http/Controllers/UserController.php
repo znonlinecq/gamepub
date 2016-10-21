@@ -13,24 +13,11 @@ use Auth;
 
 class UserController extends Controller
 {
-    private $moduleRoute = 'users';             //路由URL
-    private $moduleView = 'user';    //视图路径
-    private $moduleTable = 'users';
-    private $moduleName = '用户';
-    private $searchPlaceholder = '用户名';       
-    
-    
-    public function __construct()
-    {
-        parent::__construct();
-        View::composer($this->moduleView.'/*', function ($view) {
-            $view->with('moduleRoute', $this->moduleRoute);
-            $view->with('moduleName', $this->moduleName); 
-            $view->with('searchPlaceholder', $this->searchPlaceholder);
-
-        }); 
-    }
-
+    protected $moduleRoute = 'users';             //路由URL
+    protected $moduleView = 'user';    //视图路径
+    protected $moduleTable = 'users';
+    protected $moduleName = '用户';
+    protected $searchPlaceholder = '用户名';       
 
     public function index()
     {
@@ -52,7 +39,14 @@ class UserController extends Controller
                 if($user->rid)
                 {
                     $role = Role::find($user->rid);
-                    $user->role = $role->name;
+                    if(count($role))
+                    {
+                        $user->role = $role->name;
+                    }
+                    else
+                    {
+                        $user->role = '未知';
+                    }
                 }
                 else
                 {
@@ -94,13 +88,20 @@ class UserController extends Controller
         return redirect('users/create')->with('message', '创建成功!');
     }
 
-    public function show(){
+    public function show($id=NULL){
         return view('user/show', ['title'=>'用户查看']);
     } 
 
     public function edit($id)
     {
         $currentUser = Auth::User();
+        if($id == 1)
+        {
+            if($currentUser->id != 1)
+            {
+                return redirect('users')->with('message', '没有权限!');
+            }
+        }
         $rid = $currentUser->rid;
         $user = User::find($id);
         $roles = Role::All();

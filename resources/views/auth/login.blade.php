@@ -64,8 +64,8 @@
     </form>
 
 
-   <!-- <a href="{{ url('/password/email') }}">忘记密码</a><br>
-    <a href="{{ url('/auth/register') }}" class="text-center">注册账号</a> --!>
+   <!-- <a href="{{ url('/password/email') }}">忘记密码</a><br> --!>
+    <a href="{{ url('/auth/register') }}" class="text-center">注册账号</a>
 
   </div>
   <!-- /.login-box-body -->

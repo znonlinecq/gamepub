@@ -16,23 +16,12 @@ use App\Models\Developer;
 
 class GameController extends Controller
 {
-    private $moduleRoute = 'games';  //路由URL
-    private $moduleView = 'game';    //视图路径
-    private $moduleTable = 'game_info';
-    private $moduleName = '游戏';
-    private $moduleIndexAjax = '/games/index_ajax';
-    private $searchPlaceholder = '游戏名';
-
-    public function __construct()
-    {
-        parent::__construct();
-        View::composer($this->moduleView.'/*', function ($view) {
-            $view->with('moduleRoute', $this->moduleRoute);
-            $view->with('moduleName', $this->moduleName); 
-            $view->with('moduleIndexAjax', $this->moduleIndexAjax);
-            $view->with('searchPlaceholder', $this->searchPlaceholder);
-        }); 
-    }
+    protected $moduleRoute = 'games';  //路由URL
+    protected $moduleView = 'game';    //视图路径
+    protected $moduleTable = 'game_info';
+    protected $moduleName = '游戏';
+    protected $moduleIndexAjax = '/games/index_ajax';
+    protected $searchPlaceholder = '游戏名';
 
     public function index()
     {
@@ -229,7 +218,7 @@ class GameController extends Controller
         $summary = $description;
         $updated = date('Y-m-d H:i:s', time());
 
-        DB::update("UPDATE {$this->moduleTable} set Checkuserid={$user->id}, status={$status}, checkdate='{$updated}'  where id = {$id}");
+        DB::update("UPDATE {$this->moduleTable} set Checkuserid={$user->id}, status={$status}, checkdate='{$updated}', Checkreason='{$description}'  where id = {$id}");
 
         //日志
         $params['module'] = __CLASS__;
