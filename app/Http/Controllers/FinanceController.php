@@ -196,7 +196,7 @@ class FinanceController extends Controller
         $gid            = $request['gid'];
         $money          = $request['money'];
         $user           = Auth::User();
-        $description    = $request['description'];
+        $description    = trim($request['description']);
         $guild          = Guild::where('UserId', $gid)->get();
         $guild          = $guild[0];
 
@@ -209,7 +209,7 @@ class FinanceController extends Controller
         $params['touserid'] = $gid;
         $params['adminid'] = $user->id;
         $params['badou'] = ceil($money + ($money/100 * 20));
-        $params['adminremark'] = 'test';
+        $params['adminremark'] = $description;
         $params['rmb'] = $money;
         ksort($params);
         foreach($params as $key => $value)
@@ -290,10 +290,10 @@ class FinanceController extends Controller
         $request        = $requests->all();
         $oid            = $request['oid'];
         $user           = Auth::User();
-        $description    = $request['description'];
+        $description    = trim($request['description']);
         $order          = FinanceOrder::find($oid);
         $gid            = $order->gid;
-        $money          = $order->money;
+        $money          = trim($order->money);
 
         //调用支付API
         $apiUrl = 'https://passport2016.87870.com/pay/AdminAddGuildBadou.ashx';

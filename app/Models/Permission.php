@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Role;
 
 class Permission extends Model
 {
@@ -12,6 +13,11 @@ class Permission extends Model
         if($rid == 1)
         {
             return true;
+        }
+        $role = Role::find($rid);
+        if(!count($role))
+        {
+            return false;
         }
         $permission = Permission::where('rid', $rid)
             ->where('mid', $mid)
@@ -29,7 +35,13 @@ class Permission extends Model
         if($rid == 1)
         {
             return true;
+        }  
+        $role = Role::find($rid);
+        if(!count($role))
+        {
+            return false;
         }
+       
         $permission = Permission::where('rid', $rid)
             ->where('mid', $mid)
             ->get();

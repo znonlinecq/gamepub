@@ -27,12 +27,16 @@ class Controller extends BaseController
     protected $search_datetime;             //搜索日期字段
     protected $moduleRoute;                 //url路径
     protected $moduleAjax;                  //列表页ajax路径
-    protected $searchPlaceHolder;           //搜索占位符
+    protected $searchPlaceholder;           //搜索占位符
     protected $listTitle;                   //列表页标题
     protected $showTitle;                   //详情页标题   
     protected $moduleIndexAjax;             //index列表 回调url
     protected $moduleView='pages';                  //模板路径
     protected $showType = false;            //详情是否传递类型参数
+    protected $advanceSearchFields;             //高级搜索字段
+    protected $searchBox;                       //搜索框
+    protected $advanceSearchBox     = NULL;     //高级搜索框    
+    protected $isAdvanceSearch      = false;    //是否开启高级搜索
 
     protected $dataFormat   = 1;            //1='Y-m-d' 2='Y-m-d H:i:s'
     protected $languageUrl  = '/chinese.json';
@@ -40,7 +44,6 @@ class Controller extends BaseController
     protected $tableOrder   = '0, asc';
     protected $tableColumns = 'true,false,false,true,false,false,false,false,true,false';
     protected $dateFilter   = true;
-
 
     public function __construct()
     {
@@ -57,17 +60,22 @@ class Controller extends BaseController
                 $view->with('menus', $menus);
             });
         }
+        $this->advanceSearchFields = $this->setAdvanceSearchFields();
         View::composer($this->moduleView.'/*', function ($view) {
             $view->with('languageUrl',          $this->languageUrl);
             $view->with('localUrl',             $this->localUrl);
             $view->with('moduleRoute',          $this->moduleRoute);
             $view->with('moduleAjax',           $this->moduleAjax);
-            $view->with('searchPlaceholder',    $this->searchPlaceHolder);
+            $view->with('searchPlaceholder',    $this->searchPlaceholder);
             $view->with('tableOrder',           $this->tableOrder);
             $view->with('tableColumns',         $this->tableColumns);
             $view->with('dateFilter',           $this->dateFilter);
             $view->with('moduleIndexAjax',      $this->moduleIndexAjax);
             $view->with('moduleView',           $this->moduleView);
+            $view->with('searchBox',            $this->setSearchBox());
+            $view->with('advanceSearchBox',     $this->setAdvanceSearchBox());
+            $view->with('advanceSearchFields',  $this->advanceSearchFields);
+            $view->with('isAdvanceSearch',      $this->isAdvanceSearch);
         }); 
     }
 
@@ -177,8 +185,24 @@ class Controller extends BaseController
         $columns        = $requests['columns'];
         $start          = $requests['start'];
         $length         = $requests['length'];
-        $search         = $requests['search'];
-        $searchValue    = trim($search['value']);
+        if(isset($requests['searchKeyword']))
+        {
+            $searchValue    = $requests['searchKeyword'];
+        }
+        else
+        {
+            $searchValue    = '';
+        }    
+        if(isset($requests['searchFields']))
+        {
+            $searchFields    = $requests['searchFields'];
+        }
+        else
+        {
+            $searchFields    = NUll;
+        }    
+
+
         $order          = $requests['order'];
         $orderNumber    = $order[0]['column'];
         $orderDir       = $order[0]['dir'];
@@ -231,12 +255,34 @@ class Controller extends BaseController
         {
             $conditions[] = " ({$this->search_datetime} BETWEEN  '{$from}' AND '{$to}') ";
         }
+        if($searchFields)
+        {
+            $searchFieldsOp = $this->advanceSearchFields;
+            $searchFieldsOp = json_decode($searchFieldsOp);
+            foreach($searchFields as $searchField)
+            {
+                $key = key($searchField);
+
+                $value = current($searchField);
+                if($searchFieldsOp->$key == 'like' && !empty($value))
+                {
+                    $conditions[] = " {$key} like '%{$value}%' ";
+                }
+                if($searchFieldsOp->$key == '=string' && !empty($value))
+                {
+                    $conditions[] = " {$key} = '{$value}' ";
+                } 
+                if($searchFieldsOp->$key == '=int' && !empty($value))
+                {
+                    $conditions[] = " {$key} = {$value} ";
+                }
+            } 
+        }
         if(count($conditions))
         {
             $sql .= " WHERE ";
             $sql .= implode(' AND ', $conditions);
         }
-
         $countResult = DB::select($sql);
         $total  = count($countResult);
 
@@ -295,5 +341,20 @@ class Controller extends BaseController
         $list_fields = $dataObject['show_fields'];
         return view('pages/show', ['object'=>$object, 'title'=>$this->showTitle, 'fields'=>$list_fields]);
     }
-
+    
+    public function setSearchBox()
+    {
+        $str = '<div class="search_wrapper" style="text-align:right;">';
+        $str .='<input type="text" placeholder="'.$this->searchPlaceholder.'" id="searchKeyword" class="form-control">';
+        $str .=' <button type="button" class="btn btn-default" id="searchSubmit">搜索</button>';
+        if($this->isAdvanceSearch)
+        {
+            $str .=' <button type="button" class="btn btn-default" title="高级查询" id="advanceSearchButton">高级</button>'; 
+        }
+        $str .='</div>';
+        return $str; 
+    }
+    
+    public function setAdvanceSearchBox(){}  
+    public function setAdvanceSearchFields(){}
 }

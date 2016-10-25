@@ -19,7 +19,7 @@ class StatisticGameRechargeController extends Controller
     protected $search_keyword       = 'game_name';
     protected $moduleRoute          = 'chairmans/statistic/games_recharges';
     protected $moduleAjax           = '/chairmans/statistic/games_recharges_ajax';
-    protected $searchPlaceHolder    = '游戏名称';
+    protected $searchPlaceholder    = '游戏名称';
     protected $tableColumns         = 'true,false,false,false,false,false';
     protected $listTitle            = '游戏充值统计';    
     protected $showTitle            = '游戏充值统计详情';    

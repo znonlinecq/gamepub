@@ -290,7 +290,7 @@ class ChairmanController extends Controller
             $model = GuildToGame::where('GuildId', $id)->where('AppId', $gidInsert)->get();
             if(count($model))
             {
-                GuildToGame::where('GuildId', $id)->where('AppId', $gidInsert)->update(['AuditStatus'=>3]);    
+                GuildToGame::where('GuildId', $id)->where('AppId', $gidInsert)->update(['AuditStatus'=>1]);    
                 $game = Game::where('Gameid', $gidInsert)->get();
                 //日志
                 $params['module'] = __CLASS__;
@@ -305,7 +305,7 @@ class ChairmanController extends Controller
                 $object = new GuildToGame();
                 $object->GuildId = $id;
                 $object->Appid = $gidInsert;
-                $object->AuditStatus = 3;
+                $object->AuditStatus = 1;
                 $object->CreateDate = time();
                 $object->UpdateDate = time();
                 $object->save();

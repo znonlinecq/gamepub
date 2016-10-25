@@ -49,7 +49,7 @@ class AuthController extends Controller
     protected function validator(array $data)
     {
         return Validator::make($data, [
-            'name' => 'required|max:255',
+            'name' => 'required|max:255|unique:users',
             'email' => 'required|email|max:255|unique:users',
             'password' => 'required|confirmed',
             'agreement' => 'required',
@@ -82,8 +82,9 @@ class AuthController extends Controller
      */
     public function authenticate()
     {
+        
         // 尝试登录
-        if (Auth::attempt(['name' => $username, 'password' => $password],true)) {
+        if (Auth::attempt(['name' => $username, 'password' => $password, 'status'=>1],true)) {
             // 认证通过...
             return redirect()->intended('dashboard');
         }

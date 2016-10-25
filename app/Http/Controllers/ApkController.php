@@ -262,6 +262,9 @@ class ApkController extends Controller
 
         DB::update("UPDATE {$this->moduleTable} set Checkuserid={$user->id}, status={$status}, checkdate='{$updated}', Checkreason='{$description}'  where apkid = {$id}");
         
+        //更新游戏状态>等待打包
+        DB::update("UPDATE dt_guild_togames set bagauditstatus=2 where Appid = {$gid}");
+        
         //更新游戏表
         if($status == 1)
         {

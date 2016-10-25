@@ -21,7 +21,7 @@ class StatisticUserGuildController extends StatisticBaseController
     protected $search_datetime      = 'create_date';
     protected $moduleRoute          = 'chairmans/statistic/users_guilds';
     protected $moduleAjax           = '/chairmans/statistic/users_guilds_ajax';
-    protected $searchPlaceHolder    = '游戏名称';
+    protected $searchPlaceholder    = '游戏名称';
     protected $tableColumns         = 'true,false,false,false,false,false,false,fals,true,false';
     protected $listTitle            = '用户数据统计_按推广ID';    
     protected $showTitle            = '用户数据统计详情_按推广ID';    
@@ -83,7 +83,6 @@ class StatisticUserGuildController extends StatisticBaseController
         $start          = '1970-01-01';                         // 1970-01-01
         $end            = date('Y-m-d', time()+24*3600);         // 2016-10-10
         $results        = DB::connection($this->connection)->select("call {$this->database}.{$this->proceduce}(?,?,?,?)", array($gameId, $guildId, $start, $end));
-
         if(count($results))
         {
             foreach($results as $result)

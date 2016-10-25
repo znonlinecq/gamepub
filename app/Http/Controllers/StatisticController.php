@@ -50,7 +50,7 @@ class StatisticPlatformChannelController extends Controller
     protected $search_keyword       = 'game_name';
     protected $moduleRoute          = 'statistics/channel';
     protected $moduleAjax           = '/statistics/ajax/channel';
-    protected $searchPlaceHolder    = '游戏名称';
+    protected $searchPlaceholder    = '游戏名称';
     protected $tableColumns         = 'true,false,false,false,false,false,false,true,false';
     protected $listTitle            = '渠道统计';    
     protected $showTitle            = '渠道统计详情';    
@@ -127,7 +127,7 @@ class StatisticPlatformIncomeController extends Controller
     protected $search_keyword       = 'game_name';
     protected $moduleRoute          = 'statistics/income';
     protected $moduleAjax           = '/statistics/ajax/income';
-    protected $searchPlaceHolder    = '游戏名称';
+    protected $searchPlaceholder    = '游戏名称';
     protected $tableColumns         = 'true,false,false,false,false,false,false,false,true,false';
     protected $listTitle            = '游戏收入';    
     protected $showTitle            = '游戏收入详情';    
@@ -210,7 +210,7 @@ class StatisticPlatformUserController extends Controller
     protected $search_keyword       = 'game_name';
     protected $moduleRoute          = 'statistics/user';
     protected $moduleAjax           = '/statistics/ajax/user';
-    protected $searchPlaceHolder    = '游戏名称';
+    protected $searchPlaceholder    = '游戏名称';
     protected $tableColumns         = 'true,false,false,false,false,false,false,false,false,false';
     protected $listTitle            = '游戏用户';    
     protected $showTitle            = '游戏用户详情';    
@@ -305,7 +305,7 @@ class StatisticPlatformBadouController extends Controller
     protected $search_keyword       = 'badou';
     protected $moduleRoute          = 'statistics/badou';
     protected $moduleAjax           = '/statistics/ajax/badou';
-    protected $searchPlaceHolder    = '8豆';
+    protected $searchPlaceholder    = '8豆';
     protected $tableColumns         = 'true,false,false,false,false,false,false,false,true,false';
     protected $listTitle            = '8豆监控';    
     protected $showTitle            = '8豆监控详情';    

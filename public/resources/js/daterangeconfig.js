@@ -88,30 +88,30 @@ function initComplete(data){
         table.ajax.reload();
     });
 
- //   var api = this.api();
- //   api.columns().indexes().flatten().each(function (i) {
- //       if (i != 0) {//删除第一列
- //           var column = api.column(i);
- //           var $span = $('<span class="addselect">▾</span>').appendTo($(column.header()))
- //           var select = $('<select><option value="">All</option></select>').appendTo($(column.header())).on('click', function (evt) {
- //               evt.stopPropagation();
- //               var val = $.fn.dataTable.util.escapeRegex($(this).val());
- //               column.search(val ? '^' + val + '$' : '', true, false).draw();
- //           });
- //           column.data().unique().sort().each(function (d, j) {
- //               function delHtmlTag(str) {
- //                   if(str)
- //                   {
- //                       return str.toString().replace(/<[^>]+>/g, "");//去掉html标签
- //                   }
- //               }
-
- //               d = delHtmlTag(d);
- //               select.append('<option value="' + d + '">' + d + '</option>');
- //               $span.append(select);
- //           });
-
- //       }
- //   });
+//    var api = this.api();
+//    api.columns().indexes().flatten().each(function (i) {
+//        if (i != 0) {//删除第一列
+//            var column = api.column(i);
+//            var $span = $('<span class="addselect">▾</span>').appendTo($(column.header()))
+//            var select = $('<select><option value="">All</option></select>').appendTo($(column.header())).on('click', function (evt) {
+//                evt.stopPropagation();
+//                var val = $.fn.dataTable.util.escapeRegex($(this).val());
+//                column.search(val ? '^' + val + '$' : '', true, false).draw();
+//            });
+//            column.data().unique().sort().each(function (d, j) {
+//                function delHtmlTag(str) {
+//                    if(str)
+//                    {
+//                        return str.toString().replace(/<[^>]+>/g, "");//去掉html标签
+//                    }
+//                }
+//
+//                d = delHtmlTag(d);
+//                select.append('<option value="' + d + '">' + d + '</option>');
+//                $span.append(select);
+//            });
+//
+//        }
+//    });
 }
 

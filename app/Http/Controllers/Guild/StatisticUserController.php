@@ -21,7 +21,7 @@ class StatisticUserController extends Controller
     protected $search_datetime      = 'create_date';
     protected $moduleRoute          = 'chairmans/statistic/users';
     protected $moduleAjax           = '/chairmans/statistic/users_ajax';
-    protected $searchPlaceHolder    = '游戏名称';
+    protected $searchPlaceholder    = '游戏名称';
     protected $tableColumns         = 'true,false,false,false,false,false,false,true,false';
     protected $listTitle            = '用户数据统计_按游戏';    
     protected $showTitle            = '用户数据统计详情_按游戏';    

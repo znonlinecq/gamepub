@@ -9,7 +9,7 @@ use App\Http\Controllers\Controller;
 use View;
 use DB;
 
-class StatisticBadouConsumeController extends StatisticBaseController
+class StatisticBadouConsumeController extends Controller
 {    
     protected $modelName            = 'App\Models\Guild\StatisticBadouConsume';
     protected $table                = 'ad_statistic_guild_badous_consumes';
@@ -19,11 +19,12 @@ class StatisticBadouConsumeController extends StatisticBaseController
     protected $search_keyword       = 'guild_name';
     protected $moduleRoute          = 'chairmans/statistic/badous_consumes';
     protected $moduleAjax           = '/chairmans/statistic/badous_consumes_ajax';
-    protected $searchPlaceHolder    = '公会名称';
+    protected $searchPlaceholder    = '公会名称';
     protected $tableColumns         = 'true,false,false,false,false,false,false,false,false';
     protected $listTitle            = '8豆消耗统计';    
     protected $showTitle            = '8豆消耗统计详情';    
     protected $dateFilter           = false;
+    protected $isAdvanceSearch      = true;
 
     protected function dataObject()
     {
@@ -87,5 +88,24 @@ class StatisticBadouConsumeController extends StatisticBaseController
                 }
             }
         }
+    }
+    
+    public function setAdvanceSearchBox()
+    {
+        $str = '<p><div class="advance_search_wrapper " style="display:none; height:50px; width:100%;" id="advance_search_wrapper"><pre>';
+        $str .='公会名称: <input type="text" id="guild_name" class="form-control">&nbsp;&nbsp;';
+        $str .='登录账号: <input type="text" id="username" class="form-control">&nbsp;&nbsp;';
+        $str .='公会等级: <select id="level" class="form-control"><option value="0"> - All - </option><option value="A 级公会">A级公会</option><option value="B 级公会">B级公会</option></select>&nbsp;&nbsp;';
+        $str .=' <button type="button" class="btn btn-default" id="advanceSearchSubmit">搜索</button>';
+        $str .='</pre></div></p>';
+        return $str; 
+    }
+
+    public function setAdvanceSearchFields()
+    {
+        return json_encode(array(
+            'guild_name'=> 'like', 
+            'username'=>'like', 
+            'level'=>'=string' ));
     }
 }
