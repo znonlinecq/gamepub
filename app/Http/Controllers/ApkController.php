@@ -133,12 +133,17 @@ class ApkController extends Controller
                 if($result->status == 0)
                 {
                     $status = '待审核';
+                    $op = '<a href="'.url($this->moduleRoute.'/audit_form/'.$result->apkid).'">审核</a>';
+                    $op .= ' | ';
+                    $op .= '<a href="'.$result->Apkurl.'" target="_blank">下载</a>';
                 }elseif($result->status == 1)
                 {
-                    $status = '通过';
+                    $status = '通过';   
+                    $op = '<a href="'.$result->Apkurl.'" target="_blank">下载</a>';
                 }elseif($result->status == 2)
                 {
                     $status = '驳回';
+                    $op = '';
                 }
 
                 if($result->Apktypeid == 0)
@@ -148,10 +153,6 @@ class ApkController extends Controller
                     $type = '更新';
                 }
                 
-                $op = '<a href="'.url($this->moduleRoute.'/audit_form/'.$result->apkid).'">审核</a>';
-                $op .= ' | ';
-                //$op .= '<a href="'.url($this->moduleRoute.'/download/'.$result->apkid).'">下载</a>';
-                $op .= '<a href="'.$result->Apkurl.'" target="_blank">下载</a>';
 
                 $object = array();
                 $object[] = $result->apkid;

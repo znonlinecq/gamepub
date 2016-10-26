@@ -30,7 +30,10 @@
   <!-- /.login-logo -->
   <div class="login-box-body">
     <p class="login-box-msg">管理后台登录</p>
-
+            @if(session('message'))
+            <p class="bg-success">{{session('message')}}</p>
+            @endif    
+ 
     <form action="{{ url('/auth/login') }}" method="post">
     {!! csrf_field() !!} 
     <div class="form-group has-feedback">

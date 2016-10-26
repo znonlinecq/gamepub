@@ -92,12 +92,15 @@ class DeveloperController extends Controller
                 if($result->status == 0)
                 {
                     $status = '待审核';
+                    $op = '<a href="'.url('developers/audit_form/'.$result->cpid).'">审核</a>';
                 }elseif($result->status == 1)
                 {
                     $status = '通过';
+                    $op = '';
                 }elseif($result->status == 2)
                 {
                     $status = '驳回';
+                    $op = '';
                 }
                 $object = array();
                 $object[] = $result->cpid;
@@ -109,7 +112,7 @@ class DeveloperController extends Controller
                 $object[] = $result->taxno;
                 $object[] = $result->adddate;
                 $object[] = $status;
-                $object[] = '<a href="'.url('developers/audit_form/'.$result->cpid).'">审核</a>';
+                $object[] = $op;
 
                 $objects['data'][] = $object;
             }

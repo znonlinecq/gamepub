@@ -13,6 +13,8 @@ use App\Models\Log;
 use App\Models\GameType;
 use App\Models\GameClass;
 use App\Models\Developer;
+use App\Models\Apk;
+use App\Models\Sdk;
 
 class GameController extends Controller
 {
@@ -118,13 +120,53 @@ class GameController extends Controller
                 if($result->status == 0)
                 {
                     $status = '待审核';
+                    $apk = Apk::find($result->Apkid);
+                    $sdk = Sdk::where('gameid', $result->Gameid)->get();
+                    if(count($apk) && count($sdk))
+                    {
+                        if($apk->status == 1)
+                        {
+                            $op = '<a href="'.url($this->moduleRoute.'/audit_form/'.$result->id).'">游戏审核</a>';
+                        }
+                        elseif($apk->status == 0 && $sdk[0]->status == 1)
+                        {
+                            $op = '<a href="'.url('apks/audit_form/'.$result->Apkid).'">游戏包审核</a>';
+                            $op .= ' | ';
+                            $op .= '游戏审核';
+                        } 
+                        elseif($apk->status == 0 && $sdk[0]->status == 0)
+                        {
+                            $op = '游戏包审核';
+                            $op .= ' | ';
+                            $op .= '游戏审核';
+                        }
+                        elseif($apk->status == 2)
+                        {
+                            $op = '游戏审核';
+                        }
+                        else
+                        {
+                            $op = '';
+                        }
+                    }
+                    else
+                    {
+                        $op = '';
+                    }
                 }elseif($result->status == 1)
                 {
                     $status = '通过';
+                    $op = '';
                 }elseif($result->status == 2)
                 {
                     $status = '驳回';
+                    $op = '';
                 }
+                else
+                {
+                    $op = '';
+                }
+
                 $object = array();
                 $object[] = $result->id;
                 $object[] = $result->Gamename;
@@ -135,7 +177,7 @@ class GameController extends Controller
                 $object[] = $result->Onlinedate;
                 $object[] = $result->Adddate;
                 $object[] = $status;
-                $object[] = '<a href="'.url($this->moduleRoute.'/audit_form/'.$result->id).'">审核</a>';
+                $object[] = $op;
 
                 $objects['data'][] = $object;
             }

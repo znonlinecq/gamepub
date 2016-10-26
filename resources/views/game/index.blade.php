@@ -16,7 +16,7 @@
                   <th>游戏名</th>
                   <th>开发者</th>
                   <th>分类</th>
-                  <th>版本</th>
+                  <th>游戏版号</th>
                   <th>备案号</th>
                   <th>上线时间</th>
                   <th>注册时间</th>
@@ -64,7 +64,7 @@ $(function () {
     }
 
   var table =  $("#tableList").DataTable({
-        order: [[0,'asc']],
+        order: [[0,'desc']],
         columns:[
             {"orderable":false},
             {"orderable":false},

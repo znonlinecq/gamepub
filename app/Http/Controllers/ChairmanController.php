@@ -212,7 +212,14 @@ class ChairmanController extends Controller
                 {
                     $object[] = '<a href="'.url('chairmans/game_authorization_form/'.$result->Id).'">授权</a>';
                 }else{
-                    $object[] = '<a href="'.url('chairmans/audit_form/'.$result->Id).'">审核</a>';
+                    if($result->AuditStatus == 2)
+                    {
+                        $object[] = '<a href="'.url('chairmans/audit_form/'.$result->Id).'">审核</a>';
+                    }
+                    else
+                    {
+                        $object[] = '';
+                    }
                 }
                 $objects['data'][] = $object;
             }
@@ -290,7 +297,7 @@ class ChairmanController extends Controller
             $model = GuildToGame::where('GuildId', $id)->where('AppId', $gidInsert)->get();
             if(count($model))
             {
-                GuildToGame::where('GuildId', $id)->where('AppId', $gidInsert)->update(['AuditStatus'=>1]);    
+                GuildToGame::where('GuildId', $id)->where('AppId', $gidInsert)->update(['AuditStatus'=>1, 'bagauditstatus'=>2]);    
                 $game = Game::where('Gameid', $gidInsert)->get();
                 //日志
                 $params['module'] = __CLASS__;
@@ -306,6 +313,7 @@ class ChairmanController extends Controller
                 $object->GuildId = $id;
                 $object->Appid = $gidInsert;
                 $object->AuditStatus = 1;
+                $object->bagauditstatus = 2;
                 $object->CreateDate = time();
                 $object->UpdateDate = time();
                 $object->save();

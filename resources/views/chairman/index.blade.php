@@ -76,7 +76,7 @@ $(function () {
             {"orderable":false},
         ];   
         var table =  $("#tableList").DataTable({
-        order: [[0,'asc']],
+        order: [[0,'desc']],
         columns:columns,
         language: {
             url: languageUrl,

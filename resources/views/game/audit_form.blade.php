@@ -31,7 +31,7 @@
         <td>{{$object->Typeid}}</td>
     </tr>
     <tr>
-        <td width="20%" align="right">版本</td>
+        <td width="20%" align="right">游戏版号</td>
         <td>{{$object->Version}}</td>
     </tr>
     <tr>

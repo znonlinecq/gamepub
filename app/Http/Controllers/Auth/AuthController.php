@@ -7,6 +7,9 @@ use Validator;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
+use Auth;
+use Illuminate\Http\Request;
+use Hash;
 
 class AuthController extends Controller
 {
@@ -37,7 +40,7 @@ class AuthController extends Controller
      */
     public function __construct()
     {
-        $this->middleware($this->guestMiddleware(), ['except' => 'logout']);
+//        $this->middleware($this->guestMiddleware(), ['except' => 'logout']);
     }
 
     /**
@@ -83,10 +86,29 @@ class AuthController extends Controller
     public function authenticate()
     {
         
-        // 尝试登录
         if (Auth::attempt(['name' => $username, 'password' => $password, 'status'=>1],true)) {
             // 认证通过...
             return redirect()->intended('dashboard');
         }
+    } 
+    
+    /**
+     * 处理认证
+     *
+     * @return Response
+     */
+    public function login(Request $requests)
+    {
+       $request = $requests->all();
+       $username = $request['name'];
+       $password = $request['password'];
+        if (Auth::attempt(['name' => $username, 'password' => $password, 'status'=>1],true)) {
+            // 认证通过...
+            return redirect()->intended('/');
+        }
+        else{
+            return redirect()->intended('auth/login')->with('message', '登录失败!');
+        }
     }
+
 }

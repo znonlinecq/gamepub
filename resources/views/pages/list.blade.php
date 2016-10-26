@@ -12,8 +12,8 @@
               <table id="tableList" class="table table-bordered table-striped" data-page-length='25'  >
                 <thead>
                 <tr>
-                    @foreach($tableTitles as $title)
-                        <th>{{$title}}</th>
+                    @foreach($tableTitles as $titleName)
+                        <th>{{$titleName}}</th>
                     @endforeach
                 </tr>
                 </thead>
