@@ -66,13 +66,14 @@ Route::resource('permissions', 'PermissionController');
 
 //会长审核&授权
 Route::get('chairmans',                                     'ChairmanController@index');
+Route::get('chairmans/show/{id}',                           'ChairmanController@show');
 Route::get('chairmans/audit_form/{id}',                     'ChairmanController@audit_form');
 Route::post('chairmans/audit_form_submit',                  'ChairmanController@audit_form_submit');
 Route::get('chairmans/game_authorization_form/{id}',        'ChairmanController@game_authorization_form');
 Route::post('chairmans/game_authorization_form_submit',     'ChairmanController@game_authorization_form_submit');
 Route::post('chairmans/index_ajax',                         'ChairmanController@index_ajax');
-Route::get('chairmans/game_authorization',                  'ChairmanController@game_authorization');
-Route::get('chairmans/blacklist',                           'ChairmanController@blacklist');
+Route::get('chairmans/game_authorization',                  'ChairmanController@index');
+Route::get('chairmans/blacklist',                           'ChairmanController@index');
 Route::post('chairmans/blacklist_ajax',                     'ChairmanController@blacklist_ajax');
 Route::get('chairmans/blacklist_join_form/{id}',            'ChairmanController@blacklist_join_form');
 Route::post('chairmans/blacklist_join_form_submit',         'ChairmanController@blacklist_join_form_submit');
@@ -145,16 +146,6 @@ Route::get('finances/discount_form',                    'FinanceController@disco
 Route::post('finances/discount_form_submit',            'FinanceController@discount_form_submit');
 Route::get('finances/order_pay_form/{id}',              'FinanceController@order_pay_form');
 Route::post('finances/order_pay_form_submit',           'FinanceController@order_pay_form_submit');
-
-//统计
-Route::get('statistics/channels',                               'StatisticController@channel');
-Route::post('statistics/channels_ajax',                         'StatisticController@channel_ajax');
-Route::get('statistics/games_income',                           'StatisticController@game_income');
-Route::post('statistics/games_income_ajax',                     'StatisticController@game_income_ajax');
-Route::get('statistics/games_users',                             'StatisticController@game_user');
-Route::post('statistics/games_users_ajax',                       'StatisticController@game_user_ajax');
-Route::get('statistics/points',                                 'StatisticController@point');
-Route::post('statistics/points_ajax',                           'StatisticController@point_ajax');
 
 //订单
 Route::get('orders',                                            'OrderController@index');

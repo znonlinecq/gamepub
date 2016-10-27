@@ -55,7 +55,7 @@ class StatisticPlatformChannelController extends Controller
     protected $listTitle            = '渠道统计';    
     protected $showTitle            = '渠道统计详情';    
     protected $showType             = 'channel';
-
+    
     protected function dataObject()
     {
         $object['handle_fields'] = array(

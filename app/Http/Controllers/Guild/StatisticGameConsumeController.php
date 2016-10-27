@@ -10,7 +10,7 @@ use View;
 use DB;
 use App\Models\Guild\StatisticGameConsume;
 
-class StatisticGameConsumeController extends StatisticBaseController
+class StatisticGameConsumeController extends Controller
 {    
     protected $modelName            = 'App\Models\Guild\StatisticGameConsume';
     protected $table                = 'ad_statistic_guild_games_consumes';

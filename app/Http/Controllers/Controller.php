@@ -10,8 +10,9 @@ use Illuminate\Foundation\Auth\Access\AuthorizesResources;
 use App\Models\Menu;
 use View;
 use Auth;
-use Illuminate\Http\Request;
+use Illuminate\Http\Request as RequestNew;
 use DB;
+use Request;
 
 class Controller extends BaseController
 {
@@ -37,11 +38,14 @@ class Controller extends BaseController
     protected $searchBox;                       //搜索框
     protected $advanceSearchBox     = NULL;     //高级搜索框    
     protected $isAdvanceSearch      = false;    //是否开启高级搜索
+    protected $op;                          //操作
+    protected $isSourceData = true;        //是否调用统计存储过程
+    protected $type;                        
 
     protected $dataFormat   = 1;            //1='Y-m-d' 2='Y-m-d H:i:s'
     protected $languageUrl  = '/chinese.json';
     protected $localUrl     = 'http://localhost/gamepub/public';
-    protected $tableOrder   = '0, asc';
+    protected $tableOrder   = '0, desc';
     protected $tableColumns = 'true,false,false,true,false,false,false,false,true,false';
     protected $dateFilter   = true;
 
@@ -61,6 +65,23 @@ class Controller extends BaseController
             });
         }
         $this->advanceSearchFields = $this->setAdvanceSearchFields();
+        $uri = Request::path();
+        if(preg_match('/game_authorization/', $uri))
+        {
+            $this->showTitle    = '游戏授权';
+            $this->listTitle    = '游戏授权';
+            $this->type = 'game_authorization';
+        }
+        elseif(preg_match('/blacklist/', $uri))
+        {
+            $this->showTitle    = '公会黑名单';
+            $this->listTitle    = '公会黑名单';
+            $this->type = 'blacklist';
+        }
+        else
+        {
+            $this->type = 'default';
+        }
         View::composer($this->moduleView.'/*', function ($view) {
             $view->with('languageUrl',          $this->languageUrl);
             $view->with('localUrl',             $this->localUrl);
@@ -76,7 +97,13 @@ class Controller extends BaseController
             $view->with('advanceSearchBox',     $this->setAdvanceSearchBox());
             $view->with('advanceSearchFields',  $this->advanceSearchFields);
             $view->with('isAdvanceSearch',      $this->isAdvanceSearch);
+            $view->with('type',                 $this->type);
         }); 
+
+        //设置操作
+        $this->op = $this->setOp();
+        
+ 
     }
 
     public function set_breadcrumbs($data)
@@ -168,7 +195,11 @@ class Controller extends BaseController
 
     public function index()
     {
-        $this->source_data();
+        if($this->isSourceData)
+        {
+            $this->source_data();
+        }
+
         $dataObject = $this->dataObject();
         $list_fields = $dataObject['list_fields'];
         foreach($list_fields as $key => $value)
@@ -178,13 +209,15 @@ class Controller extends BaseController
         return view('pages/list', ['title'=>$this->listTitle, 'tableTitles'=>$titles]);
     }
 
-    public function index_ajax(Request $request)
+    public function index_ajax(RequestNew $request)
     {
         $requests       = $request->all();
         $draw           = $requests['draw'];
         $columns        = $requests['columns'];
         $start          = $requests['start'];
         $length         = $requests['length'];
+        $type           = $requests['type'];
+        $this->type     = $type;
         if(isset($requests['searchKeyword']))
         {
             $searchValue    = $requests['searchKeyword'];
@@ -231,6 +264,31 @@ class Controller extends BaseController
                 $to             = trim($dateRange[1]);
                 $to             = str_replace('/', '-', $to);
             }
+            if($this->dataFormat == 3)
+            {
+                $from           = trim($dateRange[0]);
+                $from           = explode(' ', $from);
+                $fromYmd        = explode('/', $from[0]);   
+                $fromHis        = explode(':', $from[1]);   
+                $fromHour       = $fromHis[0];
+                $fromMinute     = $fromHis[1];
+                $fromSecond     = $fromHis[2];
+                $fromYear       = $fromYmd[0];
+                $fromMonth      = $fromYmd[1];
+                $fromDay        = $fromYmd[2];
+                $from           = mktime($fromHour, $fromMinute, $fromSecond, $fromMonth, $fromDay, $fromYear);
+                $to             = trim($dateRange[1]);
+                $to             = explode(' ', $to);
+                $toYmd          = explode('/', $to[0]);
+                $toHis          = explode(':', $to[1]);
+                $toHour         = $toHis[0];
+                $toMinute       = $toHis[1];
+                $toSecond       = $toHis[2];
+                $toYear         = $toYmd[0];
+                $toMonth        = $toYmd[1];
+                $toDay          = $toYmd[2];
+                $to             = mktime($toHour, $toMinute, $toSecond, $toMonth, $toDay, $toYear);
+            }
         }
         else
         {
@@ -247,6 +305,11 @@ class Controller extends BaseController
         $orderColumnsStr = $orderColumns[$orderNumber];
 
         $sql = " SELECT * FROM {$this->table} ";
+        $searchConditions = $this->setSearchConditions($type);
+        if(count($searchConditions))
+        {
+            $conditions = $searchConditions;
+        }
         if($searchValue)
         {
             $conditions[] = " {$this->search_keyword} like '%{$searchValue}%' ";
@@ -263,7 +326,7 @@ class Controller extends BaseController
             {
                 $key = key($searchField);
 
-                $value = current($searchField);
+                $value = trim(current($searchField));
                 if($searchFieldsOp->$key == 'like' && !empty($value))
                 {
                     $conditions[] = " {$key} like '%{$value}%' ";
@@ -305,12 +368,40 @@ class Controller extends BaseController
                 {
                     if($key != 'op')
                     {
-                        $object[] = $result->$key;
+                        if(preg_match('/^empty/', $key))
+                        {
+                            $object[] = '暂无';
+                        }
+                        else
+                        {
+                            $object[] = $this->dataFilter($key, $result->$key);
+                        }
                     }
                 }
-                    $opShow = '<a href="'.url($this->moduleRoute.'/'.$result->id).'">详情</a>';
-                $object[] = $opShow;
 
+                $op = $this->op;
+                if(count($op) > 1)
+                {
+                    $opStrs = array();
+                    foreach($op as $key => $value)
+                    {   
+                        $url = $value['url'];
+                        $field = $value['field'];
+                        $name = $value['name'];
+                        $path = url($this->moduleRoute.$url.$result->$field);
+                        $opStrs[] = '<a href="'.$path.'">'.$name.'</a>';
+                    }
+                    $opStr = implode(' | ', $opStrs);
+                }
+                else
+                {
+                    $url = $op[0]['url'];
+                    $field = $op[0]['field'];
+                    $name = $op[0]['name'];
+                    $path = url($this->moduleRoute.$url.$result->$field);
+                   $opStr = '<a href="'.$path.'">'.$name.'</a>'; 
+                }
+                $object[] = $this->dataFilter('op', $opStr, $result);
                 $objects['data'][] = $object;
             }    
         }
@@ -338,8 +429,20 @@ class Controller extends BaseController
         $model  = new $this->modelName();
         $object  = $model::find($id); 
         $dataObject = $this->dataObject();
-        $list_fields = $dataObject['show_fields'];
-        return view('pages/show', ['object'=>$object, 'title'=>$this->showTitle, 'fields'=>$list_fields]);
+        $show_fields = $dataObject['show_fields'];
+        foreach($show_fields as $key => $value)
+        {
+            if(preg_match('/^empty/', $key))
+            {
+                $object->$key = '暂无';
+            }
+            else
+            {
+                $object->$key = $this->dataFilter($key, $object->$key, $object);
+            }
+
+        }
+        return view('pages/show', ['object'=>$object, 'title'=>$this->showTitle, 'fields'=>$show_fields]);
     }
     
     public function setSearchBox()
@@ -357,4 +460,17 @@ class Controller extends BaseController
     
     public function setAdvanceSearchBox(){}  
     public function setAdvanceSearchFields(){}
+    public function setOp(){
+        $op = array(
+            array(
+                'name' => '详情',
+                'url'   => '/',
+                'field' => 'id',
+            ),
+        );
+        return $op;       
+    }
+
+    public function dataFilter($field, $data, $object=NULL){return $data;}
+    public function setSearchConditions($type){return array();}
 }

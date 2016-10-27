@@ -86,12 +86,13 @@
 
 <script>
 $(function () {
-    var host        = window.location.host;
-    var languageUrl = '{{$languageUrl}}';
-    var localUrl    = '{{$localUrl}}';
-    var ajaxUrl     = '{{$moduleAjax}}';
-    var advanceSearchBox    = '{{$advanceSearchBox}}';
-    var advanceSearchFields    = '{{$advanceSearchFields}}';
+    var host                    = window.location.host;
+    var languageUrl             = '{{$languageUrl}}';
+    var localUrl                = '{{$localUrl}}';
+    var ajaxUrl                 = '{{$moduleAjax}}';
+    var advanceSearchBox        = '{{$advanceSearchBox}}';
+    var advanceSearchFields     = '{{$advanceSearchFields}}';
+    var type                    = '{{$type}}';
     if(advanceSearchFields)
     {
         advanceSearchFields = advanceSearchFields.replace(/&quot;/g,"\'");
@@ -157,6 +158,7 @@ $(function () {
             url: ajaxUrl,
             type: 'POST',
             data: function (d){
+                d.type = type;
                 d.dateRange = $('#reportrange span').html();
                 d.searchKeyword = $('#searchKeyword').val();
                 var searchFields = [];
@@ -168,7 +170,6 @@ $(function () {
                     i++;
                 }       
                 d.searchFields = searchFields;
-                console.log(d);
             },
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -179,15 +180,15 @@ $(function () {
         initComplete:initComplete,
     });
            //添加索引列
-           table.on('order.dt search.dt',
-                   function () {
-                       table.column(0, {
-                           search: 'applied',
-                           order: 'applied'
-                       }).nodes().each(function (cell, i) {
-                           cell.innerHTML = i + 1;
-                       });
-                   }).draw();
+      //     table.on('order.dt search.dt',
+      //             function () {
+      //                 table.column(0, {
+      //                     search: 'applied',
+      //                     order: 'applied'
+      //                 }).nodes().each(function (cell, i) {
+      //                     cell.innerHTML = i + 1;
+      //                 });
+      //             }).draw();
 });
 
 

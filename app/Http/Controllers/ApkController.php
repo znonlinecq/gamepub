@@ -269,7 +269,7 @@ class ApkController extends Controller
         //更新游戏表
         if($status == 1)
         {
-            DB::update("UPDATE game_info set Apkid={$id}, isnewapk=0, checkdate='{$updated}'  where Gameid = {$gid}");
+            DB::update("UPDATE game_info set Apkid={$id}, isnewapk=0, checkdate='{$updated}', updatenums=updatenums+1  where Gameid = {$gid}");
         }
 
         //日志

@@ -18,20 +18,20 @@
         <td>{{$object->Id}}</td>
     </tr>
     <tr>
+        <td width="20%" align="right">公会名称</td>
+        <td>{{$object->Name}}</td>
+    </tr>
+    <tr>
         <td width="20%" align="right">登录账号</td>
-        <td>{{$object->acount}}</td>
+        <td>{{$object->UserName}}</td>
     </tr>
      <tr>
-        <td width="20%" align="right">工会ID</td>
+        <td width="20%" align="right">登录账号ID</td>
         <td>{{$object->UserId}}</td>
     </tr>
     <tr>
         <td width="20%" align="right">推广游戏</td>
         <td>{{$object->games}}</td>
-    </tr>
-    <tr>
-        <td width="20%" align="right">姓名</td>
-        <td>{{$object->Name}}</td>
     </tr>
     <tr>
         <td width="20%" align="right">身份证</td>

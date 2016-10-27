@@ -19,28 +19,83 @@ use App\Models\GameClass;
 
 class ChairmanController extends Controller
 {    
-    protected $moduleRoute = 'chairmans';             //路由URL
-    protected $moduleView = 'chairman';    //视图路径
-    protected $moduleTable = '';
-    protected $moduleName = '会长';
-    protected $moduleIndexAjax = '/chairmans/index_ajax';
-    protected $searchPlaceholder = '会长姓名';
+    protected $modelName            = 'App\Models\Chairman';
+    protected $table                = 'dt_guild_list';
+    protected $search_keyword       = 'Name';
+    protected $moduleRoute          = 'chairmans';
+    protected $moduleAjax           = '/chairmans/index_ajax';
+    protected $searchPlaceholder    = '公会名称';
+    protected $tableColumns         = 'true,false,false,false,false,false,false,true,false,false';
+    protected $listTitle            = '公会审核';    
+    protected $showTitle            = '公会详情';    
+    protected $isDataObject         = false;
+    protected $dataFormat           = 3;
+    protected $search_datetime      = 'CreateDate';  
+    protected $isAdvanceSearch      = true;
+    protected $moduleViewChild      = 'chairman';
 
-    public function index()
+    public function __construct()
     {
-        return view($this->moduleView.'/index', [ 'title'=>'会长审核', 'type'=>'index']);
+        parent::__construct();
+        View::composer($this->moduleViewChild.'/*', function ($view) {
+            $view->with('moduleRoute',          $this->moduleRoute);
+        }); 
+    }
+
+    protected function dataObject()
+    {
+        $object['list_fields'] = array(
+            'Id'                    => 'ID',
+            'Name'                  => '公会名称',
+            'UserName'              => '登录账号',
+            'UserId'                => '登录账号ID',
+            'empty'                 => '身份证',
+            'empty1'                => 'QQ',
+            'empty2'                => '推广游戏',
+            'CreateDate'            => '注册时间',
+            'AuditStatus'           => '状态',
+            'op'                    => '操作',
+        ); 
+        $object['show_fields'] = array(
+            'Id'                    => 'ID',
+            'Name'                  => '公会名称',
+            'UserName'              => '登录账号',
+            'UserId'                => '登录账号ID',
+            'empty'                 => '身份证',
+            'empty1'                => 'QQ',
+            'empty2'                => '推广游戏', 
+            'AuditStatus'           => '状态',
+            'CreateDate'            => '注册时间',
+        );
+        return $object;
+    }
+    
+    public function setOp()
+    {
+        $op = array(
+            array(
+                'name' => '审核',
+                'url'   => '/audit_form/',
+                'field' => 'Id',
+            ),
+            array(
+                'name' => '详情',
+                'url'   => '/',
+                'field' => 'Id',
+            ),
+     
+        );
+        return $op;
     }
 
     public function audit_form($id)
     {
         
         $object = Guild::find($id);
-        $object->acount = '13511112222';
-        $object->games = '诛仙';
-        $object->namecard = '11010211111111111';
-        $object->qq = '768767282';
+        $object->games = '暂无';
+        $object->namecard = '暂无';
+        $object->qq = '暂无';
         $object->created = date('Y-m-d H:i:s', $object->CreateDate); 
-        $object->status = '待审';
         if($object->AuditStatus == 0)
         {
             $object->status = '驳回';
@@ -98,7 +153,7 @@ class ChairmanController extends Controller
         return redirect($this->moduleRoute)->with('message', '审核完成!');
     }
 
-    public function index_ajax(Request $request)
+    public function index_ajaxxxx(Request $request)
     {
         $requests       = $request->all();
         $draw           = $requests['draw'];
@@ -247,7 +302,7 @@ class ChairmanController extends Controller
                 $objects[] = $game;
             }
         }
-        return view($this->moduleView.'/game_authorization_form', ['title'=>'游戏授权', 'objects'=>$objects, 'chairman'=>$chairman]);    
+        return view($this->moduleViewChild.'/game_authorization_form', ['title'=>'游戏授权', 'objects'=>$objects, 'chairman'=>$chairman]);    
  
     }
 
@@ -471,12 +526,10 @@ class ChairmanController extends Controller
     {
         
         $object = Guild::find($id);
-        $object->acount = '13511112222';
-        $object->games = '诛仙';
-        $object->namecard = '11010211111111111';
-        $object->qq = '768767282';
+        $object->games = '暂无';
+        $object->namecard = '暂无';
+        $object->qq = '暂无';
         $object->created = date('Y-m-d H:i:s', $object->CreateDate); 
-        $object->status = '待审';
         if($object->AuditStatus == 0)
         {
             $object->status = '待审核';
@@ -495,10 +548,9 @@ class ChairmanController extends Controller
     public function blacklist_out_form($id)
     {
         $object = Guild::find($id);
-        $object->acount = '13511112222';
-        $object->games = '诛仙';
-        $object->namecard = '11010211111111111';
-        $object->qq = '768767282';
+        $object->games = '暂无';
+        $object->namecard = '暂无';
+        $object->qq = '暂无';
         $object->created = date('Y-m-d H:i:s', $object->CreateDate); 
         $object->status = '黑名单';
 
@@ -528,7 +580,7 @@ class ChairmanController extends Controller
         }
         else
         {
-            $childsStr = NULL;
+            $childsStr = serialize(array());
         }
         $blacklist = new BlackList();
         $blacklist->guildid = $gid;
@@ -557,9 +609,9 @@ class ChairmanController extends Controller
         DB::update("update dt_guild_list set AuditStatus={$auditStatus}, UpdateDate={$updated}  where id = {$gid}");
 
         $blacklist  = BlackList::where('guildid', $gid)->get();
-        if(!empty($blacklist[0]->guildidlist))
+        $childs = unserialize($blacklist[0]->guildidlist); 
+        if(count($childs))
         {
-            $childs = unserialize($blacklist[0]->guildidlist); 
             foreach($childs as $child)
             {
                 DB::update("update dt_guild_list set AuditStatus=1, UpdateDate={$updated}  where id = {$child}");
@@ -576,5 +628,106 @@ class ChairmanController extends Controller
         Log::record($params);
         return redirect($this->moduleRoute.'/blacklist')->with('message', '解除黑名单!');
     }
+    
+    public function dataFilter($field, $data, $object=NULL)
+    {
+        switch($field)
+        {
+            case 'AuditStatus':
+                if($data == 0)
+                {
+                    $value =  '驳回';
+                }
+                elseif($data == 1)
+                {
+                    $value = '通过';
+                }
+                elseif($data == 2)
+                {
+                    $value = '待审核';
+                }
+                elseif($data == 3)
+                {
+                    $value = '黑名单';
+                }
+                
+                break; 
+            case 'op':
+                if($this->type == 'game_authorization')
+                {
+                    $value = '<a href="'.url($this->moduleRoute.'/game_authorization_form/'.$object->Id).'" >授权</a>';
+                }
+                elseif($this->type == 'blacklist')
+                {
+                    if($object->AuditStatus == 3)
+                    {
+                        $value = '<a href="'.url($this->moduleRoute.'/blacklist_out_form/'.$object->Id).'" >移除</a>';
+                    }
+                    else
+                    {
+                        $value = '<a href="'.url($this->moduleRoute.'/blacklist_join_form/'.$object->Id).'" >加入</a>';
+                    }
+                }
+                else
+                {
+                    if($object->AuditStatus == 2)
+                    {
+                        $value = '<a href="'.url($this->moduleRoute.'/audit_form/'.$object->Id).'" class="btn btn-success btn-xs">审核</a>';
+                    } 
+                    else
+                    {
+                        $value = '<a href="'.url($this->moduleRoute.'/show/'.$object->Id).'">详情</a>';
+                    }
+                }
+                break;
+            case 'CreateDate':
+                    $value = date('Y-m-d H:i:s', $data);
+                break;
+            case 'Id':
+                $value = $data;
+                break;
+    
+            default:
+                $value = $data;
+                break;
+        }
 
+        return $value;
+    } 
+    
+    public function setAdvanceSearchBox()
+    {
+        $str = '<p><div class="advance_search_wrapper " style="display:none; height:50px; width:100%;" id="advance_search_wrapper"><pre>';
+        $str .='公会名称: <input type="text" id="Name" class="form-control">&nbsp;&nbsp;';
+        $str .='登录账号: <input type="text" id="UserName" class="form-control">&nbsp;&nbsp;';
+        $str .='登录账号Id: <input type="text" id="UserId" class="form-control">&nbsp;&nbsp;';
+        $str .=' <button type="button" class="btn btn-default" id="advanceSearchSubmit">搜索</button>';
+        $str .='</pre></div></p>';
+        return $str; 
+    }
+
+    public function setAdvanceSearchFields()
+    {
+        return json_encode(array(
+            'Name'=> 'like', 
+            'UserName'=>'like', 
+            'UserId'=>'like' ));
+    }
+
+    public function setSearchConditions($type)
+    {
+        $conditions = array();
+        if($type == 'game_authorization')
+        {
+
+            $conditions[] = ' AuditStatus = 1 ';
+        }    
+        if($type == 'blacklist')
+        {
+
+            $conditions[] = ' AuditStatus IN (1, 3) ';
+        }
+     
+        return $conditions;
+    }
 }
