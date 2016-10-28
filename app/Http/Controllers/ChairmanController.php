@@ -9,6 +9,7 @@ use View;
 use App\Models\Guild\Guild;
 use App\Models\Guild\GuildToGuild;
 use App\Models\Guild\GuildToGame;
+use App\Models\Guild\GuildToGameBlacklist;
 use App\Models\Guild\BlackList;
 use App\Models\Game;
 use App\User;
@@ -172,6 +173,15 @@ class ChairmanAuditController extends ChairmanController
             )
         );
     }
+    
+    public function setSearchConditions($type)
+    {
+        $conditions = array();
+        $conditions[] = ' GuildType IN (1,2) ';
+        $conditions[] = ' Guilderid = 0 ';
+        return $conditions;
+    }
+
 
     public function audit_form($id)
     {
@@ -317,6 +327,8 @@ class ChairmanGameAuthorizationController extends ChairmanController
     {
         $conditions = array();
         $conditions[] = ' AuditStatus = 1 ';
+        $conditions[] = ' GuildType IN (1,2) ';
+        $conditions[] = ' Guilderid = 0 ';
         return $conditions;
     }
    
@@ -351,7 +363,9 @@ class ChairmanGameAuthorizationController extends ChairmanController
         else
         {
             $gids = $request['gids'];
-        }    
+        }      
+        $childs = GuildToGuild::getChilds($id);
+
         $gidsOldNew = array();
         $gidsOld = DB::select("SELECT AppId FROM dt_guild_togames WHERE GuildId = {$id} AND AuditStatus <> 0");
         
@@ -378,6 +392,48 @@ class ChairmanGameAuthorizationController extends ChairmanController
             $params['object'] = $id;
             $params['content'] = "取消工会对<<{$game[0]->Gamename}>>的授权.";
             Log::record($params);
+       
+            //下属公会取消授权，加入黑名单列表
+            if(!count($childs))
+            {
+                continue;
+            }
+            $childsExist = array();
+            foreach($childs as $childId)
+            {
+                $hasChild = GuildToGame::where('GuildId', $childId)->where('AppId', $gidUpdate)->get();
+                if(!count($hasChild))
+                {
+                    continue;
+                }
+                $childsExist[] = $childId;
+                GuildToGame::where('GuildId', $childId)->where('AppId', $gidUpdate)->update(['AuditStatus'=>0]);
+                //日志
+                $params['module'] = __CLASS__;
+                $params['function'] = __FUNCTION__;
+                $params['operation'] = '取消授权';
+                $params['object'] = $childId;
+                $params['content'] = "取消B级或C级工会对<<{$game[0]->Gamename}>>的授权.";
+                Log::record($params);
+            }
+
+            if(!count($childsExist))
+            {
+                continue;
+            }
+            $childsStr = serialize($childsExist);
+            $blacklist = new GuildToGameBlacklist();
+            $blacklist->guildid = $id;
+            $blacklist->guildidlist = $childsStr;
+            $blacklist->createdate = time();
+            $blacklist->save();
+            //日志
+            $params['module'] = __CLASS__;
+            $params['function'] = __FUNCTION__;
+            $params['operation'] = '取消授权-下属公会记录';
+            $params['object'] = $id;
+            $params['content'] = "下属公会ID {$childsStr}";
+            Log::record($params);
         }
 
         foreach($gidsInsert as $gidInsert)
@@ -393,6 +449,35 @@ class ChairmanGameAuthorizationController extends ChairmanController
                 $params['operation'] = '恢复授权';
                 $params['object'] = $id;
                 $params['content'] = "恢复工会对<<{$game[0]->Gamename}>>的授权.";
+                Log::record($params);    
+                
+                //下属公会恢复授权，移除黑名单列表
+                $childsBlacklist = GuildToGameBlacklist::where('guildid', $id)->get();
+                if(!count($childsBlacklist))
+                {
+                    continue;
+                }
+                $guildidlist = unserialize($childsBlacklist[0]->guildidlist);
+                foreach($guildidlist as $childId)
+                {
+                    GuildToGame::where('GuildId', $childId)->where('AppId', $gidInsert)->update(['AuditStatus'=>1]);
+                    //日志
+                    $params['module'] = __CLASS__;
+                    $params['function'] = __FUNCTION__;
+                    $params['operation'] = '恢复授权';
+                    $params['object'] = $childId;
+                    $params['content'] = "恢复B级或C级工会对<<{$game[0]->Gamename}>>的授权.";
+                    Log::record($params);
+                }
+
+                $childsStr = serialize($childs);
+                GuildToGameBlackList::where('guildid', $id)->delete();
+                //日志
+                $params['module'] = __CLASS__;
+                $params['function'] = __FUNCTION__;
+                $params['operation'] = '恢复授权-下属公会记录';
+                $params['object'] = $id;
+                $params['content'] = "下属公会ID {$childsStr}";
                 Log::record($params);
             }
             else
@@ -417,6 +502,7 @@ class ChairmanGameAuthorizationController extends ChairmanController
 
             }
         }
+
         return redirect($this->moduleRoute.'/game_authorization_form/'.$id)->with('message', '授权完成!');
     }
 
@@ -499,11 +585,18 @@ class ChairmanBlacklistController extends ChairmanController
         {
             $childsStr = serialize(array());
         }
-        $blacklist = new BlackList();
-        $blacklist->guildid = $gid;
-        $blacklist->guildidlist = $childsStr;
-        $blacklist->createdate = time();
-        $blacklist->save();
+        if($handleStatus == 3)
+        {
+            $blacklist = new BlackList();
+            $blacklist->guildid = $gid;
+            $blacklist->guildidlist = $childsStr;
+            $blacklist->createdate = time();
+            $blacklist->save();
+        }
+        else
+        {
+            BlackList::where('guildid', $gid)->delete();
+        }
 
         //日志
         $params['module']       = __CLASS__;
@@ -698,7 +791,9 @@ class ChairmanBlacklistController extends ChairmanController
     public function setSearchConditions($type)
     {
         $conditions = array();
-        $conditions[] = ' AuditStatus IN (1, 3) ';
+        $conditions[] = ' AuditStatus IN (1, 3) '; 
+        $conditions[] = ' GuildType IN (1,2) ';
+        $conditions[] = ' Guilderid = 0 ';
         return $conditions;
     }
 
