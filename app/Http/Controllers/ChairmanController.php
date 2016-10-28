@@ -3,9 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Log;
-use Illuminate\Http\Request;
+use Illuminate\Http\Request as RequestNew;
 
-use App\Http\Requests;
 use View;
 use App\Models\Guild\Guild;
 use App\Models\Guild\GuildToGuild;
@@ -16,18 +15,15 @@ use App\User;
 use DB;
 use App\Models\GameType;
 use App\Models\GameClass;
+use Request;
 
 class ChairmanController extends Controller
 {    
     protected $modelName            = 'App\Models\Chairman';
     protected $table                = 'dt_guild_list';
     protected $search_keyword       = 'Name';
-    protected $moduleRoute          = 'chairmans';
-    protected $moduleAjax           = '/chairmans/index_ajax';
     protected $searchPlaceholder    = '公会名称';
     protected $tableColumns         = 'true,false,false,false,false,false,false,true,false,false';
-    protected $listTitle            = '公会审核';    
-    protected $showTitle            = '公会详情';    
     protected $isDataObject         = false;
     protected $dataFormat           = 3;
     protected $search_datetime      = 'CreateDate';  
@@ -41,6 +37,33 @@ class ChairmanController extends Controller
             $view->with('moduleRoute',          $this->moduleRoute);
         }); 
     }
+    
+    public function type_list($type)
+    {
+        $object = ChairmanFactory::createObject($type);
+        return $object->index();
+    }
+
+    public function type_list_ajax(RequestNew $requests,$type)
+    {
+        $object  = ChairmanFactory::createObject($type);
+        $content = $object->index_ajax($requests);
+        return $content;
+    } 
+    
+    public function type_page_show($type,$page,$id)
+    {
+        $object = ChairmanFactory::createObject($type);
+        return $object->$page($id);
+    }
+    
+    public function type_page_submit($type, $page_submit)
+    {
+        $object = ChairmanFactory::createObject($type);
+        $request = Request::all();
+        return $object->$page_submit($request);
+    }
+
 
     protected function dataObject()
     {
@@ -68,24 +91,86 @@ class ChairmanController extends Controller
             'CreateDate'            => '注册时间',
         );
         return $object;
-    }
+    } 
+}
+
+class ChairmanAuditController extends ChairmanController
+{
+    protected $moduleRoute          = 'chairmans/audit';
+    protected $moduleAjax           = '/chairmans/list_ajax/audit';
+    protected $listTitle            = '公会审核';    
+    protected $showTitle            = '公会审核';    
     
-    public function setOp()
+    public function dataFilter($field, $data, $object=NULL)
     {
-        $op = array(
+        switch($field)
+        {
+            case 'AuditStatus':
+                if($data == 0)
+                {
+                    $value =  '驳回';
+                }
+                elseif($data == 1)
+                {
+                    $value = '通过';
+                }
+                elseif($data == 2)
+                {
+                    $value = '待审核';
+                }
+                elseif($data == 3)
+                {
+                    $value = '黑名单';
+                }
+                
+                break; 
+            case 'op':
+                if($object->AuditStatus == 2)
+                {
+                    $value = '<a href="'.url($this->moduleRoute.'/audit_form/'.$object->Id).'" class="btn btn-success btn-xs">审核</a>';
+                } 
+                else
+                {
+                    $value = '<a href="'.url($this->moduleRoute.'/show/'.$object->Id).'">详情</a>';
+                }
+                break;
+            case 'CreateDate':
+                    $value = date('Y-m-d H:i:s', $data);
+                break;
+            case 'Id':
+                $value = $data;
+                break;
+    
+            default:
+                $value = $data;
+                break;
+        }
+
+        return $value;
+    } 
+    
+    public function setAdvanceSearchBox()
+    {
+        $str = '<p><div class="advance_search_wrapper " style="display:none; height:50px; width:100%;" id="advance_search_wrapper"><pre>';
+        $str .='公会名称: <input type="text" id="Name" class="form-control">&nbsp;&nbsp;';
+        $str .='登录账号: <input type="text" id="UserName" class="form-control">&nbsp;&nbsp;';
+        $str .='登录账号Id: <input type="text" id="UserId" class="form-control">&nbsp;&nbsp;';
+        $str .='状态: <select id="AuditStatus" class="form-control"><option value="99"> - All - </option><option value="1">通过</option><option value="0">驳回</option><option value="2">待审核</option></select>&nbsp;&nbsp;';
+        $str .=' <button type="button" class="btn btn-default" id="advanceSearchSubmit">搜索</button>';
+        $str .='</pre></div></p>';
+        return $str; 
+    }
+
+    public function setAdvanceSearchFields()
+    {
+        return json_encode(
             array(
-                'name' => '审核',
-                'url'   => '/audit_form/',
-                'field' => 'Id',
-            ),
-            array(
-                'name' => '详情',
-                'url'   => '/',
-                'field' => 'Id',
-            ),
-     
+                'name'=> 'like', 
+                'username'=>'like', 
+                'userid'=>'like',
+                'AuditStatus'=>'=int' 
+            )
         );
-        return $op;
     }
 
     public function audit_form($id)
@@ -110,18 +195,20 @@ class ChairmanController extends Controller
         return view('chairman/audit_form', ['object'=>$object, 'title'=>'会长审核', 'moduleRoute'=>$this->moduleRoute]);
     }
 
-    public function audit_form_submit(Request $request)
+    public function audit_form_submit($request)
     {
-        $gid = $request->gid;
-        $type = $request->type;
-        $submit = $request->submit;
-        $description = $request->description;
+        $gid = $request['gid'];
+        $type = $request['type'];
+        $submit = $request['submit'];
+        $description = $request['description'];
         
         if($submit == 'yes')
         {
             $auditStatus = 1;
+            $operation = '通过';
         }else{
             $auditStatus = 0;
+            $operation = '驳回';
         }
         $summary = $description;
         $updated = time();
@@ -146,146 +233,93 @@ class ChairmanController extends Controller
         //日志
         $params['module'] = __CLASS__;
         $params['function'] = __FUNCTION__;
-        $params['operation'] = $submit;
+        $params['operation'] = $operation;
         $params['object'] = $gid;
         $params['content'] = $description.'-'.$submit;
         Log::record($params);
         return redirect($this->moduleRoute)->with('message', '审核完成!');
     }
 
-    public function index_ajaxxxx(Request $request)
+   
+}
+
+class ChairmanGameAuthorizationController extends ChairmanController
+{
+    protected $moduleRoute          = 'chairmans/game_authorization';
+    protected $moduleAjax           = '/chairmans/list_ajax/game_authorization';
+    protected $listTitle            = '游戏授权';    
+    protected $showTitle            = '游戏授权';    
+    
+    public function dataFilter($field, $data, $object=NULL)
     {
-        $requests       = $request->all();
-        $draw           = $requests['draw'];
-        $columns        = $requests['columns'];
-        $start          = $requests['start'];
-        $length         = $requests['length'];
-        $search         = $requests['search'];
-        $searchValue    = $search['value'];
-        $type           = $requests['type']; 
-        $order          = $requests['order'];
-        $orderNumber    = $order[0]['column'];
-        $orderDir       = $order[0]['dir'];
-        $conditions     = array();
-
-        if(!empty($requests['dateRange']))
+        switch($field)
         {
-            $dateRange      = $requests['dateRange'];
-            $dateRange      = explode('-', $dateRange);
-            $from           = trim($dateRange[0]);
-            $from           = explode(' ', $from);
-            $fromYmd        = explode('/', $from[0]);   
-            $fromHis        = explode(':', $from[1]);   
-            $fromHour       = $fromHis[0];
-            $fromMinute     = $fromHis[1];
-            $fromSecond     = $fromHis[2];
-            $fromYear       = $fromYmd[0];
-            $fromMonth      = $fromYmd[1];
-            $fromDay        = $fromYmd[2];
-            $fromTimestamp  = mktime($fromHour, $fromMinute, $fromSecond, $fromMonth, $fromDay, $fromYear);
-            $to             = trim($dateRange[1]);
-            $to             = explode(' ', $to);
-            $toYmd          = explode('/', $to[0]);
-            $toHis          = explode(':', $to[1]);
-            $toHour         = $toHis[0];
-            $toMinute       = $toHis[1];
-            $toSecond       = $toHis[2];
-            $toYear         = $toYmd[0];
-            $toMonth        = $toYmd[1];
-            $toDay          = $toYmd[2];
-            $toTimestamp    = mktime($toHour, $toMinute, $toSecond, $toMonth, $toDay, $toYear);
-        }
-        else
-        {
-            $fromTimestamp  = NULL;
-            $toTimestamp    = NULL;
-        }
-
-        $orderColumns = array(
-            0=>'Id', 
-            7=>'CreateDate',
-        );
-        $orderColumnsStr = $orderColumns[$orderNumber];
-
-        $sql = " select * from dt_guild_list ";
-        $conditions [] = "GuilderId = 0";
-        if($type == 'game')
-        {
-            $conditions[] = " AuditStatus = 1 ";
-        }
-        if($searchValue)
-        {
-            $conditions[] = " Name like '%{$searchValue}%' ";
-        }
-        if($fromTimestamp && $toTimestamp)
-        {
-            $conditions[] = " CreateDate >= {$fromTimestamp} AND CreateDate <= {$toTimestamp}";
-        }
-
-        if(count($conditions))
-        {
-            $sql .= " WHERE ";
-            $sql .= implode(' AND ', $conditions);
-        }
-
-        $countResult = DB::select($sql);
-        $total  = count($countResult);
-
-        $sql .= " ORDER BY {$orderColumnsStr} {$orderDir}";
-        $sql .= " LIMIT {$start}, {$length} ";
-
-        $results = DB::select($sql);
-
-        $objects = array();
-        $objects['draw'] = $draw;
-        $objects['recordsTotal'] = $total;
-        $objects['recordsFiltered'] = $total;
-        if(count($results))
-        {
-            foreach($results as $result)
-            {
-                $object = array();
-                $object[] = $result->Id;
-                $object[] = '13511112222';
-                $object[] = $result->UserId;
-                $object[] = '诛仙';
-                $object[] = $result->Name;
-                $object[] = '11010218761211222236';
-                $object[] = '8172287282';
-                $object[] = date('Y-m-d H:i:s', $result->CreateDate);
-                if($result->AuditStatus == 0)
+            case 'AuditStatus':
+                if($data == 0)
                 {
-                    $object[] = '驳回';
-                }elseif($result->AuditStatus == 1)
-                {
-                    $object[] = '通过';
-                }elseif($result->AuditStatus == 2)
-                {
-                    $object[] = '待审核';
+                    $value =  '驳回';
                 }
-                if($type == 'game')
+                elseif($data == 1)
                 {
-                    $object[] = '<a href="'.url('chairmans/game_authorization_form/'.$result->Id).'">授权</a>';
-                }else{
-                    if($result->AuditStatus == 2)
-                    {
-                        $object[] = '<a href="'.url('chairmans/audit_form/'.$result->Id).'">审核</a>';
-                    }
-                    else
-                    {
-                        $object[] = '';
-                    }
+                    $value = '通过';
                 }
-                $objects['data'][] = $object;
-            }
+                elseif($data == 2)
+                {
+                    $value = '待审核';
+                }
+                elseif($data == 3)
+                {
+                    $value = '黑名单';
+                }
+                
+                break; 
+            case 'op':
+                $value = '<a href="'.url($this->moduleRoute.'/game_authorization_form/'.$object->Id).'" >授权</a>';
+                break;
+            case 'CreateDate':
+                    $value = date('Y-m-d H:i:s', $data);
+                break;
+            case 'Id':
+                $value = $data;
+                break;
+    
+            default:
+                $value = $data;
+                break;
         }
-        else
-        {
-            $objects['data'][] = array('空',' ',' ',' ',' ',' ',' ',' ',' ', ' ');
-        }
-        return json_encode($objects);
+
+        return $value;
+    } 
+    
+    public function setAdvanceSearchBox()
+    {
+        $str = '<p><div class="advance_search_wrapper " style="display:none; height:50px; width:100%;" id="advance_search_wrapper"><pre>';
+        $str .='公会名称: <input type="text" id="Name" class="form-control">&nbsp;&nbsp;';
+        $str .='登录账号: <input type="text" id="UserName" class="form-control">&nbsp;&nbsp;';
+        $str .='登录账号Id: <input type="text" id="UserId" class="form-control">&nbsp;&nbsp;';
+        $str .=' <button type="button" class="btn btn-default" id="advanceSearchSubmit">搜索</button>';
+        $str .='</pre></div></p>';
+        return $str; 
     }
 
+    public function setAdvanceSearchFields()
+    {
+        return json_encode(
+            array(
+                'name'=> 'like', 
+                'username'=>'like', 
+                'userid'=>'like',
+            )
+        );
+    }
+
+    public function setSearchConditions($type)
+    {
+        $conditions = array();
+        $conditions[] = ' AuditStatus = 1 ';
+        return $conditions;
+    }
+   
     public function game_authorization_form($id)
     {
         $permissionsHandle = array();
@@ -306,9 +340,8 @@ class ChairmanController extends Controller
  
     }
 
-    public function game_authorization_form_submit(Request $requests)
+    public function game_authorization_form_submit($request)
     {
-        $request = $requests->all();
         $id = $request['id'];
         if(!isset($request['gids'])) 
         {
@@ -391,137 +424,98 @@ class ChairmanController extends Controller
     {
          return view($this->moduleView.'/index', [ 'title'=>'游戏授权', 'type'=>'game']);   
     }
+      
+}
+
+class ChairmanBlacklistController extends ChairmanController
+{
+    protected $moduleRoute          = 'chairmans/blacklist';
+    protected $moduleAjax           = '/chairmans/list_ajax/blacklist';
+    protected $listTitle            = '公会黑名单';    
+    protected $showTitle            = '公会黑名单';    
     
-    public function blacklist()
+    public function blacklist_form($id)
     {
-         return view($this->moduleView.'/blacklist', [ 'title'=>'公会黑名单']);   
+        
+        $object = Guild::find($id);
+        $object->games = '暂无';
+        $object->namecard = '暂无';
+        $object->qq = '暂无';
+        $object->created = date('Y-m-d H:i:s', $object->CreateDate); 
+        if($object->AuditStatus == 0)
+        {
+            $object->status = '待审核';
+        }
+        elseif($object->AuditStatus == 1)
+        {
+            $object->status = '正常';
+            $object->handleStatus = 3;
+            $object->submit = '加入';
+        }
+        elseif($object->AuditStatus == 2)
+        {
+            $object->status = '驳回';
+        }
+        elseif($object->AuditStatus == 3)
+        {
+            $object->status = '黑名单'; 
+            $object->handleStatus = 1;
+            $object->submit = '移除';
+        }
+
+        return view($this->moduleViewChild.'/blacklist_form', ['object'=>$object, 'title'=>'公会黑名单', 'moduleRoute'=>$this->moduleRoute]);
     }
     
-    public function blacklist_ajax(Request $request)
+    public function blacklist_form_submit($request)
     {
-        $requests       = $request->all();
-        $draw           = $requests['draw'];
-        $columns        = $requests['columns'];
-        $start          = $requests['start'];
-        $length         = $requests['length'];
-        $search         = $requests['search'];
-        $searchValue    = $search['value'];
-        $order          = $requests['order'];
-        $orderNumber    = $order[0]['column'];
-        $orderDir       = $order[0]['dir'];
-        $conditions     = array();
-
-        if(!empty($requests['dateRange']))
+        $gid = $request['gid'];
+        $handleStatus = $request['handleStatus'];
+        $childs = GuildToGuild::getChilds($gid);
+        $description = $request['description'];
+        $auditStatus = $handleStatus;
+        $summary = $description;
+        $updated = time();
+        if($handleStatus == 3)
         {
-            $dateRange      = $requests['dateRange'];
-            $dateRange      = explode('-', $dateRange);
-            $from           = trim($dateRange[0]);
-            $from           = explode(' ', $from);
-            $fromYmd        = explode('/', $from[0]);   
-            $fromHis        = explode(':', $from[1]);   
-            $fromHour       = $fromHis[0];
-            $fromMinute     = $fromHis[1];
-            $fromSecond     = $fromHis[2];
-            $fromYear       = $fromYmd[0];
-            $fromMonth      = $fromYmd[1];
-            $fromDay        = $fromYmd[2];
-            $fromTimestamp  = mktime($fromHour, $fromMinute, $fromSecond, $fromMonth, $fromDay, $fromYear);
-            $to             = trim($dateRange[1]);
-            $to             = explode(' ', $to);
-            $toYmd          = explode('/', $to[0]);
-            $toHis          = explode(':', $to[1]);
-            $toHour         = $toHis[0];
-            $toMinute       = $toHis[1];
-            $toSecond       = $toHis[2];
-            $toYear         = $toYmd[0];
-            $toMonth        = $toYmd[1];
-            $toDay          = $toYmd[2];
-            $toTimestamp    = mktime($toHour, $toMinute, $toSecond, $toMonth, $toDay, $toYear);
-        }
+            $operation = '加入';
+        } 
         else
         {
-            $fromTimestamp  = NULL;
-            $toTimestamp    = NULL;
+            $operation = '移除';
         }
 
-        $orderColumns = array(
-            0=>'Id', 
-            8=>'CreateDate',
-        );
-        $orderColumnsStr = $orderColumns[$orderNumber];
-
-        $sql = " select * from dt_guild_list ";
-        $conditions[] = "GuilderId = 0";
-        $conditions[] = "GuildType = 1";
-        $conditions[] = " AuditStatus IN(1,3)";
-
-        if($searchValue)
+        DB::update("update dt_guild_list set AuditStatus={$auditStatus}, UpdateDate={$updated}  where id = {$gid}");
+        
+        //记录黑名单
+        if(count($childs))
         {
-            $conditions[] = " Name like '%{$searchValue}%' ";
-        }
-
-        if($fromTimestamp && $toTimestamp)
-        {
-            $conditions[] = " CreateDate >= {$fromTimestamp} AND CreateDate <= {$toTimestamp}";
-        }
-
-        if(count($conditions))
-        {
-            $sql .= " WHERE ";
-            $sql .= implode(' AND ', $conditions);
-        }
-
-        $countResult = DB::select($sql);
-        $total  = count($countResult);
-
-        $sql .= " ORDER BY {$orderColumnsStr} {$orderDir}";
-        $sql .= " LIMIT {$start}, {$length} ";
-
-        $results = DB::select($sql);
-
-        $objects = array();
-        $objects['draw'] = $draw;
-        $objects['recordsTotal'] = $total;
-        $objects['recordsFiltered'] = $total;
-        if(count($results))
-        {
-            foreach($results as $result)
+            foreach($childs as $child)
             {
-                $object = array();
-                $object[] = $result->Id;        
-                $object[] = '13511112222';
-                $object[] = $result->UserId;
-                $object[] = '诛仙';
-                $object[] = $result->Name;
-                $object[] = '11010218761211222236';
-                $object[] = '8172287282';
-                $object[] = date('Y-m-d H:i:s', $result->CreateDate);
-                if($result->AuditStatus == 3)
-                {
-                    $object[] = '黑名单';
-                }elseif($result->AuditStatus == 1)
-                {
-                    $object[] = '正常';
-                }elseif($result->AuditStatus == 2)
-                {
-                    $object[] = '驳回';
-                }
-                if($result->AuditStatus == 1)
-                {
-                    $object[] = '<a href="'.url('chairmans/blacklist_join_form/'.$result->Id).'">加入</a>';
-                }elseif($result->AuditStatus == 3){
-                    $object[] = '<a href="'.url('chairmans/blacklist_out_form/'.$result->Id).'">解除</a>';
-                }
-                $objects['data'][] = $object;
+                DB::update("update dt_guild_list set AuditStatus={$auditStatus}, UpdateDate={$updated}  where id = {$child}");
             }
+            $childsStr = serialize($childs);
         }
         else
         {
-            $objects['data'][] = array('空',' ',' ',' ',' ',' ',' ',' ',' ', ' ');
+            $childsStr = serialize(array());
         }
-        return json_encode($objects);
+        $blacklist = new BlackList();
+        $blacklist->guildid = $gid;
+        $blacklist->guildidlist = $childsStr;
+        $blacklist->createdate = time();
+        $blacklist->save();
+
+        //日志
+        $params['module']       = __CLASS__;
+        $params['function']     = __FUNCTION__;
+        $params['operation']    = $operation;
+        $params['object']       = $gid;
+        $params['content']      = $description;
+        Log::record($params);
+        return redirect($this->moduleRoute)->with('message', $operation.'黑名单完成!');
     }
-    
+
+ 
     public function blacklist_join_form($id)
     {
         
@@ -653,31 +647,13 @@ class ChairmanController extends Controller
                 
                 break; 
             case 'op':
-                if($this->type == 'game_authorization')
+                if($object->AuditStatus == 3)
                 {
-                    $value = '<a href="'.url($this->moduleRoute.'/game_authorization_form/'.$object->Id).'" >授权</a>';
-                }
-                elseif($this->type == 'blacklist')
-                {
-                    if($object->AuditStatus == 3)
-                    {
-                        $value = '<a href="'.url($this->moduleRoute.'/blacklist_out_form/'.$object->Id).'" >移除</a>';
-                    }
-                    else
-                    {
-                        $value = '<a href="'.url($this->moduleRoute.'/blacklist_join_form/'.$object->Id).'" >加入</a>';
-                    }
+                    $value = '<a href="'.url($this->moduleRoute.'/blacklist_form/'.$object->Id).'" >移除</a>';
                 }
                 else
                 {
-                    if($object->AuditStatus == 2)
-                    {
-                        $value = '<a href="'.url($this->moduleRoute.'/audit_form/'.$object->Id).'" class="btn btn-success btn-xs">审核</a>';
-                    } 
-                    else
-                    {
-                        $value = '<a href="'.url($this->moduleRoute.'/show/'.$object->Id).'">详情</a>';
-                    }
+                    $value = '<a href="'.url($this->moduleRoute.'/blacklist_form/'.$object->Id).'" >加入</a>';
                 }
                 break;
             case 'CreateDate':
@@ -701,6 +677,7 @@ class ChairmanController extends Controller
         $str .='公会名称: <input type="text" id="Name" class="form-control">&nbsp;&nbsp;';
         $str .='登录账号: <input type="text" id="UserName" class="form-control">&nbsp;&nbsp;';
         $str .='登录账号Id: <input type="text" id="UserId" class="form-control">&nbsp;&nbsp;';
+        $str .='状态: <select id="AuditStatus" class="form-control"><option value="99"> - All - </option><option value="1">通过</option><option value="2">待审核</option></select>&nbsp;&nbsp;';
         $str .=' <button type="button" class="btn btn-default" id="advanceSearchSubmit">搜索</button>';
         $str .='</pre></div></p>';
         return $str; 
@@ -708,26 +685,59 @@ class ChairmanController extends Controller
 
     public function setAdvanceSearchFields()
     {
-        return json_encode(array(
-            'Name'=> 'like', 
-            'UserName'=>'like', 
-            'UserId'=>'like' ));
+        return json_encode(
+            array(
+                'name'=> 'like', 
+                'username'=>'like', 
+                'userid'=>'like',
+                'AuditStatus'=>'=int' 
+            )
+        );
     }
 
     public function setSearchConditions($type)
     {
         $conditions = array();
-        if($type == 'game_authorization')
-        {
-
-            $conditions[] = ' AuditStatus = 1 ';
-        }    
-        if($type == 'blacklist')
-        {
-
-            $conditions[] = ' AuditStatus IN (1, 3) ';
-        }
-     
+        $conditions[] = ' AuditStatus IN (1, 3) ';
         return $conditions;
+    }
+
+}
+
+
+class ChairmanFactory
+{
+    public static function createObject($type)
+    {
+        switch($type)
+        {
+            case 'audit':
+                $controller = 'App\Http\Controllers\ChairmanAuditController';
+                break;
+            case 'game_authorization':
+                $controller = 'App\Http\Controllers\ChairmanGameAuthorizationController';
+                break;
+            case 'blacklist':
+                $controller = 'App\Http\Controllers\ChairmanBlacklistController';
+                break;
+            case 'statistic_users':
+                $controller = 'App\Http\Controllers\Guild\StatisticUserController';
+                break;
+            case 'statistic_user_guilds':
+                $controller = 'App\Http\Controllers\Guild\StatisticUserGuildController';
+                break;
+            case 'statistic_game_recharges':
+                $controller = 'App\Http\Controllers\Guild\StatisticGameRechargeController';
+                break;
+            case 'statistic_game_consumes':
+                $controller = 'App\Http\Controllers\Guild\StatisticGameConsumeController';
+                break;
+            case 'statistic_badou_consumes':
+                $controller = 'App\Http\Controllers\Guild\StatisticBadouConsumeController';
+                break;
+        }
+        
+        $object = new $controller();
+        return $object;       
     }
 }

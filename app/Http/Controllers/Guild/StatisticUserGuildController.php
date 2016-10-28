@@ -19,8 +19,8 @@ class StatisticUserGuildController extends Controller
     protected $connection           = 'statistics';
     protected $search_keyword       = 'game_name';
     protected $search_datetime      = 'create_date';
-    protected $moduleRoute          = 'chairmans/statistic/users_guilds';
-    protected $moduleAjax           = '/chairmans/statistic/users_guilds_ajax';
+    protected $moduleRoute          = 'chairmans/statistic_user_guilds';
+    protected $moduleAjax           = '/chairmans/list_ajax/statistic_user_guilds';
     protected $searchPlaceholder    = '游戏名称';
     protected $tableColumns         = 'true,false,false,false,false,false,false,fals,true,false';
     protected $listTitle            = '用户数据统计_按推广ID';    
@@ -97,5 +97,31 @@ class StatisticUserGuildController extends Controller
             }
         }
 
+    }    
+    
+    public function setOp(){
+        $op = array(
+            array(
+                'name' => '详情',
+                'url'   => '/',
+                'field' => 'id',
+            ),
+        );
+        return $op;       
     }
+    
+    public function dataFilter($field, $data, $object=NULL)
+    {
+        switch($field)
+        {
+            case 'op':
+                    $value = '<a href="'.url($this->moduleRoute.'/show/'.$object->id).'">详情</a>';
+                break;
+            default:
+                $value = $data;
+                break;
+        }
+        return $value;
+    } 
+   
 }

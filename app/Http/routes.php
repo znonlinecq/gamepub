@@ -65,21 +65,27 @@ Route::resource('functions', 'FunctionController');
 Route::resource('permissions', 'PermissionController');
 
 //会长审核&授权
-Route::get('chairmans',                                     'ChairmanController@index');
-Route::get('chairmans/show/{id}',                           'ChairmanController@show');
-Route::get('chairmans/audit_form/{id}',                     'ChairmanController@audit_form');
-Route::post('chairmans/audit_form_submit',                  'ChairmanController@audit_form_submit');
-Route::get('chairmans/game_authorization_form/{id}',        'ChairmanController@game_authorization_form');
-Route::post('chairmans/game_authorization_form_submit',     'ChairmanController@game_authorization_form_submit');
-Route::post('chairmans/index_ajax',                         'ChairmanController@index_ajax');
-Route::get('chairmans/game_authorization',                  'ChairmanController@index');
-Route::get('chairmans/blacklist',                           'ChairmanController@index');
-Route::post('chairmans/blacklist_ajax',                     'ChairmanController@blacklist_ajax');
-Route::get('chairmans/blacklist_join_form/{id}',            'ChairmanController@blacklist_join_form');
-Route::post('chairmans/blacklist_join_form_submit',         'ChairmanController@blacklist_join_form_submit');
-Route::get('chairmans/blacklist_out_form/{id}',             'ChairmanController@blacklist_out_form');
-Route::post('chairmans/blacklist_out_form_submit',          'ChairmanController@blacklist_out_form_submit');
+Route::get('chairmans/{type}',                                      'ChairmanController@type_list');
+Route::post('chairmans/list_ajax/{type}',                           'ChairmanController@type_list_ajax');
+Route::get('chairmans/{type}/{page}/{id}',                          'ChairmanController@type_page_show');
+Route::post('chairmans/{type}/{page_submit}',                       'ChairmanController@type_page_submit');
 
+//公会统计
+//Route::get('chairmans/statistic/users',                     'Guild\StatisticUserController@index');
+//Route::post('chairmans/statistic/users_ajax',               'Guild\StatisticUserController@index_ajax');
+//Route::get('chairmans/statistic/users/{id}',                'Guild\StatisticUserController@show');
+//Route::get('chairmans/statistic/users_guilds',              'Guild\StatisticUserGuildController@index');
+//Route::post('chairmans/statistic/users_guilds_ajax',        'Guild\StatisticUserGuildController@index_ajax');
+//Route::get('chairmans/statistic/users_guilds/{id}',         'Guild\StatisticUserGuildController@show');
+//Route::get('chairmans/statistic/games_recharges',           'Guild\StatisticGameRechargeController@index');
+//Route::post('chairmans/statistic/games_recharges_ajax',     'Guild\StatisticGameRechargeController@index_ajax');
+//Route::get('chairmans/statistic/games_recharges/{id}',      'Guild\StatisticGameRechargeController@show');
+//Route::get('chairmans/statistic/games_consumes',            'Guild\StatisticGameConsumeController@index');
+//Route::post('chairmans/statistic/games_consumes_ajax',      'Guild\StatisticGameConsumeController@index_ajax');
+//Route::get('chairmans/statistic/games_consumes/{id}',       'Guild\StatisticGameConsumeController@show');
+//Route::get('chairmans/statistic/badous_consumes',            'Guild\StatisticBadouConsumeController@index');
+//Route::post('chairmans/statistic/badous_consumes_ajax',      'Guild\StatisticBadouConsumeController@index_ajax');
+//Route::get('chairmans/statistic/badous_consumes/{id}',       'Guild\StatisticBadouConsumeController@show');
 
 //开发者
 Route::get('developers',                    'DeveloperController@index');
@@ -164,22 +170,6 @@ Route::get('kit/captcha/{tmp}', 'KitController@captcha');
 //创建表
 Route::get('create_table/statistic_guild_user',                 'Guild\StatisticUserController@create_table');
 
-//公会统计
-Route::get('chairmans/statistic/users',                     'Guild\StatisticUserController@index');
-Route::post('chairmans/statistic/users_ajax',               'Guild\StatisticUserController@index_ajax');
-Route::get('chairmans/statistic/users/{id}',                'Guild\StatisticUserController@show');
-Route::get('chairmans/statistic/users_guilds',              'Guild\StatisticUserGuildController@index');
-Route::post('chairmans/statistic/users_guilds_ajax',        'Guild\StatisticUserGuildController@index_ajax');
-Route::get('chairmans/statistic/users_guilds/{id}',         'Guild\StatisticUserGuildController@show');
-Route::get('chairmans/statistic/games_recharges',           'Guild\StatisticGameRechargeController@index');
-Route::post('chairmans/statistic/games_recharges_ajax',     'Guild\StatisticGameRechargeController@index_ajax');
-Route::get('chairmans/statistic/games_recharges/{id}',      'Guild\StatisticGameRechargeController@show');
-Route::get('chairmans/statistic/games_consumes',            'Guild\StatisticGameConsumeController@index');
-Route::post('chairmans/statistic/games_consumes_ajax',      'Guild\StatisticGameConsumeController@index_ajax');
-Route::get('chairmans/statistic/games_consumes/{id}',       'Guild\StatisticGameConsumeController@show');
-Route::get('chairmans/statistic/badous_consumes',            'Guild\StatisticBadouConsumeController@index');
-Route::post('chairmans/statistic/badous_consumes_ajax',      'Guild\StatisticBadouConsumeController@index_ajax');
-Route::get('chairmans/statistic/badous_consumes/{id}',       'Guild\StatisticBadouConsumeController@show');
 
 //数据统计
 Route::get('statistics/{type}',                  'StatisticController@index_type');

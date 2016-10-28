@@ -335,7 +335,7 @@ class Controller extends BaseController
                 {
                     $conditions[] = " {$key} = '{$value}' ";
                 } 
-                if($searchFieldsOp->$key == '=int' && !empty($value))
+                if($searchFieldsOp->$key == '=int' && $value != 99)
                 {
                     $conditions[] = " {$key} = {$value} ";
                 }
@@ -399,7 +399,7 @@ class Controller extends BaseController
                     $field = $op[0]['field'];
                     $name = $op[0]['name'];
                     $path = url($this->moduleRoute.$url.$result->$field);
-                   $opStr = '<a href="'.$path.'">'.$name.'</a>'; 
+                    $opStr = '<a href="'.$path.'">'.$name.'</a>'; 
                 }
                 $object[] = $this->dataFilter('op', $opStr, $result);
                 $objects['data'][] = $object;
@@ -465,7 +465,7 @@ class Controller extends BaseController
             array(
                 'name' => '详情',
                 'url'   => '/',
-                'field' => 'id',
+                'field' => 'Id',
             ),
         );
         return $op;       

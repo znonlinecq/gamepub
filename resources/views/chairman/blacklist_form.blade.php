@@ -9,7 +9,7 @@
 </div>
 <div class="box-body">
             <!-- form start -->
-            <form method="POST" action="{{ url($moduleRoute.'/blacklist_join_form_submit') }}">
+            <form method="POST" action="{{ url($moduleRoute.'/blacklist_form_submit') }}">
  {!! csrf_field() !!} 
 <table class="table table-bordered">
 <tbody>
@@ -59,7 +59,7 @@
     <tr>
         <td width="20%" align="right"></td>
         <td>
-            <button name="submit" type="submit" class="btn btn-primary" value="yes">加入</button> &nbsp;
+            <button name="submit" type="submit" class="btn btn-primary" value="yes">{{$object->submit}}</button> &nbsp;
         </td>
     </tr>
 
@@ -67,6 +67,7 @@
 
 </table>
 <input type="hidden" value="{{$object->Id}}" name="gid">
+<input type="hidden" value="{{$object->handleStatus}}" name="handleStatus">
             </form>
 </div>
 </div>

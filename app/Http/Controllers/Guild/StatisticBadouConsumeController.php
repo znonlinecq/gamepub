@@ -17,8 +17,8 @@ class StatisticBadouConsumeController extends Controller
     protected $proceduce            = 'pro_guild_badouconsume_byguild_sel';
     protected $connection           = 'statistics';
     protected $search_keyword       = 'guild_name';
-    protected $moduleRoute          = 'chairmans/statistic/badous_consumes';
-    protected $moduleAjax           = '/chairmans/statistic/badous_consumes_ajax';
+    protected $moduleRoute          = 'chairmans/statistic_badou_consumes';
+    protected $moduleAjax           = '/chairmans/list_ajax/statistic_badou_consumes';
     protected $searchPlaceholder    = '公会名称';
     protected $tableColumns         = 'true,false,false,false,false,false,false,false,false';
     protected $listTitle            = '8豆消耗统计';    
@@ -108,4 +108,30 @@ class StatisticBadouConsumeController extends Controller
             'username'=>'like', 
             'level'=>'=string' ));
     }
+    
+    public function setOp(){
+        $op = array(
+            array(
+                'name' => '详情',
+                'url'   => '/',
+                'field' => 'id',
+            ),
+        );
+        return $op;       
+    } 
+    
+    public function dataFilter($field, $data, $object=NULL)
+    {
+        switch($field)
+        {
+            case 'op':
+                    $value = '<a href="'.url($this->moduleRoute.'/show/'.$object->id).'">详情</a>';
+                break;
+            default:
+                $value = $data;
+                break;
+        }
+        return $value;
+    } 
+    
 }

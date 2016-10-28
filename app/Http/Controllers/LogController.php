@@ -40,7 +40,7 @@ class LogController extends Controller
         $orderNumber    = $order[0]['column'];
         $orderDir       = $order[0]['dir'];
         $controllerType = $requests['controllerType'];
-        $controllerType = ucfirst($controllerType).'Controller';
+        $controllerType = ucfirst($controllerType);
         $methodType     = $requests['methodType'];
 
         $orderColumns = array(
@@ -49,7 +49,7 @@ class LogController extends Controller
         $orderColumnsStr = $orderColumns[$orderNumber];
 
         $sql = " select * from ad_logs ";
-        $sql .= " WHERE module = '{$controllerType}' AND function = '{$methodType}' ";
+        $sql .= " WHERE module like '%{$controllerType}%' AND function = '{$methodType}' ";
         if($searchValue)
         {
             $sql .= " AND content like '%{$searchValue}%' ";
@@ -88,8 +88,7 @@ class ChairmanLog extends LogController
 {
     private static $audit_form_submit_title = '会长审核';
     private static $game_authorization_form_submit_title = '游戏授权';
-    private static $blacklist_join_form_submit_title = '加入黑名单';
-    private static $blacklist_out_form_submit_title = '移除黑名单';
+    private static $blacklist_form_submit_title = '公会黑名单';
 
 
     public static function audit_form_submit($results, &$objects)
@@ -163,7 +162,7 @@ class ChairmanLog extends LogController
         return self::$game_authorization_form_submit_title;
     }    
     
-    public static function blacklist_join_form_submit($results, &$objects)
+    public static function blacklist_form_submit($results, &$objects)
     {   
         foreach($results as $result)
         {        
@@ -190,41 +189,9 @@ class ChairmanLog extends LogController
         }
     }
 
-    public static function blacklist_join_form_submit_title()
+    public static function blacklist_form_submit_title()
     {
-        return self::$blacklist_join_form_submit_title;
-    }    
-    
-    public static function blacklist_out_form_submit($results, &$objects)
-    {   
-        foreach($results as $result)
-        {        
-            $operator = User::find($result->uid);
-            $operator = $operator->name;
-            $operator_object = DB::select("SELECT * FROM dt_guild_list WHERE Id={$result->object}");
-            if(count($operator_object))
-            {
-                $operator_object = $operator_object[0]->Name;
-            }
-            else
-            {
-                $operator_object = '未知';
-            }
-
-
-            $object = array();
-            $object[] = date('Y-m-d H:i:s', $result->created);
-            $object[] = $operator;
-            $object[] = $result->operation;
-            $object[] = $operator_object;
-            $object[] = $result->content;
-            $objects['data'][] = $object;
-        }
-    }
-
-    public static function blacklist_out_form_submit_title()
-    {
-        return self::$blacklist_out_form_submit_title;
+        return self::$blacklist_form_submit_title;
     }    
  
 }

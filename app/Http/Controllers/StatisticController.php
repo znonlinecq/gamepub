@@ -37,10 +37,21 @@ class StatisticController extends Controller
         $controller = 'App\Http\Controllers\StatisticPlatform'.$type.'Controller';
         $object = new $controller();
         return $object->show($id);
+    }    
+    
+    public function setOp(){
+        $op = array(
+            array(
+                'name' => '详情',
+                'url'   => '/',
+                'field' => 'id',
+            ),
+        );
+        return $op;       
     }
 }
 
-class StatisticPlatformChannelController extends Controller
+class StatisticPlatformChannelController extends StatisticController
 {    
     protected $modelName            = 'App\Models\Statistic\StatisticPlatformChannel';
     protected $table                = 'ad_statistic_platform_channels';
@@ -117,7 +128,7 @@ class StatisticPlatformChannelController extends Controller
     }
 }
 
-class StatisticPlatformIncomeController extends Controller
+class StatisticPlatformIncomeController extends StatisticController
 {    
     protected $modelName            = 'App\Models\Statistic\StatisticPlatformIncome';
     protected $table                = 'ad_statistic_platform_incomes';
@@ -200,7 +211,7 @@ class StatisticPlatformIncomeController extends Controller
     }
 }
 
-class StatisticPlatformUserController extends Controller
+class StatisticPlatformUserController extends StatisticController
 {    
     protected $modelName            = 'App\Models\Statistic\StatisticPlatformUser';
     protected $table                = 'ad_statistic_platform_users';
@@ -295,7 +306,7 @@ class StatisticPlatformUserController extends Controller
     }
 }
 
-class StatisticPlatformBadouController extends Controller
+class StatisticPlatformBadouController extends StatisticController
 {    
     protected $modelName            = 'App\Models\Statistic\StatisticPlatformBadou';
     protected $table                = 'ad_statistic_platform_badous';

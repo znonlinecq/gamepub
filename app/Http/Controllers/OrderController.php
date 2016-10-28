@@ -418,7 +418,7 @@ class OrderController extends Controller
                     $object->badou          = $order->badou;
                     $object->afterbadou     = $order->afterbadou;
                     $object->status         = $status;
-                    $object->remark         = $order->remark;
+                    $object->remark         = $order->remark ? $order->remark : '';
                     $object->created        = time();
                     $object->save();
                 }

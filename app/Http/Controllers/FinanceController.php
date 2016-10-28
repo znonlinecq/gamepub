@@ -209,7 +209,7 @@ class FinanceController extends Controller
         $params['touserid'] = $gid;
         $params['adminid'] = $user->id;
         $params['badou'] = ceil($money + ($money/100 * 20));
-        $params['adminremark'] = $description;
+        $params['remark'] = $description;
         $params['rmb'] = $money;
         ksort($params);
         foreach($params as $key => $value)
@@ -303,7 +303,7 @@ class FinanceController extends Controller
         $params['extracommonparam'] = '';
         $params['touserid'] = $gid;
         $params['adminid'] = $user->id;
-        $params['adminremark'] = $description;
+       // $params['adminremark'] = $description;
         $params['systemorder'] = $order->orderid;
         ksort($params);
         foreach($params as $key => $value)

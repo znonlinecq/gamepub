@@ -17,8 +17,8 @@ class StatisticGameRechargeController extends Controller
     protected $proceduce            = 'pro_guild_gamerecharge_byguildid_sel';
     protected $connection           = 'statistics';
     protected $search_keyword       = 'game_name';
-    protected $moduleRoute          = 'chairmans/statistic/games_recharges';
-    protected $moduleAjax           = '/chairmans/statistic/games_recharges_ajax';
+    protected $moduleRoute          = 'chairmans/statistic_game_recharges';
+    protected $moduleAjax           = '/chairmans/list_ajax/statistic_game_recharges';
     protected $searchPlaceholder    = '游戏名称';
     protected $tableColumns         = 'true,false,false,false,false,false';
     protected $listTitle            = '游戏充值统计';    
@@ -75,5 +75,31 @@ class StatisticGameRechargeController extends Controller
                 $object->save();
             }
         }
+    }    
+    
+    public function setOp(){
+        $op = array(
+            array(
+                'name' => '详情',
+                'url'   => '/',
+                'field' => 'id',
+            ),
+        );
+        return $op;       
     }
+    
+    public function dataFilter($field, $data, $object=NULL)
+    {
+        switch($field)
+        {
+            case 'op':
+                    $value = '<a href="'.url($this->moduleRoute.'/show/'.$object->id).'">详情</a>';
+                break;
+            default:
+                $value = $data;
+                break;
+        }
+        return $value;
+    } 
+   
 }
