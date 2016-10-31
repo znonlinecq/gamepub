@@ -165,8 +165,8 @@ class StatisticPlatformIncomeController extends StatisticController
             'sum_users'             => '充值人数',
             'register_count'        => '累计注册',
             'download_count'        => '累计下载',
-            'income_count'          => '累计充值',
-            'log_date'              => '累计充值笔数',
+            'income_count'          => '累计充值笔数',
+            'log_date'              => '记录时间',
             'op'                    => '操作',
         ); 
         $object['show_fields'] = array(
@@ -193,7 +193,7 @@ class StatisticPlatformIncomeController extends StatisticController
         $gameId         = 0;                        //ID
         $start          = '1970-01-01';                         // 1970-01-01
         $end            = date('Y-m-d', time()+24*3600);         // 2016-10-10
-        $type           = 7;                         //类型
+        $type           = 0;                         //类型
         $results        = DB::connection($this->connection)->select("call {$this->database}.{$this->proceduce}(?,?,?,?)", array($gameId, $start, $end, $type));
         if(count($results))
         {
@@ -287,7 +287,7 @@ class StatisticPlatformUserController extends StatisticController
         $gameId         = 0;                        //ID
         $start          = '1970-01-01';                         // 1970-01-01
         $end            = date('Y-m-d', time()+24*3600);         // 2016-10-10
-        $type           = 7;
+        $type           = 0;
         $results        = DB::connection($this->connection)->select("call {$this->database}.{$this->proceduce}(?,?,?,?)", array($gameId,$start, $end, $type));
 
         if(count($results))

@@ -10,7 +10,15 @@
         @if(isset($menus))
             @foreach($menus as $menu)
             <li class="treeview @if($menu->active) active @endif" >
-                <a href="#"><i class="fa {{$menu->font}}"></i>{{$menu->name}}<span></span></a>
+                <a href="#"><i class="fa {{$menu->font}}"></i>{{$menu->name}}
+            <span class="pull-right-container">
+                @foreach($menuCount as $key => $count)
+                    @if($menu->controller == $key && $count)
+                        <small class="label pull-right bg-green">{{$count}}</small>
+                    @endif
+                @endforeach
+            </span>              
+            </a>
                 <ul class="treeview-menu">
                     @foreach($menu->functions as $submenu)
                         <li @if($submenu->active) class="active" @endif><a href="{{url($submenu->path)}}">{{$submenu->name}}</a></li>

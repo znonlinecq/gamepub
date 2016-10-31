@@ -13,7 +13,11 @@
     @foreach($fields as $key => $value)
     <tr>
         <td width="20%" align="right"> {{$value}}</td>
-        <td>{{$object->$key}}</td>
+        @if(preg_match('/img/', $object->$key))
+            <td>{!! $object->$key !!}</td>
+        @else
+            <td>{{$object->$key}}</td>
+        @endif
     </tr>
     @endforeach 
 </tbody>

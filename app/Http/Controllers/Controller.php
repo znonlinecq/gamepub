@@ -8,6 +8,7 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesResources;
 use App\Models\Menu;
+use App\Models\Guild\Guild;
 use View;
 use Auth;
 use Illuminate\Http\Request as RequestNew;
@@ -64,8 +65,12 @@ class Controller extends BaseController
         //    $view->with('breadcrumbs', $breadcrumbs);
         //});
         View::composer('layouts/sidebar', function($view){
+            $guild = count(Guild::where('GuildType', 0)->where('AuditStatus',2)->get());
+
+            $menuCount['ChairmanController'] = $guild;
             $menus = Menu::menuLoad();
             $view->with('menus', $menus);
+            $view->with('menuCount', $menuCount);
         });
         $this->advanceSearchFields = $this->setAdvanceSearchFields();
         $uri = Request::path();
@@ -231,7 +236,7 @@ class Controller extends BaseController
         }    
         if(isset($requests['searchFields']))
         {
-            $searchFields    = trim($requests['searchFields']);
+            $searchFields    = $requests['searchFields'];
         }
         else
         {

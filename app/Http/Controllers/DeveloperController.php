@@ -10,22 +10,77 @@ use DB;
 use App\Models\Developer;
 use Auth;
 use App\Models\Log;
+use App\User;
 
 class DeveloperController extends Controller
 {
     protected $moduleRoute = 'developers';  //路由URL
-    protected $moduleView = 'developer';    //视图路径
-    protected $moduleTable = 'game_cpinfo';
-    protected $moduleName = '开发者';
-    protected $moduleIndexAjax = '/developers/index_ajax';
-    protected $searchPlaceholder = '开发者姓名';    
+    protected $moduleAjax = '/developers/index_ajax';
+    protected $listTitle            = '开发者审核';    
+    protected $showTitle            = '开发者审核';    
+ 
+    protected $modelName            = 'App\Models\Developer';
+    protected $table                = 'game_cpinfo';
+    protected $search_keyword       = 'username';
+    protected $searchPlaceholder    = '开发者名称';
+    protected $tableColumns         = 'true,false,false,false,false,false,false,true,false,false';
+    protected $isDataObject         = false;
+    protected $dataFormat           = 2;
+    protected $search_datetime      = 'adddate';  
+    protected $isAdvanceSearch      = true;
+    protected $moduleViewChild      = 'develop';
 
-    public function index()
+    public function __construct()
+    {
+        parent::__construct();
+        View::composer($this->moduleViewChild.'/*', function ($view) {
+            $view->with('moduleRoute',          $this->moduleRoute);
+        }); 
+    }
+    
+    protected function dataObject()
+    {
+        $object['list_fields'] = array(
+            'cpid'                  => 'ID',
+            'username'              => '开发者姓名',
+            'compname'              => '公司名称',
+            'compweb'               => '公司网址',
+            'compaddr'              => '公司地址',
+            'certificateno'         => '营业执照号',
+            'taxno'                 => '税号',
+            'adddate'               => '注册时间',
+            'status'                => '状态',
+            'op'                    => '操作',
+        ); 
+        $object['show_fields'] = array(
+            'cpid'                  => 'ID',
+            'username'              => '开发者姓名',
+            'compname'              => '公司名称',
+            'compweb'               => '公司网址',
+            'compaddr'              => '公司地址',
+            'certificateno'         => '营业执照号',
+            'certificateimg'        => '营业执照', 
+            'taxno'                 => '税号',
+            'taximg'                => '税务登记证件',
+            'conname'               => '联系人姓名',
+            'conposition'           => '联系人职务',
+            'conmobile'             => '联系人手机号',
+            'conqq'                 => '联机人QQ',
+            'conemail'              => '联机人邮箱',
+            'status'                => '状态',
+            'adddate'               => '注册时间',
+            'lastupdate'            => '最后更新时间',
+            'checkuserid'           => '审核人',
+            'checkdate'             => '审核时间',
+        );
+        return $object;
+    } 
+    public function index_backup()
     {
         return view($this->moduleView.'/index', ['title'=>'开发者审核']);
     }
 
-    public function index_ajax(Request $request)
+    public function index_ajax_backup(Request $request)
     {
         $requests       = $request->all();
         $draw           = $requests['draw'];
@@ -133,6 +188,94 @@ class DeveloperController extends Controller
             $objects['data'][] = $array;
         }
         return json_encode($objects);
+    }
+
+    public function dataFilter($field, $data, $object=NULL)
+    {
+        switch($field)
+        {
+            case 'status':
+                if($data == 0)
+                {
+                    $value =  '驳回';
+                }
+                elseif($data == 1)
+                {
+                    $value = '通过';
+                }
+                elseif($data == 2)
+                {
+                    $value = '待审核';
+                }
+                elseif($data == 3)
+                {
+                    $value = '黑名单';
+                }
+                
+                break; 
+            case 'op':
+                if($object->status == 2)
+                {
+                    $value = '<a href="'.url($this->moduleRoute.'/audit_form/'.$object->cpid).'" class="btn btn-success btn-xs">审核</a>';
+                } 
+                else
+                {
+                    $value = '<a href="'.url($this->moduleRoute.'/show/'.$object->cpid).'">详情</a>';
+                }
+                break;
+            case 'certificateimg':
+                $value = '<img src="'.$data.'">';
+                break;
+            case 'taximg':
+                $value = '<img src="'.$data.'">';
+                break;
+            case 'checkuserid':
+                $user = User::find($data);
+                $value = $user->name;
+                break;
+            default:
+                $value = $data;
+                break;
+        }
+
+        return $value;
+    } 
+    
+    public function setAdvanceSearchBox()
+    {
+        $str = '<p><div class="advance_search_wrapper " style="display:none; height:50px; width:100%;" id="advance_search_wrapper"><pre>';
+        $str .='开发者名称: <input type="text" id="username" class="form-control">&nbsp;&nbsp;';
+        $str .='公司名称: <input type="text" id="compname" class="form-control">&nbsp;&nbsp;';
+        $str .='营业执照号: <input type="text" id="certificateno" class="form-control">&nbsp;&nbsp;';
+        $str .='税号: <input type="text" id="taxno" class="form-control">&nbsp;&nbsp;';
+        $str .='状态: <select id="status" class="form-control"><option value="99"> - All - </option><option value="1">通过</option><option value="0">驳回</option><option value="2">待审核</option></select>&nbsp;&nbsp;';
+        $str .=' <button type="button" class="btn btn-default" id="advanceSearchSubmit">搜索</button>';
+        $str .='</pre></div></p>';
+        return $str; 
+    }
+
+    public function setAdvanceSearchFields()
+    {
+        return json_encode(
+            array(
+                'username'=> 'like', 
+                'compname'=>'like', 
+                'certificateno'=>'like',
+                'taxno'=>'like',
+                'status'=>'=int' 
+            )
+        );
+    }
+    
+    public function setOp(){
+        $op = array(
+            array(
+                'name' => '详情',
+                'url'   => '/',
+                'field' => 'cpid',
+            ),
+        );
+        return $op;       
     }
 
 

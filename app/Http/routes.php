@@ -91,6 +91,7 @@ Route::post('chairmans/{type}/{page_submit}',                       'ChairmanCon
 //开发者
 Route::get('developers',                    'DeveloperController@index');
 Route::post('developers/index_ajax',        'DeveloperController@index_ajax');
+Route::get('developers/show/{id}',          'DeveloperController@show');
 Route::get('developers/audit_form/{id}',    'DeveloperController@audit_form');
 Route::post('developers/audit_form_submit', 'DeveloperController@audit_form_submit');
 
