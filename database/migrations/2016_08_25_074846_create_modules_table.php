@@ -22,6 +22,7 @@ class CreateModulesTable extends Migration
             $table->integer('menu')->unsigned();
             $table->index('weight');
             $table->text('description');
+            $table->text('font');
             $table->integer('created');
             $table->integer('updated');
         });

@@ -12,7 +12,6 @@ use Illuminate\Http\Request;
 | and give it the controller to call when that URI is requested.
 |
 */
-
 Route::get('/', 'IndexController@index');
 
 #Route::get('dashboard', function () {
@@ -24,6 +23,8 @@ Route::get('/', 'IndexController@index');
 Route::get('auth/login', 'Auth\AuthController@getLogin');
 Route::post('auth/login', 'Auth\AuthController@login');
 Route::get('auth/logout', 'Auth\AuthController@logout');
+Route::get('login', 'Auth\AuthController@getLogin');
+Route::post('login', 'Auth\AuthController@login');
 
 // 注册路由...
 Route::get('auth/register', 'Auth\AuthController@getRegister');

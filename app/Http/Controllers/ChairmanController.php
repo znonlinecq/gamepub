@@ -177,7 +177,7 @@ class ChairmanAuditController extends ChairmanController
     public function setSearchConditions($type)
     {
         $conditions = array();
-        $conditions[] = ' GuildType IN (1,2) ';
+        $conditions[] = ' GuildType IN (0,1,2) ';
         $conditions[] = ' Guilderid = 0 ';
         return $conditions;
     }
@@ -206,7 +206,12 @@ class ChairmanAuditController extends ChairmanController
     }
 
     public function audit_form_submit($request)
-    {
+    {    
+
+        if(empty($request['type']))
+        {
+            return redirect('chairmans/audit/audit_form/'.$request['gid'])->with(['message'=>'选择类型不能为空']);
+        }
         $gid = $request['gid'];
         $type = $request['type'];
         $submit = $request['submit'];
@@ -245,7 +250,7 @@ class ChairmanAuditController extends ChairmanController
         $params['function'] = __FUNCTION__;
         $params['operation'] = $operation;
         $params['object'] = $gid;
-        $params['content'] = $description.'-'.$submit;
+        $params['content'] = $description;
         Log::record($params);
         return redirect($this->moduleRoute)->with('message', '审核完成!');
     }
@@ -342,9 +347,24 @@ class ChairmanGameAuthorizationController extends ChairmanController
             foreach($games as $game)
             {
                 $type   = GameType::find($game->Typeid);
+                if($type)
+                {
+                    $game->typeName = $type->Typename;
+                }
+                else
+                {
+                    $game->typeName = '未填';
+                }
+
                 $class  = GameClass::find($game->Classid);
-                $game->typeName     = $type->Typename;
-                $game->className    = $class->Classname;
+                if($class)
+                {
+                    $game->className = $class->Classname;
+                }
+                else
+                {
+                    $game->className = '未填';
+                }
                 $objects[] = $game;
             }
         }

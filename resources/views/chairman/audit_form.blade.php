@@ -53,11 +53,14 @@
         <td width="20%" align="right">类型</td>
         <td>
                   <select class="form-control" name="type" @if($object->AuditStatus == 1 || $object->AuditStatus == 0 ) disabled="true" @endif >
-                    <option> - 选择 - </option>
+                    <option value=""> - 选择 - </option>
                     <option value="1" @if($object->GuildType == 1) selected="true" @endif>A</option>
                     <option value="2" @if($object->GuildType == 2) selected="true" @endif>B</option>
                   </select>
-
+        @if ($errors->has('type'))
+            <strong>类型不能为空</strong>
+        @endif
+ 
         </td>
     </tr>
     

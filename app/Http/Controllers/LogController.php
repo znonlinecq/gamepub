@@ -61,7 +61,7 @@ class LogController extends Controller
 
         //Count
         $sqlCount = "SELECT COUNT(*) as total FROM ad_logs ";
-        $sqlCount .= "WHERE module = '{$controllerType}' AND function = '{$methodType}' ";
+        $sqlCount .= "WHERE module like '%{$controllerType}%' AND function = '{$methodType}' ";
         if($searchValue)
         {
             $sqlCount .= " AND content like '%{$searchValue}%' ";
@@ -116,7 +116,7 @@ class ChairmanLog extends LogController
             $object = array();
             $object[] = date('Y-m-d H:i:s', $result->created);
             $object[] = $operator;
-            $object[] = $operation;
+            $object[] = $result->operation;
             $object[] = $operator_object;
             $object[] = $result->content;
             $objects['data'][] = $object;

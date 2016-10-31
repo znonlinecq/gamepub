@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>注册页面</title>
+  <title>游戏后台注册</title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <!-- Bootstrap 3.3.6 -->
@@ -25,11 +25,11 @@
 <body class="hold-transition register-page">
 <div class="register-box">
   <div class="register-logo">
-    <a href="#">用户注册</a>
+    <a href="#">87870游戏后台</a>
   </div>
 
   <div class="register-box-body">
-    <p class="login-box-msg">注册新用户</p>
+    <p class="login-box-msg">用户注册</p>
 
     <form action="{{ url('/auth/register') }}" method="post">
 {!! csrf_field() !!}

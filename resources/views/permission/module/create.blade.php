@@ -30,6 +30,14 @@
                     {{$errors->first('weight')}}
                   @endif 
                 </div>
+                <div class="form-group">
+                   <label>CSS样式</label>
+                   <input type="textfield" name="font" value="{{old('font')}}" class="form-control" >
+                  @if($errors->has('font'))
+                    {{$errors->first('font')}}
+                  @endif 
+                </div>
+ 
                <div class="form-group">
                  {{ Form::label('title', '生成菜单') }}<br>
                  {{ Form::radio('menu', '1', true) }} 是 

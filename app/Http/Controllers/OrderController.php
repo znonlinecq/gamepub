@@ -506,9 +506,9 @@ class OrderController extends Controller
                 $object = array();
                 $object[] = $result->id;
                 $object[] = $result->order_id;
+                $object[] = $result->username;
                 $object[] = $result->type;
                 $object[] = $result->level;
-                $object[] = $result->username;
                 $object[] = $result->tousername;
                 $object[] = $result->badou;
                 $object[] = $result->createdate;

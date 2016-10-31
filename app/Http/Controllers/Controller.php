@@ -51,19 +51,22 @@ class Controller extends BaseController
 
     public function __construct()
     {
-        if(Auth::check())
-        {
-            View::composer('*', function ($view) {
-                $breadcrumbs = array(
-                    '/' => 'Dashboard'
-                );
-                $view->with('breadcrumbs', $breadcrumbs);
-            });
-            View::composer('layouts/sidebar', function($view){
-                $menus = Menu::menuLoad();
-                $view->with('menus', $menus);
-            });
-        }
+        $this->middleware('auth');
+   //     if(!Auth::check())
+   //     {
+   //         return redirect('auth/login')->with('message', '没有登录!');
+   //         print_r('aaa'); die();
+   //     }
+        //View::composer('*', function ($view) {
+        //    $breadcrumbs = array(
+        //        '/' => 'Dashboard'
+        //    );
+        //    $view->with('breadcrumbs', $breadcrumbs);
+        //});
+        View::composer('layouts/sidebar', function($view){
+            $menus = Menu::menuLoad();
+            $view->with('menus', $menus);
+        });
         $this->advanceSearchFields = $this->setAdvanceSearchFields();
         $uri = Request::path();
         if(preg_match('/game_authorization/', $uri))
@@ -220,7 +223,7 @@ class Controller extends BaseController
         $this->type     = $type;
         if(isset($requests['searchKeyword']))
         {
-            $searchValue    = $requests['searchKeyword'];
+            $searchValue    = trim($requests['searchKeyword']);
         }
         else
         {
@@ -228,7 +231,7 @@ class Controller extends BaseController
         }    
         if(isset($requests['searchFields']))
         {
-            $searchFields    = $requests['searchFields'];
+            $searchFields    = trim($requests['searchFields']);
         }
         else
         {

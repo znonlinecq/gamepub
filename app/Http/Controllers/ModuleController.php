@@ -58,6 +58,7 @@ class ModuleController extends Controller
         $object->name          = $request->name;
         $object->controller    = $request->controller;
         $object->description   = $request->description;
+        $object->font          = $request->font;
         $object->weight        = $request->weight;
         $object->menu          = $request->menu;
         $object->save();
@@ -95,6 +96,7 @@ class ModuleController extends Controller
             'name'=>$request->name,
             'controller'=>$request->controller,
             'description'=>$request->description,
+            'font'=>$request->font,
             'weight'=>$request->weight,
             'menu'=>$request->menu,
         ]);

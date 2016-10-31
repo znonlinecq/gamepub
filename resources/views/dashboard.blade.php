@@ -16,6 +16,7 @@
   <!-- Theme style -->
   <link rel="stylesheet" href="{{ asset('resources/dist/css/AdminLTE.min.css') }}">
   <link rel="stylesheet" href="{{ asset('resources/dist/css/skins/skin-blue.min.css') }}">
+  <link rel="stylesheet" href="http://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="{{ asset('resources/plugins/datatables/dataTables.bootstrap.css') }}">
   <link rel="stylesheet" href="{{ asset('resources/plugins/jQueryUI/jquery-ui.css') }}">
   <link rel="stylesheet" href="{{ asset('resources/plugins/jQueryUI/jquery-ui.theme.css') }}">
